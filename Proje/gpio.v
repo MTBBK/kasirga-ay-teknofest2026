@@ -54,18 +54,18 @@ module gpio (
             RVALID   <= 1'b0;
             RDATA    <= 32'h0;
         end else begin
-            // Okuma Adres El Sýkýþmasý
+            // Okuma Adres
             if (!ARREADY && ARVALID) begin
                 ARREADY <= 1'b1;
             end else begin
                 ARREADY <= 1'b0;
             end
 
-            // Veri Okuma (IDR veya ODR)
+            // Veri Okuma
             if (ARREADY && ARVALID && !RVALID) begin
                 RVALID <= 1'b1;
                 case (ARADDR[7:0])
-                    ADDR_GPIO_IDR: RDATA <= {16'h0000, input_pins}; // IDR: Üst bitler her zaman 0
+                    ADDR_GPIO_IDR: RDATA <= {16'h0000, input_pins}; // IDR: Ust bitler her zaman 0
                     ADDR_GPIO_ODR: RDATA <= {16'h0000, gpio_odr_reg}; // ODR: Okunabilir (RW)
                     default:       RDATA <= 32'h0000_0000;
                 endcase
