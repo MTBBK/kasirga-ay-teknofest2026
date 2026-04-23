@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 
-module timer(
+module timer#(parameter int CLK_FREQ=50_000_000)(
     input logic clk_i,
     input logic rst_i,
     input logic [31:0] tim_pre,
@@ -14,6 +14,10 @@ module timer(
     input logic tim_evc
     );
     logic [31:0] internal_counter;
+    logic [31:0] real_pre;
+    
+    assign real_pre=(tim_pre==32'hFFFF_FFFF)?(CLK_FREQ-1):tim_pre;
+    
     always_ff @(posedge clk_i)begin 
         if(rst_i)begin 
             internal_counter<=0;
@@ -34,7 +38,7 @@ module timer(
                         tim_cnt<=0;                
                 end
                 else begin
-                    if(internal_counter==tim_pre)begin
+                    if(internal_counter==real_pre)begin
                         internal_counter<=0;
                         if(tim_mod)begin // count up
                             if(tim_cnt==tim_are)begin //if are is reached set count to 0
