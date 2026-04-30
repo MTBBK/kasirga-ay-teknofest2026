@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
-module i2c_master_ctrl2 #(
-    parameter int CLK_FREQ=50_000_000,
-    parameter int I2C_FREQ=400_000
+module I2C_master #(
+    parameter /**/ CLK_FREQ=50_000_000,
+    parameter /**/ I2C_FREQ=400_000
 )(
     input logic clk,
     input logic rst_n, //resets when it's 0
@@ -9,7 +9,7 @@ module i2c_master_ctrl2 #(
     input logic [6:0] i_slave_addr, // I2C_ADR[6:0]
     input logic [31:0] i_tx_data, // I2C_TDR
     output logic [31:0] o_rx_data, // I2C_RDR
-    input logic [2:0] i_num_bytes, // I2C_NBY (1–4)
+    input logic [2:0] i_num_bytes, // I2C_NBY (1-4)
     input logic i_tx_en, // I2C_CFG[0] starts at the rising edge
     output logic o_tx_done, // I2C_CFG[1] 1 cycle is 1 pulse
     input logic i_rx_en,  // I2C_CFG[2]
@@ -21,31 +21,31 @@ module i2c_master_ctrl2 #(
     output logic o_sda_oe, // 1=drive, 0=relase
     input logic i_sda_in // state of the SDA pin
 );
-    localparam int TICKS= CLK_FREQ/I2C_FREQ;
-    localparam int T_HALF= TICKS/2; 
-    localparam int T_QUART= TICKS/4; 
-    localparam int T_3QUART= T_QUART*3;
+    localparam /**/ TICKS= CLK_FREQ/I2C_FREQ;
+    localparam /**/ T_HALF= TICKS/2; 
+    localparam /**/ T_QUART= TICKS/4; 
+    localparam /**/ T_3QUART= T_QUART*3;
 
-    typedef enum logic [3:0]{  
-        S_IDLE=0,
-        S_START=1,
-        S_ADDR=2,
-        S_ADDR_ACK=3,
-        S_WR_BYTE=4,
-        S_WR_ACK=5,
-        S_RD_BYTE=6,
-        S_RD_ACK=7,
-        S_STOP=8,
-        S_DONE=9
-    } state_e;
+    
+    localparam S_IDLE=4'd0;
+    localparam S_START=4'd1;
+    localparam S_ADDR=4'd2;
+    localparam S_ADDR_ACK=4'd3;
+    localparam S_WR_BYTE=4'd4;
+    localparam S_WR_ACK=4'd5;
+    localparam S_RD_BYTE=4'd6;
+    localparam S_RD_ACK=4'd7;
+    localparam S_STOP=4'd8;
+    localparam S_DONE=4'd9;
+    
 
-    state_e state;
+    logic [3:0 ]state;
 
     logic [7:0] clk_cnt;
 
-    logic bit_start_tick=(clk_cnt=='0); //fills all the bits with 0
-    logic bit_scl_fall=(clk_cnt==TICKS-1);
-    logic bit_sda_sample=(clk_cnt==T_3QUART);
+    wire bit_start_tick=(clk_cnt=='0); //fills all the bits with 0
+    wire bit_scl_fall=(clk_cnt==TICKS-1);
+    wire bit_sda_sample=(clk_cnt==T_3QUART);
 
     logic [7:0] shift_rx, shift_tx;
     logic [2:0] bit_cnt, byte_cnt;
@@ -57,8 +57,8 @@ module i2c_master_ctrl2 #(
     logic scl_r, sda_out_r, sda_oe_r;
 
     logic tx_en_prev, rx_en_prev;
-    logic tx_en_rise=i_tx_en & ~tx_en_prev;
-    logic rx_en_rise=i_rx_en & ~rx_en_prev;
+    wire tx_en_rise=i_tx_en & ~tx_en_prev;
+    wire rx_en_rise=i_rx_en & ~rx_en_prev;
 
     //posedge detection
     always_ff @(posedge clk or negedge rst_n) begin
@@ -81,10 +81,10 @@ module i2c_master_ctrl2 #(
         end
         else begin 
             if(clk_cnt==TICKS-1) begin
-                clk_cnt='0;
+                clk_cnt<='0;
             end
             else begin
-                clk_cnt=clk_cnt+1'b1;
+                clk_cnt<=clk_cnt+1'b1;
             end
         end
     end
@@ -354,3 +354,4 @@ endmodule
 
 
      
+
