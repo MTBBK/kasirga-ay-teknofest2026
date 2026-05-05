@@ -97,20 +97,36 @@ module QSPI(
             counter<=6'h0;
             qspi_sclk_reg<=1'h0;
         end
-        else begin 
-            if(counter==prescaler)begin 
-                qspi_sclk_reg<=~qspi_sclk_reg;
-                counter<=6'h0;
-                sclk_tick<=1'b1;
+        else begin
+            if(prescaler==0)begin 
+               qspi_sclk_reg<=clk;
             end
             else begin 
-                counter<=counter+1;
-                sclk_tick<=1'b0;       
+                if(counter==prescaler)begin 
+                    counter<=6'h0;
+                end
+                else begin 
+                    counter<=counter+1;       
+                end            
+                if(counter < ((prescaler+1)>>1))begin 
+                    qspi_sclk_reg<=1'b1;
+                end
+                else qspi_sclk_reg<=1'b0;
+            
             end
         end
     end
-    assign qspi_sclk=(sclk_enable)?qspi_sclk_reg:1'b0;    
-    //
+    assign qspi_sclk = (sclk_enable)
+                 ? ((prescaler == 0) ? clk : qspi_sclk_reg)
+                 : 1'b0;
+                 
+    logic qspi_sclk_prev;
+
+    always_ff @(posedge clk) begin
+        qspi_sclk_prev <= qspi_sclk_reg;
+    end
+
+    assign sclk_tick = (prescaler == 0) ? 1'b1 : (qspi_sclk_reg & ~qspi_sclk_prev);  
     
     logic [5:0] addr_count;
     assign addr_count=6'd24;
