@@ -42,10 +42,33 @@ module QSPI(
 
     state current_state, next_state;
     
+    
+    
+    localparam logic [7:0] READ             =8'h03;    //Read rx   
+    localparam logic [7:0] DOR              =8'h3B;    //(Read Dual Out) rx
+    localparam logic [7:0] QOR              =8'h6B;    //(Read Quad Out) rx
+    localparam logic [7:0] PP               =8'h02;    //(Page Program) 
+    localparam logic [7:0] QPP              =8'h32;    //(Quad Page Program)
+    localparam logic [7:0] SE               =8'hD8;    //(Sector Erase)
+    localparam logic [7:0] READ_ID          =8'h9E;    //(Read Electronic Manufacturer Signature) /no adress
+    localparam logic [7:0] RDID             =8'h9F;    //(Read ID - JEDEC Manufacturer ID and JEDEC CFI) /no adress
+    localparam logic [7:0] RES              =8'hAB;    //(Read Electronic Signature) /no adress
+    localparam logic [7:0] RDSR1            =8'h05;    //(Read Status Register-1) /no adress
+    localparam logic [7:0] RDSR2            =8'h70;    //(Read Status Register-2) /no adress
+    localparam logic [7:0] RDCR             =8'hB5;    //(Read Configuration Register) /no adress
+    localparam logic [7:0] WRR              =8'h01;    //(Write Register - Status-1, Configuration-1) /no adress
+    localparam logic [7:0] WRDI             =8'h04;    //(Write Disable) /no adress
+    localparam logic [7:0] WREN             =8'h06;    //(Write Enable) /no adress
+    localparam logic [7:0] CLSR             =8'h50;    //(Clear Status Register-1) /no adress
+    localparam logic [7:0] RESET_EN         =8'h66;    //(Software Reset_Enable) /no adress
+    localparam logic [7:0] RESET_MEM        =8'h99;    //(Software Reset_Memory) /no adress
+
+    
     logic done;
     logic busy;
     assign status[0]=done;
     assign status[1]=busy;
+    logic sclk_tick;
     
     //dividing the clock with the prescalar
     logic sclk_enable;
@@ -61,15 +84,19 @@ module QSPI(
             if(counter==prescaler)begin 
                 qspi_sclk_reg<=~qspi_sclk_reg;
                 counter<=6'h0;
+                sclk_tick<=1'b1;
             end
-            else counter<=counter+1;
+            else begin 
+                counter<=counter+1;
+                sclk_tick<=1'b0;       
+            end
         end
     end
     assign qspi_sclk=(sclk_enable)?qspi_sclk_reg:1'b0;    
     //
     
     logic [5:0] addr_count;
-    assign addr_count= (instr==8'h32 || instr==8'hD8)? 6'd32:6'd24;
+    assign addr_count=6'd24;
     
     //counters
     logic [2:0] cmd_counter;
@@ -99,9 +126,19 @@ module QSPI(
                 qspi_data_oe=4'b0001;
                 qspi_data_o[0]=instr[3'd7-cmd_counter];
                 if(cmd_counter==3'd7)begin 
-                    if (instr == 8'h03 || instr == 8'h3B || instr == 8'h6B || 
-                        instr == 8'h02 || instr == 8'h32 || instr == 8'hD8) begin
+                    if (instr == READ || instr == DOR || instr == QOR || 
+                        instr == PP || instr == QPP || instr == SE) begin
                         next_state = ADDR;
+                    end
+                    else if (instr == READ_ID || instr == RDID || instr == RES || 
+                        instr == RDSR1 || instr == RDSR2 || instr == RDCR) begin
+                        next_state=DATA_RX;
+                    end
+                    else if(instr == WRR)begin 
+                        next_state=DATA_TX;
+                    end
+                    else begin 
+                        next_state=DONE;
                     end
                 end
             end
@@ -110,27 +147,36 @@ module QSPI(
             
                 if(data_mode==2'b01)begin
                     qspi_data_oe=4'b0001;
-                    qspi_data_o[0]=addr[addr_count-addr_counter];
-                    target_cycles=6'd23;
+                    qspi_data_o[0]=addr[addr_count-addr_counter-1];
+                    target_cycles=addr_count-1;
                 end                
                 else if(data_mode==2'b10)begin
                     qspi_data_oe=4'b0011; 
-                    qspi_data_o[1]=addr[addr_count-(2*addr_counter)];
-                    qspi_data_o[0]=addr[addr_count-(2*addr_counter)-1];
-                    target_cycles=6'd11;
+                    qspi_data_o[1]=addr[addr_count-(2*addr_counter)-1];
+                    qspi_data_o[0]=addr[addr_count-(2*addr_counter)-2];
+                    target_cycles=(addr_count/2)-1;
                 end
                 else if(data_mode==2'b11)begin
                     qspi_data_oe=4'b1111; 
-                    qspi_data_o[3]=addr[addr_count-(4*addr_counter)];
-                    qspi_data_o[2]=addr[addr_count-(4*addr_counter)-1];
-                    qspi_data_o[1]=addr[addr_count-(4*addr_counter)-2];
-                    qspi_data_o[0]=addr[addr_count-(4*addr_counter)-3];
-                    target_cycles=6'd5;                    
+                    qspi_data_o[3]=addr[addr_count-(4*addr_counter)-1];
+                    qspi_data_o[2]=addr[addr_count-(4*addr_counter)-2];
+                    qspi_data_o[1]=addr[addr_count-(4*addr_counter)-3];
+                    qspi_data_o[0]=addr[addr_count-(4*addr_counter)-4];
+                    target_cycles=(addr_count/4)-1;                    
                 end
                     
                 
                 if(addr_counter==target_cycles)begin 
-                
+                    if(instr == READ) begin 
+                        next_state=DATA_RX;
+                    end
+                    else if(instr == DOR || instr == QOR) begin 
+                        next_state=DUMMY;
+                    end
+                    else if (instr == PP || instr == QPP)begin 
+                        next_state=DATA_TX;
+                    end
+                    else next_state=DONE;
                 end
             end
             DUMMY:begin 
@@ -152,8 +198,8 @@ module QSPI(
         if(!rst)begin 
             current_state<=IDLE;
         end
-        else begin 
-            if(sclk_enable) current_state<=next_state;
+        else if(sclk_tick) begin 
+            current_state<=next_state;
 
             if(current_state==CMD)begin 
                 cmd_counter<=cmd_counter+1;
@@ -176,4 +222,3 @@ module QSPI(
     
 
 endmodule
-
