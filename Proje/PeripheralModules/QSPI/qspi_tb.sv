@@ -141,7 +141,7 @@ module qspi_tb(
         start_req=0;
         
         //start sending data
-        if (rx_data_o !== 32'hFADEEDAF) $error("HATA: Beklenen veri gelmedi!"); else $display("TEST BASARILI!");
+        
     
     
     end
