@@ -2,7 +2,7 @@
 
 module QSPI(
     input logic clk,
-    input logic rst,
+    input logic rst_n,
     input logic [7:0] instr,
     input logic [1:0] data_mode,
     input logic [4:0] dummy_cycle_count,
@@ -92,16 +92,13 @@ module QSPI(
     assign sclk_enable = ~qspi_cs;
     logic qspi_sclk_reg;
     logic [5:0] counter;
-    always_ff @(posedge clk or negedge rst)begin
-        if(!rst)begin 
+    always_ff @(posedge clk or negedge rst_n)begin
+        if(!rst_n)begin 
             counter<=6'h0;
             qspi_sclk_reg<=1'h0;
         end
         else begin
-            if(prescaler==0)begin 
-               qspi_sclk_reg<=clk;
-            end
-            else begin 
+            if(prescaler!=0)begin
                 if(counter==prescaler)begin 
                     counter<=6'h0;
                 end
@@ -112,8 +109,9 @@ module QSPI(
                     qspi_sclk_reg<=1'b1;
                 end
                 else qspi_sclk_reg<=1'b0;
-            
+             
             end
+
         end
     end
     assign qspi_sclk = (sclk_enable)
@@ -122,14 +120,20 @@ module QSPI(
                  
     logic qspi_sclk_prev;
 
-    always_ff @(posedge clk) begin
-        qspi_sclk_prev <= qspi_sclk_reg;
+    always_ff @(posedge clk or negedge rst_n) begin
+        if(!rst_n)begin 
+            qspi_sclk_prev<=0;
+        end
+        else begin 
+            qspi_sclk_prev <= qspi_sclk_reg;
+        end
     end
 
     assign sclk_tick = (prescaler == 0) ? 1'b1 : (qspi_sclk_reg & ~qspi_sclk_prev);  
     
     logic [5:0] addr_count;
     assign addr_count=6'd24;
+    logic [31:0] rx_shift_reg;
     
     //counters
     logic [2:0] cmd_counter;
@@ -158,7 +162,7 @@ module QSPI(
     end
     
     
-    always_comb @(*)begin
+    always_comb begin
         next_state   = current_state;
         busy         = 1'b1;         
         qspi_cs      = 1'b0; 
@@ -166,7 +170,7 @@ module QSPI(
         qspi_data_o  = 4'b0000;
         tx_fifo_rd_en = 1'b0;
         rx_fifo_wr_en = 1'b0;
-        rx_data_o     = 32'd0; 
+        rx_data_o     = rx_shift_reg;
         
         case(current_state) 
             IDLE:begin
@@ -284,7 +288,7 @@ module QSPI(
                 else begin
                     rx_fifo_wr_en=0;
                     if(data_mode==2'b01)begin
-                        rx_data_o[31-(data_rx_counter%32)]=qspi_data_i[0];
+                        rx_data_o[31-(data_rx_counter%32)]=qspi_data_i[1];
                         if ((data_rx_counter % 32) == 31) rx_fifo_wr_en = 1'b1;
                     end                
                     else if(data_mode==2'b10)begin
@@ -308,6 +312,7 @@ module QSPI(
             DONE:begin 
                 qspi_cs=1'b1;
                 next_state=IDLE;
+                qspi_data_oe=4'b0000;
             end
             default begin  
                 next_state=IDLE;
@@ -320,8 +325,8 @@ module QSPI(
     
     
 
-    always_ff @(posedge clk or negedge rst)begin 
-        if(!rst)begin 
+    always_ff @(posedge clk or negedge rst_n)begin 
+        if(!rst_n)begin 
             current_state<=IDLE;
             done_reg<=1'b0;
             fifo_error_reg<=4'd0;
@@ -375,6 +380,7 @@ module QSPI(
                 end
                 else if(current_state==DATA_RX)begin 
                     data_rx_counter<=data_rx_counter+1;
+                    rx_shift_reg <= rx_data_o;
                 end
                 else begin 
                     cmd_counter<=3'd0;
