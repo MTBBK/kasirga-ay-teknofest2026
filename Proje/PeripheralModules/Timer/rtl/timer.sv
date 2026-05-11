@@ -16,7 +16,7 @@ module timer#(parameter int CLK_FREQ=50_000_000)(
     logic [31:0] internal_counter;
     logic [31:0] real_pre;
     
-    assign real_pre=(tim_pre==32'hFFFF_FFFF)?(CLK_FREQ-1):tim_pre;
+    assign real_pre=(tim_pre==32'hFFFF_FFFF)?(32'h8000_0000-1):tim_pre;
     
     always_ff @(posedge clk_i)begin 
         if(rst_i)begin 
