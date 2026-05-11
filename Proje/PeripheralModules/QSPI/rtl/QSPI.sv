@@ -10,6 +10,7 @@ module QSPI(
     input logic [5:0] prescaler,
     input logic clear_status,
     input logic [31:0] addr,
+    input logic addr_is_32_bit,
     input logic start_req,
     
     input  logic [31:0] tx_data_i,
@@ -129,14 +130,14 @@ module QSPI(
         end
     end
 
-    assign sclk_tick = (prescaler == 0) ? 1'b1 : (qspi_sclk_reg & ~qspi_sclk_prev);  
+    assign sclk_tick = (prescaler == 0) ? 1'b1 : (~qspi_sclk_reg & qspi_sclk_prev);  
     
     logic [5:0] addr_count;
-    assign addr_count=6'd24;
+    assign addr_count=(addr_is_32_bit)?6'd32:6'd24;
     logic [31:0] rx_shift_reg;
     
     //counters
-    logic [2:0] cmd_counter;
+    logic [3:0] cmd_counter;
     logic [4:0] dummy_counter;
     logic [4:0] addr_counter;
     logic [11:0] data_tx_counter;
@@ -145,19 +146,24 @@ module QSPI(
     //read-write cycle calculation
     logic [11:0] total_data_bits;
     logic [11:0] target_data_cycles;
+    logic [3:0] target_cmd_cycles;
     assign total_data_bits=(data_width+1)*8;
     always_comb begin 
         if(data_mode==2'b01)begin 
             target_data_cycles=total_data_bits;
+            target_cmd_cycles=8;
         end
         else if(data_mode==2'b10)begin 
             target_data_cycles=total_data_bits/2;
+            target_cmd_cycles=4;
         end
         else if(data_mode==2'b11)begin 
-            target_data_cycles=total_data_bits/2;
+            target_data_cycles=total_data_bits/4;
+            target_cmd_cycles=2;
         end
         else begin 
             target_data_cycles=0;
+            target_cmd_cycles=0;
         end
     end
     
@@ -185,9 +191,25 @@ module QSPI(
                 end
             end
             CMD:begin
-                qspi_data_oe=4'b0001;
-                qspi_data_o[0]=instr[3'd7-cmd_counter];
-                if(cmd_counter==3'd7)begin 
+                if(data_mode==2'b01)begin 
+                    qspi_data_oe=4'b0001;
+                    qspi_data_o[0]=instr[3'd7-cmd_counter];
+                end
+                else if(data_mode==2'b10)begin 
+                    qspi_data_oe=4'b0011;
+                    qspi_data_o[1]=instr[3'd7-2*(cmd_counter)];
+                    qspi_data_o[0]=instr[3'd7-2*(cmd_counter)-1];
+                
+                end
+                else if(data_mode==2'b11)begin
+                    qspi_data_oe=4'b1111;
+                    qspi_data_o[3]=instr[3'd7-4*(cmd_counter)];
+                    qspi_data_o[2]=instr[3'd7-4*(cmd_counter)-1];
+                    qspi_data_o[1]=instr[3'd7-4*(cmd_counter)-2];
+                    qspi_data_o[0]=instr[3'd7-4*(cmd_counter)-3]; 
+                
+                end
+                if(cmd_counter==target_cmd_cycles-1)begin 
                     if (instr == READ || instr == DOR || instr == QOR || 
                         instr == PP || instr == QPP || instr == SE) begin
                         next_state = ADDR;
@@ -233,7 +255,12 @@ module QSPI(
                         next_state=DATA_RX;
                     end
                     else if(instr == DOR || instr == QOR) begin 
-                        next_state=DUMMY;
+                        if(dummy_cycle_count!=0)begin 
+                            next_state=DUMMY;
+                        end
+                        else begin 
+                            next_state=DATA_RX;
+                        end
                     end
                     else if (instr == PP || instr == QPP)begin 
                         next_state=DATA_TX;
@@ -242,7 +269,7 @@ module QSPI(
                 end
             end
             DUMMY:begin 
-                if(dummy_counter==dummy_cycle_count)begin 
+                if(dummy_counter==dummy_cycle_count-1)begin 
                     next_state=DATA_RX;
                 end
             end
@@ -274,7 +301,7 @@ module QSPI(
                         if ((data_tx_counter % 8) == 7) tx_fifo_rd_en = 1'b1;                  
                     end
                 
-                    if(data_tx_counter==target_data_cycles)begin 
+                    if(data_tx_counter==target_data_cycles-1)begin 
                         next_state=DONE;
                         tx_fifo_rd_en = 1'b0;
                     end
@@ -303,7 +330,7 @@ module QSPI(
                         rx_data_o[28-4*(data_rx_counter%8)]=qspi_data_i[0];
                         if ((data_rx_counter % 8) == 7) rx_fifo_wr_en = 1'b1;                  
                     end
-                    if(data_rx_counter==target_data_cycles)begin 
+                    if(data_rx_counter==target_data_cycles-1)begin 
                         next_state=DONE;
                         rx_fifo_wr_en = 1'b0;
                     end
@@ -326,13 +353,14 @@ module QSPI(
     
 
     always_ff @(posedge clk or negedge rst_n)begin 
-        if(!rst_n)begin 
+        if(!rst_n)begin
+            rx_shift_reg<=0;
             current_state<=IDLE;
             done_reg<=1'b0;
             fifo_error_reg<=4'd0;
             rx_fifo_flush   <= 1'b0;
             tx_fifo_flush   <= 1'b0;
-            cmd_counter     <= 3'd0;            
+            cmd_counter     <= 4'd0;            
             dummy_counter   <= 5'd0;
             addr_counter    <= 5'd0;
             data_tx_counter <= 12'd0;

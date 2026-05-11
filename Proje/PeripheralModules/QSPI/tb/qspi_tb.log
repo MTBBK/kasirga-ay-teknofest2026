@@ -1,0 +1,69 @@
+==================================================
+              READ TEST SONUCLARI(Single Mod)       
+==================================================
+>> BASARILI: Okuma islemi tamamen dogru gerceklesti!
+   Komut : Beklenen: 03        | Gelen: 03
+   Adres : Beklenen: 00000006   | Gelen: 00000006
+   Veri  : Beklenen: fadeedaf | Gelen: fadeedaf
+==================================================
+
+
+==================================================
+              READ TEST SONUCLARI(Dual Mode)        
+==================================================
+>> BASARILI: Okuma islemi tamamen dogru gerceklesti!
+   Komut : Beklenen: 03        | Gelen: 03
+   Adres : Beklenen: 00000006   | Gelen: 00000006
+   Veri  : Beklenen: fadeedaf | Gelen: fadeedaf
+==================================================
+
+
+==================================================
+              READ TEST SONUCLARI(Quad Mode)        
+==================================================
+>> BASARILI: Okuma islemi tamamen dogru gerceklesti!
+   Komut : Beklenen: 03        | Gelen: 03
+   Adres : Beklenen: 00000006   | Gelen: 00000006
+   Veri  : Beklenen: fadeedaf | Gelen: fadeedaf
+==================================================
+
+
+==================================================
+               PP TEST SONUCLARI(Single Mode)       
+==================================================
+>> BASARILI: Tum degerler dogru iletildi!
+   Komut : Beklenen: 02        | Gelen: 02
+   Adres : Beklenen: 00000007   | Gelen: 00000007
+   Veri  : Beklenen: abcdabcd | Gelen: abcdabcd
+==================================================
+
+
+==================================================
+               PP TEST SONUCLARI(Dual Mode)         
+==================================================
+>> BASARILI: Tum degerler dogru iletildi!
+   Komut : Beklenen: 02        | Gelen: 02
+   Adres : Beklenen: 00000007   | Gelen: 00000007
+   Veri  : Beklenen: abcdabcd | Gelen: abcdabcd
+==================================================
+
+
+==================================================
+               PP TEST SONUCLARI(Quad Mode)         
+==================================================
+>> BASARILI: Tum degerler dogru iletildi!
+   Komut : Beklenen: 02        | Gelen: 02
+   Adres : Beklenen: 00000007   | Gelen: 00000007
+   Veri  : Beklenen: abcdabcd | Gelen: abcdabcd
+==================================================
+
+
+==================================================
+       DOR TEST SONUCLARI(Dual Mode) (Dummy Cycle)
+==================================================
+>> BASARILI: Tum degerler dogru okundu ve doğru sayıda dummy cycle geçti!
+   Komut : Beklenen: 3b        | Gelen: 3b
+   Adres : Beklenen: 00000017   | Gelen: 00000017
+   Veri  : Beklenen: fadeedaf | Gelen: fadeedaf
+   Dummy Cycle Sayisi: Beklenen: 08 | Gelen: 08 
+==================================================
