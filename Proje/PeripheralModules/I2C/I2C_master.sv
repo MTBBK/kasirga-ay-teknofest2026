@@ -1,7 +1,7 @@
 `timescale 1ns/1ps
 module I2C_master #(
-    parameter /**/ CLK_FREQ=50_000_000,
-    parameter /**/ I2C_FREQ=400_000
+    parameter CLK_FREQ=50000000,
+    parameter I2C_FREQ=400000
 )(
     input logic clk,
     input logic rst_n, //resets when it's 0
@@ -43,7 +43,7 @@ module I2C_master #(
 
     logic [7:0] clk_cnt;
 
-    wire bit_start_tick=(clk_cnt=='0); //fills all the bits with 0
+    wire bit_start_tick=(clk_cnt==T_QUART); //fills all the bits with 0
     wire bit_scl_fall=(clk_cnt==TICKS-1);
     wire bit_sda_sample=(clk_cnt==T_3QUART);
 
@@ -218,9 +218,11 @@ module I2C_master #(
                             state<=S_WR_BYTE; 
                         end
                     end 
-                    else begin 
-                        sda_out_r<=1'b1; 
-                        sda_oe_r<=1'b0; 
+                    else begin
+                        if(clk_cnt>= T_QUART) begin 
+                            sda_out_r<=1'b1; 
+                            sda_oe_r<=1'b0;
+                        end 
                     end         
                 end
 
@@ -260,15 +262,19 @@ module I2C_master #(
                     end
                     end 
                     else begin 
-                        sda_out_r<=1'b1; 
-                        sda_oe_r<=1'b0; 
+                        if(clk_cnt>=T_QUART) begin
+                            sda_out_r<=1'b1; 
+                            sda_oe_r<=1'b0;
+                        end 
                     end
                 end
 
                 
                 S_RD_BYTE:begin
-                    sda_out_r<=1'b1; 
-                    sda_oe_r<=1'b0;
+                    if(clk_cnt>=T_QUART) begin 
+                        sda_out_r<=1'b1; 
+                        sda_oe_r<=1'b0;
+                    end
                     if(bit_sda_sample) begin
                         shift_rx<={shift_rx[6:0], i_sda_in};
                     end
@@ -284,12 +290,14 @@ module I2C_master #(
 
                 
                 S_RD_ACK:begin
-                    sda_oe_r<=1'b1;
-                    if(byte_cnt==r_num_bytes-1)begin
-                        sda_out_r<=1'b1;
-                    end
-                    else begin
-                       sda_out_r<=1'b0;
+                    if(clk_cnt>= T_QUART) begin 
+                        sda_oe_r<=1'b1;
+                        if(byte_cnt==r_num_bytes-1)begin
+                            sda_out_r<=1'b1;
+                        end
+                        else begin
+                            sda_out_r<=1'b0;
+                        end
                     end 
                     if(bit_scl_fall) begin
                         case(byte_cnt)
@@ -316,7 +324,7 @@ module I2C_master #(
                     if(clk_cnt >= T_3QUART) begin
                         sda_out_r<= 1'b1;
                     end
-                    else begin
+                    else if (clk_cnt>=T_QUART) begin
                         sda_out_r <=1'b0;
                     end
                     if(bit_scl_fall) begin 
