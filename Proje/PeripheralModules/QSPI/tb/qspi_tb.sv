@@ -37,13 +37,10 @@ module qspi_tb();
     logic [31:0] rx_data_o;
     logic tx_fifo_rd_en;
     logic rx_fifo_wr_en;
-    logic [1:0] fifo_control;
     logic tx_fifo_empty;
     logic tx_fifo_full;
     logic rx_fifo_empty;
     logic rx_fifo_full;
-    logic tx_fifo_flush;
-    logic rx_fifo_flush;
 
     logic [11:0] status;
 
@@ -72,7 +69,7 @@ module qspi_tb();
     
     always #5 clk = ~clk;
     
-    QSPI dut(
+    qspi dut(
     .clk(clk),
     .rst_n(rst_n),
     .instr(instr),
@@ -88,13 +85,10 @@ module qspi_tb();
     .rx_data_o(rx_data_o),
     .tx_fifo_rd_en(tx_fifo_rd_en),
     .rx_fifo_wr_en(rx_fifo_wr_en),
-    .fifo_control(fifo_control),
     .tx_fifo_empty(tx_fifo_empty),
     .tx_fifo_full(tx_fifo_full),
     .rx_fifo_empty(rx_fifo_empty),
     .rx_fifo_full(rx_fifo_full),
-    .tx_fifo_flush(tx_fifo_flush),
-    .rx_fifo_flush(rx_fifo_flush),
     .status(status),
     .qspi_sclk(qspi_sclk),
     .qspi_cs(qspi_cs),
@@ -141,9 +135,6 @@ module qspi_tb();
         data_width = 3;      // 4 bayt (32-bit) okuma
         data_mode = 2'b01;   // Single Mode
         
-        fifo_control = 2'b01; // FIFO'ları ve durumu temizle
-        #20;
-        fifo_control = 2'b00;
         clear_status = 0;
         
         // Okuma için RX FIFO'nun dolu OLMAMASI gerekir
@@ -202,9 +193,6 @@ module qspi_tb();
         data_width = 3;      // 4 bayt (32-bit) okuma
         data_mode = 2'b10;   // Dual Mode
         
-        fifo_control = 2'b01; // FIFO'ları ve durumu temizle
-        #20;
-        fifo_control = 2'b00;
         clear_status = 0;
         
         // Okuma için RX FIFO'nun dolu OLMAMASI gerekir
@@ -263,9 +251,6 @@ module qspi_tb();
         data_width = 3;      // 4 bayt (32-bit) okuma
         data_mode = 2'b11;   // Quad Mode
         
-        fifo_control = 2'b01; // FIFO'ları ve durumu temizle
-        #20;
-        fifo_control = 2'b00;
         clear_status = 0;
         
         // Okuma için RX FIFO'nun dolu OLMAMASI gerekir
@@ -322,9 +307,6 @@ module qspi_tb();
         addr  = expected_address;
         data_mode = 2'b01;
         
-        fifo_control = 2'b01; // FIFO'ları temizle
-        #20;
-        fifo_control = 2'b00;
         
         tx_fifo_full  = 0;
         tx_fifo_empty = 0; // FIFO'da veri var (Sonsuz döngüyü engeller)
@@ -380,9 +362,6 @@ module qspi_tb();
         addr  = expected_address;
         data_mode = 2'b10;
         
-        fifo_control = 2'b01; // FIFO'ları temizle
-        #20;
-        fifo_control = 2'b00;
         
         tx_fifo_full  = 0;
         tx_fifo_empty = 0; // FIFO'da veri var (Sonsuz döngüyü engeller)
@@ -438,9 +417,6 @@ module qspi_tb();
         addr  = expected_address;
         data_mode = 2'b11;
         
-        fifo_control = 2'b01; // FIFO'ları temizle
-        #20;
-        fifo_control = 2'b00;
         
         tx_fifo_full  = 0;
         tx_fifo_empty = 0; // FIFO'da veri var (Sonsuz döngüyü engeller)
@@ -496,9 +472,6 @@ module qspi_tb();
         addr  = expected_address;
         data_mode = 2'b10;
         
-        fifo_control = 2'b01; // FIFO'ları temizle
-        #20;
-        fifo_control = 2'b00;
         
         rx_fifo_full  = 0;
         rx_fifo_empty = 0; 
