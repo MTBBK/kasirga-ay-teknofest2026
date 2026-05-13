@@ -16,7 +16,7 @@ module i2c_axi_wrapper #(
     // Kesme Çıkışı (Rapordaki isterlere göre eklendi)
     output wire o_intr,
 
-    // AXI4-Lite Arayüzü [cite: 1-2]
+    // AXI4-Lite Arayüzü
     input  wire        AWVALID,
     output wire        AWREADY,
     input  wire [31:0] AWADDR,
@@ -99,7 +99,7 @@ module i2c_axi_wrapper #(
         .i_sda_in(i_sda_in)
     );
 
-    // Yazma İşlemi (Write) [cite: 10-21, 433-436]
+    // Write
     always @(posedge clk) begin
         if(!rst_n) begin
             I2C_NBY <= 32'b0;
