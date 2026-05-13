@@ -23,12 +23,13 @@
 module uart_rx (
     input  logic        clock_i,
     input  logic        reset_i,
+    
     input  logic [31:0] uart_cpb,
     input  logic [31:0] uart_stp, // Added to match register map
     input  logic        rx_in,
     input  logic        rx_clear, // To clear UART_CFG[1] 
 
-    output logic [7:0]  uart_rdr, // Data register 
+    output logic [31:0]  uart_rdr, // Data register 
     output logic        rx_done   // UART_CFG[1] 
 );
 
@@ -38,7 +39,7 @@ module uart_rx (
     logic [31:0] baud_cnt, baud_cnt_next;
     logic [31:0] stop_limit; // Logic to handle variable stop lengths
     logic [2:0]  bit_idx, bit_idx_next;
-    logic [7:0]  rx_shifter, rx_shifter_next;
+    logic [31:0]  rx_shifter, rx_shifter_next;
     logic        done_reg, done_next;
 
     always_ff @(posedge clock_i or negedge reset_i) begin
@@ -46,7 +47,7 @@ module uart_rx (
             state      <= IDLE;
             baud_cnt   <= 0;
             bit_idx    <= 0;
-            rx_shifter <= 8'h0;
+            rx_shifter <= 32'h0;
             done_reg   <= 1'b0;
         end else begin
             state      <= state_next;

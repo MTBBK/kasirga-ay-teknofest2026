@@ -27,14 +27,17 @@ module uart_tx(
     input  logic [31:0] uart_stp, // Stop bit config 
     input  logic [31:0] uart_tdr, // Data to transmit 
     input  logic        tx_enable, // UART_CFG[0] 
- 
+ 	
+ 	output logic 		tx_busy,
     output logic        tx_done,   // UART_CFG[2] 
     output logic        tx_out     // Serial output 
 );
 
     typedef enum logic [1:0] {IDLE, START, FLOW, STOP} states_e;
     states_e state, state_next;
-
+	
+	assign tx_busy = (state != IDLE) || (state_next != IDLE);
+	
     logic [31:0] baud_counter, baud_counter_next;
     logic [31:0] stop_limit;
     logic [7:0]  data_latch, data_latch_next;
