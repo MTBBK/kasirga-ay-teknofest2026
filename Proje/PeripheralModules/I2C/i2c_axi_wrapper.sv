@@ -5,69 +5,79 @@ module i2c_axi_wrapper #(
     parameter SCL_CLK = 400_000
 )(
     input wire clk,
-    input wire rst_n, //aktif düşük reset
+    input wire rst_n, // Aktif düşük reset
 
+    // I2C Fiziksel Arayüzü
     output wire o_scl,
     output wire o_sda_out,
     output wire o_sda_oe,
     input  wire i_sda_in,
 
-    // AXI4-Lite Arayüzü
-    input wire AWVALID,
-    output wire AWREADY,
-    input wire [31:0] AWADDR,
+    // Kesme Çıkışı (Rapordaki isterlere göre eklendi)
+    output wire o_intr,
 
-    input wire WVALID,
-    output wire WREADY,
-    input wire [31:0] WDATA,
-    input wire [3:0] WSTRB,
+    // AXI4-Lite Arayüzü [cite: 1-2]
+    input  wire        AWVALID,
+    output wire        AWREADY,
+    input  wire [31:0] AWADDR,
 
-    output wire BVALID,
-    input wire BREADY,
-    output wire [1:0] BRESP,
+    input  wire        WVALID,
+    output wire        WREADY,
+    input  wire [31:0] WDATA,
+    input  wire [3:0]  WSTRB,
 
-    input wire ARVALID,
-    output wire ARREADY,
-    input wire [31:0] ARADDR,
+    output wire        BVALID,
+    input  wire        BREADY,
+    output wire [1:0]  BRESP,
 
-    output wire RVALID,
-    input wire RREADY,
+    input  wire        ARVALID,
+    output wire        ARREADY,
+    input  wire [31:0] ARADDR,
+
+    output wire        RVALID,
+    input  wire        RREADY,
     output wire [31:0] RDATA
 );
 
-    // memory map
-    localparam ADDR_I2C_NBY = 32'h00007000,
-               ADDR_I2C_ADR = 32'h00007004,
-               ADDR_I2C_RDR = 32'h00007008,
-               ADDR_I2C_TDR = 32'h0000700C,
-               ADDR_I2C_CFG = 32'h00007010;
+    // Bellek Haritası Offset Tanımları
+    localparam [15:0] OFFSET_I2C_NBY = 16'h7000,
+                      OFFSET_I2C_ADR = 16'h7004,
+                      OFFSET_I2C_RDR = 16'h7008,
+                      OFFSET_I2C_TDR = 16'h700C,
+                      OFFSET_I2C_CFG = 16'h7010;
 
-    // regs
+    // Yazmaçlar 
     reg [31:0] I2C_NBY;
     reg [31:0] I2C_ADR;
     reg [31:0] I2C_TDR;
-    reg [31:0] I2C_CFG;
+    reg [31:0] I2C_CFG; // [0]:TX_EN, [1]:TX_DONE, [2]:RX_EN, [3]:RX_DONE, [4]:BUSY
     
     wire [31:0] core_rx_data;
     wire core_tx_done, core_rx_done, core_busy;
 
-    reg axi_awready;
+    // AXI Dahili Sinyaller
+    reg axi_rready, axi_awready;
     reg [31:0] axi_rdata;
     reg axi_bvalid, axi_rvalid;
-    reg axi_rready;
 
-    assign BRESP   = 2'b00;
+    // Kesme Mantığı: İşlem bittiğinde sinyal üretir 
+    assign o_intr = I2C_CFG[1] | I2C_CFG[3]; 
+
+    // AXI Atamaları
     assign BVALID  = axi_bvalid;
     assign RVALID  = axi_rvalid;
     assign RDATA   = axi_rdata;
     assign WREADY  = axi_awready;
     assign AWREADY = axi_awready;
     assign ARREADY = axi_rready;
+    assign BRESP   = 2'b00; // OKAY yanıtı
     
-    wire axi_write_ready = axi_awready;
-    wire axi_read_ready  = (ARVALID && ARREADY);
+    wire axi_write_ready, axi_read_ready;
+    
+    assign axi_write_ready = axi_awready;
+    assign axi_read_ready = (ARVALID && ARREADY);
 
-    // I2C Master
+    // I2C Master Core Entegrasyonu
     I2C_master #(
         .CLK_FREQ(SYS_CLK),
         .I2C_FREQ(SCL_CLK)
@@ -89,74 +99,78 @@ module i2c_axi_wrapper #(
         .i_sda_in(i_sda_in)
     );
 
-    // Write
+    // Yazma İşlemi (Write) [cite: 10-21, 433-436]
     always @(posedge clk) begin
         if(!rst_n) begin
             I2C_NBY <= 32'b0;
             I2C_ADR <= 32'b0;
             I2C_TDR <= 32'b0;
             I2C_CFG <= 32'b0;
-        end else begin
-            // Status bits
-            I2C_CFG[1] <= core_tx_done; 
-            I2C_CFG[3] <= core_rx_done;
-            I2C_CFG[4] <= core_busy;
+        end
+        else begin
+            // Durum Güncellemeleri
+            I2C_CFG[4] <= core_busy; // Meşguliyet bilgisi
 
+            // Done sinyalleri pulse olduğu için sticky (yapışkan) bit mantığı:
+            // Yeni bir işlem (Enable) tetiklendiğinde önceki 'Done' bitleri temizlenir.
+            if (I2C_CFG[0] || I2C_CFG[2]) begin
+                I2C_CFG[1] <= 1'b0; 
+                I2C_CFG[3] <= 1'b0; 
+            end else begin
+                if (core_tx_done) I2C_CFG[1] <= 1'b1;
+                if (core_rx_done) I2C_CFG[3] <= 1'b1;
+            end
+
+            // AXI üzerinden yazma işlemi
             if (axi_write_ready) begin
-                case(AWADDR)
-                    ADDR_I2C_NBY: begin
+                case(AWADDR[15:0])
+                    OFFSET_I2C_NBY: begin
                         if(WSTRB[0]) I2C_NBY[7:0]   <= WDATA[7:0];
                         if(WSTRB[1]) I2C_NBY[15:8]  <= WDATA[15:8];
                         if(WSTRB[2]) I2C_NBY[23:16] <= WDATA[23:16];
                         if(WSTRB[3]) I2C_NBY[31:24] <= WDATA[31:24];
                     end
-                    ADDR_I2C_ADR: begin
+                    OFFSET_I2C_ADR: begin
                         if(WSTRB[0]) I2C_ADR[7:0]   <= WDATA[7:0];
-                        if(WSTRB[1]) I2C_ADR[15:8]  <= WDATA[15:8];
-                        if(WSTRB[2]) I2C_ADR[23:16] <= WDATA[23:16];
-                        if(WSTRB[3]) I2C_ADR[31:24] <= WDATA[31:24];
                     end
-                    ADDR_I2C_TDR: begin
+                    OFFSET_I2C_TDR: begin
                         if(WSTRB[0]) I2C_TDR[7:0]   <= WDATA[7:0];
                         if(WSTRB[1]) I2C_TDR[15:8]  <= WDATA[15:8];
                         if(WSTRB[2]) I2C_TDR[23:16] <= WDATA[23:16];
                         if(WSTRB[3]) I2C_TDR[31:24] <= WDATA[31:24];
                     end
-                    ADDR_I2C_CFG: begin
+                    OFFSET_I2C_CFG: begin
                         if(WSTRB[0]) begin
                             I2C_CFG[0] <= WDATA[0]; // TX_EN
                             I2C_CFG[2] <= WDATA[2]; // RX_EN
                         end
-                        if(WSTRB[1]) I2C_CFG[15:8]  <= WDATA[15:8];
-                        if(WSTRB[2]) I2C_CFG[23:16] <= WDATA[23:16];
-                        if(WSTRB[3]) I2C_CFG[31:24] <= WDATA[31:24];
                     end
                 endcase
             end else if (core_busy) begin
+                // Self-clearing: Core işlemi algıladıktan sonra wrapper Enable bitlerini sıfırlar
                 I2C_CFG[0] <= 1'b0;
                 I2C_CFG[2] <= 1'b0;
             end
         end
-    end
+        end
 
     // Read
     always @(posedge clk) begin
-        if(!rst_n)
-            axi_rdata <= 32'b0;
-        else if(!ARVALID || RREADY) begin
-            case(ARADDR)
-                ADDR_I2C_NBY: axi_rdata <= I2C_NBY;
-                ADDR_I2C_ADR: axi_rdata <= I2C_ADR;
-                ADDR_I2C_RDR: axi_rdata <= core_rx_data;
-                ADDR_I2C_TDR: axi_rdata <= I2C_TDR;
-                ADDR_I2C_CFG: axi_rdata <= I2C_CFG;
-                default:      axi_rdata <= 32'h0;
-            endcase
+            if(!rst_n) axi_rdata <= 0;
+            else if(axi_read_ready) begin
+                case(ARADDR[15:0])
+                    OFFSET_I2C_NBY: axi_rdata <= I2C_NBY;
+                    OFFSET_I2C_ADR: axi_rdata <= I2C_ADR;
+                    OFFSET_I2C_RDR: axi_rdata <= core_rx_data;
+                    OFFSET_I2C_TDR: axi_rdata <= I2C_TDR;
+                    OFFSET_I2C_CFG: axi_rdata <= I2C_CFG;
+                    default:        axi_rdata <= 32'hDEADBEEF;
+                endcase
+            end
         end
-    end
 
-    // AXI Handshaking Signals
-    initial axi_bvalid = 1'b0;
+    // AXI Handshaking
+initial axi_bvalid = 1'b0;
     always@(posedge clk) begin
         if(!rst_n)
             axi_bvalid <= 1'b0;
