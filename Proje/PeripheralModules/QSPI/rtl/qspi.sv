@@ -51,20 +51,20 @@ module qspi(
                            PP               =8'h02,    //(Page Program) 
                            QPP              =8'h32,    //(Quad Page Program)
                            SE               =8'hD8,    //(Sector Erase)
-                           READ_ID          =8'h9E,    //(Read Electronic Manufacturer Signature) /no adress
-                           RDID             =8'h9F,    //(Read ID - JEDEC Manufacturer ID and JEDEC CFI) /no adress
-                           RES              =8'hAB,    //(Read Electronic Signature) /no adress
-                           RDSR1            =8'h05,    //(Read Status Register-1) /no adress
-                           RDSR2            =8'h70,    //(Read Status Register-2) /no adress
-                           RDCR             =8'hB5,    //(Read Configuration Register) /no adress
-                           WRR              =8'h01,    //(Write Register - Status-1, Configuration-1) /no adress
-                           WRDI             =8'h04,    //(Write Disable) /no adress
-                           WREN             =8'h06,    //(Write Enable) /no adress
-                           CLSR             =8'h50,    //(Clear Status Register-1) /no adress
-                           RESET_EN         =8'h66,    //(Software Reset_Enable) /no adress
-                           RESET_MEM        =8'h99,    //(Software Reset_Memory) /no adress
-                           EN4B             =8'hB7,
-                           EX4B             =8'hE9;
+                           READ_ID          =8'h9E,    //(Read Electronic Manufacturer Signature) /no address
+                           RDID             =8'h9F,    //(Read ID - JEDEC Manufacturer ID and JEDEC CFI) /no address
+                           RES              =8'hAB,    //(Read Electronic Signature) /no address
+                           RDSR1            =8'h05,    //(Read Status Register-1) /no address reads status reg
+                           RDSR2            =8'h70,    //(Read Status Register-2) /no address reads flag status reg
+                           RDCR             =8'hB5,    //(Read Configuration Register) /no address
+                           WRR              =8'h01,    //(Write Register - Status-1, Configuration-1) /no address reads non volatile config reg
+                           WRDI             =8'h04,    //(Write Disable) /no address
+                           WREN             =8'h06,    //(Write Enable) /no address
+                           CLSR             =8'h50,    //(Clear Status Register-1) /no address clears flag status reg
+                           RESET_EN         =8'h66,    //(Software Reset_Enable) /no address
+                           RESET_MEM        =8'h99,    //(Software Reset_Memory) /no address
+                           EN4B             =8'hB7,    //Enter 4-Byte address mode   /no address
+                           EX4B             =8'hE9;    //Exit 4-Byte address mode    /no address
 
     //status connections
     logic done_reg;

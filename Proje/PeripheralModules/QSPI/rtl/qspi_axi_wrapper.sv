@@ -51,7 +51,8 @@ module qspi_axi_wrapper(
 
     output logic RVALID,
     input logic RREADY,
-    output logic [31:0] RDATA
+    output logic [31:0] RDATA,
+    output logic [1:0] RRESP
     );
     
     
@@ -71,7 +72,6 @@ module qspi_axi_wrapper(
     logic [31:0] tx_data_i;
     logic [31:0] rx_data_o;
 
-    logic [31:0] axi_tx_data;
     logic [31:0] axi_rx_data;
     
     logic [11:0] qspi_core_status;
@@ -85,14 +85,18 @@ module qspi_axi_wrapper(
     logic rx_fifo_rd_en;
     logic rx_fifo_empty;
     logic rx_fifo_full;
+    logic rx_underflow;
+    
     
     //TX fifo control signals
     logic tx_fifo_wr_en;    
     logic tx_fifo_rd_en;
     logic tx_fifo_empty;
     logic tx_fifo_full;
+    logic tx_overflow;
     
                
+        
     qspi qspi_core_inst(
         .clk(clk),
         .rst_n(rst_n),
@@ -119,7 +123,8 @@ module qspi_axi_wrapper(
         .qspi_data_o(qspi_data_o),
         .qspi_data_i(qspi_data_i),
         .qspi_data_oe(qspi_data_oe)
-    );    
+    );   
+    
     
     fifo #(.DATA_WIDTH(32),.DEPTH(64)) rx_fifo(
         .clk(clk),
@@ -137,7 +142,7 @@ module qspi_axi_wrapper(
         .rst_n(rst_n),
         .flush(QSPI_FCR[1]),
         .wr_en(tx_fifo_wr_en),
-        .data_in(axi_tx_data),
+        .data_in(WDATA),
         .rd_en(tx_fifo_rd_en),
         .data_out(tx_data_i),
         .full(tx_fifo_full),
@@ -146,6 +151,7 @@ module qspi_axi_wrapper(
     
     
     assign BRESP = 2'b00;
+    assign RRESP = 2'b00;
 
     logic axi_rready, axi_awready;
     logic [31:0] axi_rdata;
@@ -166,12 +172,13 @@ module qspi_axi_wrapper(
     assign start_req = (axi_write_ready && (AWADDR == ADDR_QSPI_CCR));
     assign tx_fifo_wr_en = (axi_write_ready && (AWADDR == ADDR_QSPI_DR)&&!tx_fifo_full);
     assign rx_fifo_rd_en = (axi_read_ready && (ARADDR == ADDR_QSPI_DR)&&!rx_fifo_empty);
+    assign rx_underflow = axi_read_ready && (ARADDR == ADDR_QSPI_DR) && rx_fifo_empty;
+    assign tx_overflow = axi_write_ready && (AWADDR == ADDR_QSPI_DR) && tx_fifo_full;
 
     always_ff @(posedge clk) begin
         if(!rst_n) begin
             QSPI_CCR<=32'd0;
             QSPI_ADR<=32'd0;
-            axi_tx_data<=32'd0;
             QSPI_FCR<=32'd0;
             axi_error_flags<=4'd0;
         end
@@ -183,27 +190,13 @@ module qspi_axi_wrapper(
                     if(WSTRB[0]) QSPI_CCR[7:0]<=WDATA[7:0];
                     if(WSTRB[1]) QSPI_CCR[15:8]<=WDATA[15:8];
                     if(WSTRB[2]) QSPI_CCR[23:16]<=WDATA[23:16];
-                    if(WSTRB[3]) begin 
-                        QSPI_CCR[31:24]<=WDATA[31:24];
-                        if (WDATA[31]) axi_error_flags <= 4'd0;
-                    end
+                    if(WSTRB[3]) QSPI_CCR[31:24]<=WDATA[31:24]; 
                 end
                 ADDR_QSPI_ADR:begin 
                     if(WSTRB[0]) QSPI_ADR[7:0]<=WDATA[7:0];
                     if(WSTRB[1]) QSPI_ADR[15:8]<=WDATA[15:8];
                     if(WSTRB[2]) QSPI_ADR[23:16]<=WDATA[23:16];
                     if(WSTRB[3]) QSPI_ADR[31:24]<=WDATA[31:24]; 
-                end
-                ADDR_QSPI_DR:begin
-                    if(tx_fifo_full)begin 
-                        axi_error_flags<=4'b0010;
-                    end 
-                    else begin 
-                        if(WSTRB[0]) axi_tx_data[7:0]<=WDATA[7:0];
-                        if(WSTRB[1]) axi_tx_data[15:8]<=WDATA[15:8];
-                        if(WSTRB[2]) axi_tx_data[23:16]<=WDATA[23:16];
-                        if(WSTRB[3]) axi_tx_data[31:24]<=WDATA[31:24];
-                    end
                 end
                 ADDR_QSPI_FCR:begin 
                     if(WSTRB[0]) QSPI_FCR[7:0]<=WDATA[7:0];
@@ -220,16 +213,15 @@ module qspi_axi_wrapper(
     always_ff @(posedge clk) begin
         if(!rst_n)
             axi_rdata <= 32'b0;
-        else if(!ARVALID || RREADY) begin
+        else if(axi_read_ready) begin
             case(ARADDR)
                 ADDR_QSPI_CCR:  axi_rdata<=QSPI_CCR;
                 ADDR_QSPI_ADR:  axi_rdata<=QSPI_ADR;
                 ADDR_QSPI_DR:begin
-                    if(rx_fifo_empty)begin 
-                        axi_error_flags<=4'b0001;
+                    if(rx_fifo_empty)begin
                         axi_rdata<=32'd0;
                     end    
-                    else begin 
+                    else begin
                         axi_rdata<=axi_rx_data; 
                     end                
                 end
@@ -239,8 +231,25 @@ module qspi_axi_wrapper(
             endcase
         end
     end
+    
+    always_ff @(posedge clk)begin 
+        if(!rst_n)begin 
+            axi_error_flags<=4'd0;
+        end
+        else begin 
+            if (axi_write_ready && WSTRB[3] && WDATA[31] &&AWADDR==ADDR_QSPI_CCR) axi_error_flags <= 4'd0;
+            else begin 
+                if(rx_underflow)begin 
+                    axi_error_flags[0]<=1;
+                end
+                 if(tx_overflow)begin 
+                    axi_error_flags[1]<=1;
+                end
+            
+            end
+        end
+    end
 
-    initial axi_bvalid = 1'b0;
     always_ff @(posedge clk) begin
         if(!rst_n)
             axi_bvalid <= 1'b0;
@@ -250,7 +259,6 @@ module qspi_axi_wrapper(
             axi_bvalid <= 1'b0;
     end
 
-    initial axi_rvalid = 1'b0;
     always_ff @(posedge clk) begin
         if(!rst_n)
             axi_rvalid <= 1'b0;
@@ -260,7 +268,6 @@ module qspi_axi_wrapper(
             axi_rvalid <= 1'b0;
     end
 
-    initial axi_awready = 1'b0;
     always_ff @(posedge clk) begin
         if(!rst_n)
             axi_awready <= 1'b0;
