@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module QSPI(
+module qspi(
     input logic clk,
     input logic rst_n,
     input logic [7:0] instr,
@@ -17,13 +17,10 @@ module QSPI(
     output logic [31:0] rx_data_o,
     output logic tx_fifo_rd_en,
     output logic rx_fifo_wr_en,
-    input logic [1:0] fifo_control,
     input logic tx_fifo_empty,
     input logic tx_fifo_full,
     input logic rx_fifo_empty,
     input logic rx_fifo_full,
-    output logic tx_fifo_flush,
-    output logic rx_fifo_flush,
 
     output logic [11:0] status,
 
@@ -48,24 +45,26 @@ module QSPI(
     
     
     
-    localparam logic [7:0] READ             =8'h03;    //Read    
-    localparam logic [7:0] DOR              =8'h3B;    //(Read Dual Out) 
-    localparam logic [7:0] QOR              =8'h6B;    //(Read Quad Out) 
-    localparam logic [7:0] PP               =8'h02;    //(Page Program) 
-    localparam logic [7:0] QPP              =8'h32;    //(Quad Page Program)
-    localparam logic [7:0] SE               =8'hD8;    //(Sector Erase)
-    localparam logic [7:0] READ_ID          =8'h9E;    //(Read Electronic Manufacturer Signature) /no adress
-    localparam logic [7:0] RDID             =8'h9F;    //(Read ID - JEDEC Manufacturer ID and JEDEC CFI) /no adress
-    localparam logic [7:0] RES              =8'hAB;    //(Read Electronic Signature) /no adress
-    localparam logic [7:0] RDSR1            =8'h05;    //(Read Status Register-1) /no adress
-    localparam logic [7:0] RDSR2            =8'h70;    //(Read Status Register-2) /no adress
-    localparam logic [7:0] RDCR             =8'hB5;    //(Read Configuration Register) /no adress
-    localparam logic [7:0] WRR              =8'h01;    //(Write Register - Status-1, Configuration-1) /no adress
-    localparam logic [7:0] WRDI             =8'h04;    //(Write Disable) /no adress
-    localparam logic [7:0] WREN             =8'h06;    //(Write Enable) /no adress
-    localparam logic [7:0] CLSR             =8'h50;    //(Clear Status Register-1) /no adress
-    localparam logic [7:0] RESET_EN         =8'h66;    //(Software Reset_Enable) /no adress
-    localparam logic [7:0] RESET_MEM        =8'h99;    //(Software Reset_Memory) /no adress
+    localparam logic [7:0] READ             =8'h03,    //Read    
+                           DOR              =8'h3B,    //(Read Dual Out) 
+                           QOR              =8'h6B,    //(Read Quad Out) 
+                           PP               =8'h02,    //(Page Program) 
+                           QPP              =8'h32,    //(Quad Page Program)
+                           SE               =8'hD8,    //(Sector Erase)
+                           READ_ID          =8'h9E,    //(Read Electronic Manufacturer Signature) /no address
+                           RDID             =8'h9F,    //(Read ID - JEDEC Manufacturer ID and JEDEC CFI) /no address
+                           RES              =8'hAB,    //(Read Electronic Signature) /no address
+                           RDSR1            =8'h05,    //(Read Status Register-1) /no address reads status reg
+                           RDSR2            =8'h70,    //(Read Status Register-2) /no address reads flag status reg
+                           RDCR             =8'hB5,    //(Read Configuration Register) /no address
+                           WRR              =8'h01,    //(Write Register - Status-1, Configuration-1) /no address reads non volatile config reg
+                           WRDI             =8'h04,    //(Write Disable) /no address
+                           WREN             =8'h06,    //(Write Enable) /no address
+                           CLSR             =8'h50,    //(Clear Status Register-1) /no address clears flag status reg
+                           RESET_EN         =8'h66,    //(Software Reset_Enable) /no address
+                           RESET_MEM        =8'h99,    //(Software Reset_Memory) /no address
+                           EN4B             =8'hB7,    //Enter 4-Byte address mode   /no address
+                           EX4B             =8'hE9;    //Exit 4-Byte address mode    /no address
 
     //status connections
     logic done_reg;
@@ -207,7 +206,6 @@ module QSPI(
                     qspi_data_o[2]=instr[3'd7-4*(cmd_counter)-1];
                     qspi_data_o[1]=instr[3'd7-4*(cmd_counter)-2];
                     qspi_data_o[0]=instr[3'd7-4*(cmd_counter)-3]; 
-                
                 end
                 if(cmd_counter==target_cmd_cycles-1)begin 
                     if (instr == READ || instr == DOR || instr == QOR || 
@@ -358,8 +356,6 @@ module QSPI(
             current_state<=IDLE;
             done_reg<=1'b0;
             fifo_error_reg<=4'd0;
-            rx_fifo_flush   <= 1'b0;
-            tx_fifo_flush   <= 1'b0;
             cmd_counter     <= 4'd0;            
             dummy_counter   <= 5'd0;
             addr_counter    <= 5'd0;
@@ -371,16 +367,8 @@ module QSPI(
                 done_reg<=1'b0;
                 fifo_error_reg<=4'd0;
             end
-        
-            if(fifo_control!=2'b00)begin 
-               rx_fifo_flush <= (fifo_control[0]); 
-               tx_fifo_flush <= (fifo_control[1]);
-               current_state <= IDLE; 
-            end
-            else if(sclk_tick)begin 
+            if(sclk_tick)begin 
                 current_state<=next_state;
-                tx_fifo_flush <= 1'b0;
-                rx_fifo_flush <= 1'b0;
                 
                 if (next_state == DONE && current_state != DONE) begin
                     done_reg <= 1'b1;
