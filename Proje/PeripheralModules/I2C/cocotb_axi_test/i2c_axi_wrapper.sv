@@ -5,18 +5,18 @@ module i2c_axi_wrapper #(
     parameter SCL_CLK = 400_000
 )(
     input wire clk,
-    input wire rst_n, // Aktif düşük reset
+    input wire rst_n, // Aktif dÃ¼Ã¾Ã¼k reset
 
-    // I2C Fiziksel Arayüzü
+    // I2C Fiziksel ArayÃ¼zÃ¼
     output wire o_scl,
     output wire o_sda_out,
     output wire o_sda_oe,
     input  wire i_sda_in,
 
-    // Kesme Çıkışı (Rapordaki isterlere göre eklendi)
+    // Kesme Ã‡Ã½kÃ½Ã¾Ã½ (Rapordaki isterlere gÃ¶re eklendi)
     output wire o_intr,
 
-    // AXI4-Lite Arayüzü
+    // AXI4-Lite ArayÃ¼zÃ¼
     input  wire        AWVALID,
     output wire        AWREADY,
     input  wire [31:0] AWADDR,
@@ -39,14 +39,14 @@ module i2c_axi_wrapper #(
     output wire [31:0] RDATA
 );
 
-    // Bellek Haritası Offset Tanımları
+    // Bellek HaritasÃ½ Offset TanÃ½mlarÃ½
     localparam [15:0] OFFSET_I2C_NBY = 16'h7000,
                       OFFSET_I2C_ADR = 16'h7004,
                       OFFSET_I2C_RDR = 16'h7008,
                       OFFSET_I2C_TDR = 16'h700C,
                       OFFSET_I2C_CFG = 16'h7010;
 
-    // Yazmaçlar 
+    // YazmaÃ§lar 
     reg [31:0] I2C_NBY;
     reg [31:0] I2C_ADR;
     reg [31:0] I2C_TDR;
@@ -60,22 +60,24 @@ module i2c_axi_wrapper #(
     reg [31:0] axi_rdata;
     reg axi_bvalid, axi_rvalid;
 
-    // Kesme Mantığı: İşlem bittiğinde sinyal üretir 
+    // Kesme MantÃ½Ã°Ã½: ÃÃ¾lem bittiÃ°inde sinyal Ã¼retir 
     assign o_intr = I2C_CFG[1] | I2C_CFG[3]; 
 
-    // AXI Atamaları
+    // AXI AtamalarÃ½
     assign BVALID  = axi_bvalid;
     assign RVALID  = axi_rvalid;
     assign RDATA   = axi_rdata;
     assign WREADY  = axi_awready;
     assign AWREADY = axi_awready;
     assign ARREADY = axi_rready;
-    assign BRESP   = 2'b00; // OKAY yanıtı
+    assign BRESP   = 2'b00; // OKAY yanÃ½tÃ½
     
     wire axi_write_ready, axi_read_ready;
     
     assign axi_write_ready = axi_awready;
     assign axi_read_ready = (ARVALID && ARREADY);
+    
+    logic o_error;
 
     // I2C Master Core Entegrasyonu
     I2C_master #(
@@ -93,11 +95,13 @@ module i2c_axi_wrapper #(
         .i_rx_en(I2C_CFG[2]),
         .o_rx_done(core_rx_done),
         .o_busy(core_busy),
+        .o_error(o_error),
         .o_scl(o_scl),
         .o_sda_out(o_sda_out),
         .o_sda_oe(o_sda_oe),
         .i_sda_in(i_sda_in)
     );
+    
 
     // Write
     always @(posedge clk) begin
@@ -108,11 +112,11 @@ module i2c_axi_wrapper #(
             I2C_CFG <= 32'b0;
         end
         else begin
-            // Durum Güncellemeleri
-            I2C_CFG[4] <= core_busy; // Meşguliyet bilgisi
+            // Durum GÃ¼ncellemeleri
+            I2C_CFG[4] <= o_error; // MeÃ¾guliyet bilgisi
 
-            // Done sinyalleri pulse olduğu için sticky (yapışkan) bit mantığı:
-            // Yeni bir işlem (Enable) tetiklendiğinde önceki 'Done' bitleri temizlenir.
+            // Done sinyalleri pulse olduÃ°u iÃ§in sticky (yapÃ½Ã¾kan) bit mantÃ½Ã°Ã½:
+            // Yeni bir iÃ¾lem (Enable) tetiklendiÃ°inde Ã¶nceki 'Done' bitleri temizlenir.
             if (I2C_CFG[0] || I2C_CFG[2]) begin
                 I2C_CFG[1] <= 1'b0; 
                 I2C_CFG[3] <= 1'b0; 
@@ -121,7 +125,7 @@ module i2c_axi_wrapper #(
                 if (core_rx_done) I2C_CFG[3] <= 1'b1;
             end
 
-            // AXI üzerinden yazma işlemi
+            // AXI Ã¼zerinden yazma iÃ¾lemi
             if (axi_write_ready) begin
                 case(AWADDR[15:0])
                     OFFSET_I2C_NBY: begin
@@ -153,7 +157,7 @@ module i2c_axi_wrapper #(
                     end
                 endcase
         end else if (core_busy) begin
-                // Self-clearing: Core işlemi algıladıktan sonra wrapper Enable bitlerini sıfırlar
+                // Self-clearing: Core iÃ¾lemi algÃ½ladÃ½ktan sonra wrapper Enable bitlerini sÃ½fÃ½rlar
                 I2C_CFG[0] <= 1'b0;
                 I2C_CFG[2] <= 1'b0;
             end
