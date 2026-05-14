@@ -13,10 +13,9 @@
     "design_tree": {
       "vio_0": "",
       "ila_0": "",
-      "dummy_slave_block_0": "",
       "master_wrapper_0": "",
-      "util_vector_logic_0": "",
-      "util_vector_logic_1": ""
+      "dummy_slave_block_0": "",
+      "clk_wiz_0": ""
     },
     "ports": {
       "clk": {
@@ -79,112 +78,24 @@
         "has_run_ip_tcl": "true",
         "parameters": {
           "C_DATA_DEPTH": {
-            "value": "131072"
+            "value": "32768"
           },
           "C_MONITOR_TYPE": {
             "value": "Native"
           },
           "C_NUM_OF_PROBES": {
-            "value": "3"
-          }
-        }
-      },
-      "dummy_slave_block_0": {
-        "vlnv": "xilinx.com:module_ref:dummy_slave_block:1.0",
-        "ip_revision": "1",
-        "xci_name": "I2C_HW_dummy_slave_block_0_0",
-        "xci_path": "ip/I2C_HW_dummy_slave_block_0_0/I2C_HW_dummy_slave_block_0_0.xci",
-        "inst_hier_path": "dummy_slave_block_0",
-        "has_run_ip_tcl": "true",
-        "reference_info": {
-          "ref_type": "hdl",
-          "ref_name": "dummy_slave_block",
-          "boundary_crc": "0x0"
-        },
-        "ports": {
-          "clk": {
-            "type": "clk",
-            "direction": "I",
-            "parameters": {
-              "FREQ_HZ": {
-                "value": "100000000",
-                "value_src": "user_prop"
-              },
-              "CLK_DOMAIN": {
-                "value": "I2C_HW_clk",
-                "value_src": "user_prop"
-              }
-            }
+            "value": "7"
           },
-          "rst_n": {
-            "type": "rst",
-            "direction": "I",
-            "parameters": {
-              "POLARITY": {
-                "value": "ACTIVE_LOW",
-                "value_src": "constant"
-              }
-            }
-          },
-          "scl_i": {
-            "direction": "I",
-            "parameters": {
-              "PortType": {
-                "value": "undef",
-                "value_src": "ip_prop"
-              },
-              "PortType.PROP_SRC": {
-                "value": "false",
-                "value_src": "ip_prop"
-              }
-            }
-          },
-          "sda_i": {
-            "direction": "I",
-            "parameters": {
-              "PortType": {
-                "value": "undef",
-                "value_src": "ip_prop"
-              },
-              "PortType.PROP_SRC": {
-                "value": "false",
-                "value_src": "ip_prop"
-              }
-            }
-          },
-          "scl_o": {
-            "direction": "O",
-            "parameters": {
-              "PortType": {
-                "value": "undef",
-                "value_src": "ip_prop"
-              },
-              "PortType.PROP_SRC": {
-                "value": "false",
-                "value_src": "ip_prop"
-              }
-            }
-          },
-          "sda_o": {
-            "direction": "O",
-            "parameters": {
-              "PortType": {
-                "value": "undef",
-                "value_src": "ip_prop"
-              },
-              "PortType.PROP_SRC": {
-                "value": "false",
-                "value_src": "ip_prop"
-              }
-            }
+          "C_PROBE0_WIDTH": {
+            "value": "32"
           }
         }
       },
       "master_wrapper_0": {
         "vlnv": "xilinx.com:module_ref:master_wrapper:1.0",
         "ip_revision": "1",
-        "xci_name": "I2C_HW_master_wrapper_0_0",
-        "xci_path": "ip/I2C_HW_master_wrapper_0_0/I2C_HW_master_wrapper_0_0.xci",
+        "xci_name": "I2C_HW_master_wrapper_0_1",
+        "xci_path": "ip/I2C_HW_master_wrapper_0_1/I2C_HW_master_wrapper_0_1.xci",
         "inst_hier_path": "master_wrapper_0",
         "has_run_ip_tcl": "true",
         "reference_info": {
@@ -199,11 +110,15 @@
             "parameters": {
               "FREQ_HZ": {
                 "value": "100000000",
-                "value_src": "user_prop"
+                "value_src": "ip_prop"
+              },
+              "PHASE": {
+                "value": "0.0",
+                "value_src": "ip_prop"
               },
               "CLK_DOMAIN": {
-                "value": "I2C_HW_clk",
-                "value_src": "user_prop"
+                "value": "/clk_wiz_0_clk_out1",
+                "value_src": "ip_prop"
               }
             }
           },
@@ -252,73 +167,85 @@
           "o_busy": {
             "direction": "O"
           },
+          "o_error": {
+            "direction": "O"
+          },
           "o_scl": {
-            "direction": "O",
-            "parameters": {
-              "PortType": {
-                "value": "undef",
-                "value_src": "ip_prop"
-              },
-              "PortType.PROP_SRC": {
-                "value": "false",
-                "value_src": "ip_prop"
-              }
-            }
+            "direction": "O"
           },
-          "o_sda_out": {
-            "direction": "O",
-            "parameters": {
-              "PortType": {
-                "value": "undef",
-                "value_src": "ip_prop"
-              },
-              "PortType.PROP_SRC": {
-                "value": "false",
-                "value_src": "ip_prop"
-              }
-            }
-          },
-          "o_sda_oe": {
+          "o_sda_drive": {
             "direction": "O"
           },
           "i_sda_in": {
+            "direction": "I"
+          }
+        }
+      },
+      "dummy_slave_block_0": {
+        "vlnv": "xilinx.com:module_ref:dummy_slave_block:1.0",
+        "ip_revision": "1",
+        "xci_name": "I2C_HW_dummy_slave_block_0_1",
+        "xci_path": "ip/I2C_HW_dummy_slave_block_0_1/I2C_HW_dummy_slave_block_0_1.xci",
+        "inst_hier_path": "dummy_slave_block_0",
+        "has_run_ip_tcl": "true",
+        "reference_info": {
+          "ref_type": "hdl",
+          "ref_name": "dummy_slave_block",
+          "boundary_crc": "0x0"
+        },
+        "ports": {
+          "clk": {
+            "type": "clk",
             "direction": "I",
             "parameters": {
-              "PortType": {
-                "value": "undef",
+              "FREQ_HZ": {
+                "value": "100000000",
                 "value_src": "ip_prop"
               },
-              "PortType.PROP_SRC": {
-                "value": "false",
+              "PHASE": {
+                "value": "0.0",
+                "value_src": "ip_prop"
+              },
+              "CLK_DOMAIN": {
+                "value": "/clk_wiz_0_clk_out1",
                 "value_src": "ip_prop"
               }
             }
+          },
+          "rst_n": {
+            "type": "rst",
+            "direction": "I",
+            "parameters": {
+              "POLARITY": {
+                "value": "ACTIVE_LOW",
+                "value_src": "constant"
+              }
+            }
+          },
+          "scl_i": {
+            "direction": "I"
+          },
+          "sda_i": {
+            "direction": "I"
+          },
+          "scl_o": {
+            "direction": "O"
+          },
+          "sda_o": {
+            "direction": "O"
           }
         }
       },
-      "util_vector_logic_0": {
-        "vlnv": "xilinx.com:ip:util_vector_logic:2.0",
-        "ip_revision": "5",
-        "xci_name": "I2C_HW_util_vector_logic_0_0",
-        "xci_path": "ip/I2C_HW_util_vector_logic_0_0/I2C_HW_util_vector_logic_0_0.xci",
-        "inst_hier_path": "util_vector_logic_0",
+      "clk_wiz_0": {
+        "vlnv": "xilinx.com:ip:clk_wiz:6.0",
+        "ip_revision": "17",
+        "xci_name": "I2C_HW_clk_wiz_0_0",
+        "xci_path": "ip/I2C_HW_clk_wiz_0_0/I2C_HW_clk_wiz_0_0.xci",
+        "inst_hier_path": "clk_wiz_0",
         "has_run_ip_tcl": "true",
         "parameters": {
-          "C_SIZE": {
-            "value": "1"
-          }
-        }
-      },
-      "util_vector_logic_1": {
-        "vlnv": "xilinx.com:ip:util_vector_logic:2.0",
-        "ip_revision": "5",
-        "xci_name": "I2C_HW_util_vector_logic_1_0",
-        "xci_path": "ip/I2C_HW_util_vector_logic_1_0/I2C_HW_util_vector_logic_1_0.xci",
-        "inst_hier_path": "util_vector_logic_1",
-        "has_run_ip_tcl": "true",
-        "parameters": {
-          "C_SIZE": {
-            "value": "1"
+          "USE_RESET": {
+            "value": "false"
           }
         }
       }
@@ -327,55 +254,66 @@
       "clk_1": {
         "ports": [
           "clk",
-          "vio_0/clk",
-          "ila_0/clk",
-          "dummy_slave_block_0/clk",
-          "master_wrapper_0/clk"
+          "clk_wiz_0/clk_in1"
         ]
       },
-      "dummy_slave_block_0_scl_o": {
+      "clk_wiz_0_clk_out1": {
         "ports": [
-          "dummy_slave_block_0/scl_o",
-          "util_vector_logic_0/Op2"
+          "clk_wiz_0/clk_out1",
+          "ila_0/clk",
+          "vio_0/clk",
+          "master_wrapper_0/clk",
+          "dummy_slave_block_0/clk"
         ]
       },
       "dummy_slave_block_0_sda_o": {
         "ports": [
           "dummy_slave_block_0/sda_o",
-          "util_vector_logic_1/Op2"
+          "master_wrapper_0/i_sda_in"
+        ]
+      },
+      "master_wrapper_0_o_busy": {
+        "ports": [
+          "master_wrapper_0/o_busy",
+          "ila_0/probe1"
+        ]
+      },
+      "master_wrapper_0_o_error": {
+        "ports": [
+          "master_wrapper_0/o_error",
+          "ila_0/probe4"
+        ]
+      },
+      "master_wrapper_0_o_rx_data": {
+        "ports": [
+          "master_wrapper_0/o_rx_data",
+          "ila_0/probe0"
         ]
       },
       "master_wrapper_0_o_rx_done": {
         "ports": [
           "master_wrapper_0/o_rx_done",
-          "ila_0/probe2"
+          "ila_0/probe3"
         ]
       },
       "master_wrapper_0_o_scl": {
         "ports": [
           "master_wrapper_0/o_scl",
-          "util_vector_logic_0/Op1"
-        ]
-      },
-      "master_wrapper_0_o_sda_out": {
-        "ports": [
-          "master_wrapper_0/o_sda_out",
-          "util_vector_logic_1/Op1"
-        ]
-      },
-      "util_vector_logic_0_Res": {
-        "ports": [
-          "util_vector_logic_0/Res",
           "dummy_slave_block_0/scl_i",
-          "ila_0/probe0"
+          "ila_0/probe5"
         ]
       },
-      "util_vector_logic_1_Res": {
+      "master_wrapper_0_o_sda_drive": {
         "ports": [
-          "util_vector_logic_1/Res",
+          "master_wrapper_0/o_sda_drive",
           "dummy_slave_block_0/sda_i",
-          "ila_0/probe1",
-          "master_wrapper_0/i_sda_in"
+          "ila_0/probe6"
+        ]
+      },
+      "master_wrapper_0_o_tx_done": {
+        "ports": [
+          "master_wrapper_0/o_tx_done",
+          "ila_0/probe2"
         ]
       },
       "vio_0_probe_out0": {

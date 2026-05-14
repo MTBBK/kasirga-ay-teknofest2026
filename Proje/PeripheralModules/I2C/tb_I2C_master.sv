@@ -20,6 +20,7 @@ module tb_I2C_master;
     logic o_scl;
     logic o_sda_out;
     logic o_sda_oe;
+    logic o_error;
 
     logic slave_sda=1;
     
@@ -48,10 +49,12 @@ module tb_I2C_master;
         .i_rx_en(i_rx_en),
         .o_rx_done(o_rx_done),
         .o_busy(o_busy),
+        .o_error(o_error),
         .o_scl(o_scl),
         .o_sda_out(o_sda_out),
         .o_sda_oe(o_sda_oe),
         .i_sda_in(sda_bus)
+        
     );
 
     always #(CLK_P/2) clk=~clk;
