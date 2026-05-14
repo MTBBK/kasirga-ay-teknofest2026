@@ -20,13 +20,13 @@ module master_wrapper #(
     
     output wire o_scl,
     
-    // THE MAGIC PIN: This combines SDA_OUT and SDA_OE mathematically
+    // This combines SDA_OUT and SDA_OE mathematically
     output wire o_sda_drive, 
     
     input  wire i_sda_in
 );
 
-    // Internal wires connecting to the true Master
+    // Internal wires connecting to the master
     wire internal_sda_out;
     wire internal_sda_oe;
 
