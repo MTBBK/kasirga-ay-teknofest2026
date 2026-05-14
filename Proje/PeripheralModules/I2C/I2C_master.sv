@@ -151,6 +151,7 @@ module I2C_master #(
             o_rx_done<=1'b0;
             case (state)
                 S_IDLE: begin
+                    o_error <= 1'b0;
                     sda_out_r<=1'b1; 
                     sda_oe_r<=1'b1;
                     bit_cnt<=3'd7; 
