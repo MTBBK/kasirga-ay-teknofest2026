@@ -1,12 +1,26 @@
-import cocotb
++import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, Timer
 
 async def reset_dut(dut):
+    # 1. Tüm girişleri 'X' kalmaması için 0 ile başlat
+    dut.AWVALID.value = 0
+    dut.WVALID.value = 0
+    dut.AWADDR.value = 0
+    dut.WDATA.value = 0
+    dut.WSTRB.value = 0
+    dut.BREADY.value = 0
+    dut.ARVALID.value = 0
+    dut.ARADDR.value = 0
+    dut.RREADY.value = 0
+    dut.i_sda_in.value = 1 # I2C hattı default 'çekili' (pull-up) olur
+
+    # 2. Reset işlemini gerçekleştir
     dut.rst_n.value = 0
-    await Timer(10, units="ns")
+    await Timer(10, unit="ns") # units -> unit olarak güncellendi
     dut.rst_n.value = 1
     await RisingEdge(dut.clk)
+    await RisingEdge(dut.clk) # Sinyallerin oturması için bir çevrim daha bekle
     
     
 async def axi_write(dut, addr, data, strb=0xF):
@@ -38,21 +52,19 @@ async def axi_read(dut, addr):
     dut.ARVALID.value = 1
     dut.RREADY.value = 1
 
-    # ARREADY bekle [cite: 11]
     while not dut.ARREADY.value:
         await RisingEdge(dut.clk)
     
     await RisingEdge(dut.clk)
     dut.ARVALID.value = 0
 
-    # RVALID bekle ve veriyi oku [cite: 10, 39-40]
     while not dut.RVALID.value:
         await RisingEdge(dut.clk)
     
+    #önemli
     data = dut.RDATA.value
-    dut._log.info(f"AXI Read: Addr=0x{addr:X}, Data=0x{data:X}")
-    return data
-
+    dut._log.info(f"AXI Read: Addr=0x{addr:X}, Data=0x{int(data):X}") 
+    return int(data)
 
 @cocotb.test()
 async def run_i2c_test(dut):
@@ -73,8 +85,11 @@ async def run_i2c_test(dut):
     # 4. İşlemi Başlatma: I2C_CFG üzerinden TX_EN [cite: 5, 26-27]
     await axi_write(dut, 0x7010, 0x1) 
 
-    # 5. Busy Loglama [cite: 17]
-    while dut.o_busy.value:
+    # test_i2c.py (Satır 89 civarı)
+    while not dut.core_busy.value: # Önce meşgul olmasını bekle
         await RisingEdge(dut.clk)
-    
+
+    while dut.core_busy.value:     # Sonra işlemin bitmesini bekle
+        await RisingEdge(dut.clk)
+        
     dut._log.info("I2C Transfer Tamamlandı!")
