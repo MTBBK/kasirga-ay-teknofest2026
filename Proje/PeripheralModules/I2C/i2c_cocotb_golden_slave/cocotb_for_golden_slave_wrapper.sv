@@ -14,7 +14,8 @@ module cocotb_for_golden_slave_wrapper #(
     output logic o_tx_done, 
     input logic i_rx_en,  
     output logic o_rx_done, 
-    output logic o_busy, 
+    output logic o_busy,
+    output logic o_error, 
     
     output wire slave_sda_i,  // the bus state sent to the slave
     input  wire slave_sda_o,  // the drive from the slave
@@ -52,6 +53,7 @@ module cocotb_for_golden_slave_wrapper #(
         .i_rx_en(i_rx_en),
         .o_rx_done(o_rx_done),
         .o_busy(o_busy),
+        .o_error(o_error),
         .o_scl(scl_out),
         .o_sda_out(sda_out),
         .o_sda_oe(sda_oe),

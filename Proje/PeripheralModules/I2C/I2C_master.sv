@@ -15,11 +15,13 @@ module I2C_master #(
     input logic i_rx_en,  // I2C_CFG[2]
     output logic o_rx_done, // I2C_CFG[3]
     output logic o_busy, // when FSM is not on IDLE 1
+    output logic o_error,
     // I2C physical interface
     output logic o_scl,
     output logic o_sda_out, // SDA driving value
     output logic o_sda_oe, // 1=drive, 0=relase
     input logic i_sda_in // state of the SDA pin
+    
 );
     localparam /**/ TICKS= CLK_FREQ/I2C_FREQ;
     localparam /**/ T_HALF= TICKS/2; 
@@ -43,7 +45,7 @@ module I2C_master #(
 
     logic [7:0] clk_cnt;
 
-    wire bit_start_tick=(clk_cnt==T_QUART); //fills all the bits with 0
+    wire bit_start_tick=(clk_cnt==T_QUART); 
     wire bit_scl_fall=(clk_cnt==TICKS-1);
     wire bit_sda_sample=(clk_cnt==T_3QUART);
 
@@ -54,7 +56,11 @@ module I2C_master #(
     logic [31:0] r_tx_data;
     logic [2:0] r_num_bytes;
     logic [31:0] r_rx_data;
-    logic scl_r, sda_out_r, sda_oe_r;
+    logic scl_r; 
+    logic sda_out_r; 
+    logic sda_oe_r;
+    logic nack_r;
+    
 
     logic tx_en_prev, rx_en_prev;
     wire tx_en_rise=i_tx_en & ~tx_en_prev;
@@ -137,12 +143,15 @@ module I2C_master #(
             sda_oe_r<=1'b1;
             o_tx_done<='0; 
             o_rx_done<='0;
+            o_error<=1'b0;
+            nack_r<=1'b0;  
         end
         else begin
             o_tx_done<=1'b0;
             o_rx_done<=1'b0;
             case (state)
                 S_IDLE: begin
+                    o_error <= 1'b0;
                     sda_out_r<=1'b1; 
                     sda_oe_r<=1'b1;
                     bit_cnt<=3'd7; 
@@ -151,8 +160,11 @@ module I2C_master #(
                             r_is_read<=1'b0; 
                             r_slave_addr<=i_slave_addr;
                             r_tx_data<=i_tx_data;
-                            if(i_num_bytes==0||i_num_bytes>4)begin 
+                            if(i_num_bytes==0)begin 
                                 r_num_bytes<=3'd1;
+                            end
+                            else if(i_num_bytes>4)begin 
+                                r_num_bytes<=3'd4;                            
                             end
                             else begin 
                                 r_num_bytes<=i_num_bytes;
@@ -162,8 +174,11 @@ module I2C_master #(
                         else if (rx_en_rise) begin
                         r_is_read<=1'b1; 
                         r_slave_addr<=i_slave_addr;
-                        if(i_num_bytes==0||i_num_bytes>4)begin
+                        if(i_num_bytes==0)begin
                             r_num_bytes<=3'd1;
+                        end
+                        else if(i_num_bytes>4) begin 
+                            r_num_bytes<=3'd4;                        
                         end
                         else begin
                             r_num_bytes<=i_num_bytes;
@@ -206,24 +221,28 @@ module I2C_master #(
                 end
 
                 
-                S_ADDR_ACK:begin
+                S_ADDR_ACK: begin
+                    if(clk_cnt >= T_QUART) begin
+                        sda_out_r <= 1'b1;
+                        sda_oe_r  <= 1'b0;//release SDA so slave can pull low for ACK
+                    end
+                    if(bit_sda_sample) begin      
+                    nack_r <= i_sda_in;//0=ACK 1=NACK
+                    end
                     if(bit_scl_fall) begin
-                    sda_oe_r<=1'b1; 
-                    bit_cnt<=3'd7;
-                        if(r_is_read) begin
-                            state<=S_RD_BYTE;
+                        sda_oe_r <= 1'b1;
+                        bit_cnt  <= 3'd7;
+                        if(nack_r) begin
+                            state <= S_STOP; // abort, release the bus
                         end
-                        else begin 
-                            shift_tx<=r_tx_data[7:0]; 
-                            state<=S_WR_BYTE; 
+                        else if(r_is_read) begin
+                            state <= S_RD_BYTE;
                         end
-                    end 
-                    else begin
-                        if(clk_cnt>= T_QUART) begin 
-                            sda_out_r<=1'b1; 
-                            sda_oe_r<=1'b0;
-                        end 
-                    end         
+                        else begin
+                            shift_tx <= r_tx_data[7:0];
+                            state    <= S_WR_BYTE;
+                        end
+                    end
                 end
 
                 
@@ -244,28 +263,35 @@ module I2C_master #(
                 end
 
                 
-                S_WR_ACK:begin
-                    if(bit_scl_fall) begin
-                    sda_oe_r<=1'b1; 
-                    bit_cnt<=3'd7;
-                    byte_cnt<=byte_cnt+1;
-                    if(byte_cnt==r_num_bytes-1) begin
-                        state<=S_STOP;
-                    end else begin
-                        case(byte_cnt)          // Sonraki byte'ı yükle
-                            3'd0: shift_tx<=r_tx_data[15:8];
-                            3'd1: shift_tx<=r_tx_data[23:16];
-                            3'd2: shift_tx<=r_tx_data[31:24];
-                            default: shift_tx<='1;
-                        endcase
-                        state<=S_WR_BYTE;
+                S_WR_ACK: begin
+                    if(clk_cnt >= T_QUART) begin
+                        sda_out_r <= 1'b1;
+                        sda_oe_r  <= 1'b0; //release SDA for slave ACK
                     end
-                    end 
-                    else begin 
-                        if(clk_cnt>=T_QUART) begin
-                            sda_out_r<=1'b1; 
-                            sda_oe_r<=1'b0;
-                        end 
+                    if(bit_sda_sample) begin     
+                        nack_r <= i_sda_in;//0=ACK 1=NACK
+                    end
+                    if(bit_scl_fall) begin
+                        sda_oe_r <= 1'b1;
+                        bit_cnt  <= 3'd7;
+                        if(nack_r) begin
+                            state <= S_STOP;//slave rejected byte, abort
+                        end
+                        else begin
+                            byte_cnt <= byte_cnt + 1;
+                            if(byte_cnt == r_num_bytes-1) begin
+                                state <= S_STOP;
+                            end
+                            else begin
+                                case(byte_cnt)
+                                    3'd0: shift_tx <= r_tx_data[15:8];
+                                    3'd1: shift_tx <= r_tx_data[23:16];
+                                    3'd2: shift_tx <= r_tx_data[31:24];
+                                    default: shift_tx <= '1;
+                                endcase
+                                state <= S_WR_BYTE;
+                            end
+                        end
                     end
                 end
 
@@ -333,16 +359,20 @@ module I2C_master #(
                 end
 
                 
-                S_DONE:begin
-                    sda_out_r<=1'b1; 
-                    sda_oe_r<=1'b1;
-                    if (r_is_read) begin 
-                        o_rx_done<=1'b1;
+                S_DONE: begin
+                    sda_out_r <= 1'b1;
+                    sda_oe_r  <= 1'b1;
+                    nack_r    <= 1'b0;
+                    if(nack_r) begin
+                        o_error <= 1'b1;//pulse error so AXI wrapper can set CFG[4]
                     end
-                    else begin                                   
-                        o_tx_done<=1'b1;
+                    else if(r_is_read) begin
+                        o_rx_done <= 1'b1;
                     end
-                    state<=S_IDLE;        
+                    else begin
+                        o_tx_done <= 1'b1;
+                    end
+                    state <= S_IDLE;
                 end
 
                 default: state<=S_IDLE;
