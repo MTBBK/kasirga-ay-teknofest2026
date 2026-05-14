@@ -162,7 +162,7 @@ module timer_top #(
     initial axi_awready = 1'b0;
     always @(posedge clk) begin
         if (!rst_i) axi_awready <= 1'b0;
-        else axi_awready <= !axi_awready && (AWVALID && WVALID) && (!BVALID && BREADY);
+        else axi_awready <= !axi_awready && (AWVALID && WVALID) && (!BVALID);
     end
 
     always @(*) begin
