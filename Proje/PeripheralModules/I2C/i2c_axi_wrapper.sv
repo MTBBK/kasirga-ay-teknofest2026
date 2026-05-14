@@ -132,6 +132,9 @@ module i2c_axi_wrapper #(
                     end
                     OFFSET_I2C_ADR: begin
                         if(WSTRB[0]) I2C_ADR[7:0]   <= WDATA[7:0];
+                        if(WSTRB[1]) I2C_ADR[15:8]  <= WDATA[15:8];
+                        if(WSTRB[2]) I2C_ADR[23:16] <= WDATA[23:16];
+                        if(WSTRB[3]) I2C_ADR[31:24] <= WDATA[31:24];
                     end
                     OFFSET_I2C_TDR: begin
                         if(WSTRB[0]) I2C_TDR[7:0]   <= WDATA[7:0];
@@ -144,9 +147,12 @@ module i2c_axi_wrapper #(
                             I2C_CFG[0] <= WDATA[0]; // TX_EN
                             I2C_CFG[2] <= WDATA[2]; // RX_EN
                         end
+                        if(WSTRB[1]) I2C_CFG[15:8]  <= WDATA[15:8];
+                        if(WSTRB[2]) I2C_CFG[23:16] <= WDATA[23:16];
+                        if(WSTRB[3]) I2C_CFG[31:24] <= WDATA[31:24];
                     end
                 endcase
-            end else if (core_busy) begin
+        end else if (core_busy) begin
                 // Self-clearing: Core işlemi algıladıktan sonra wrapper Enable bitlerini sıfırlar
                 I2C_CFG[0] <= 1'b0;
                 I2C_CFG[2] <= 1'b0;
