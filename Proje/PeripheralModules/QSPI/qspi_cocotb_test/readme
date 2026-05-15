@@ -1,7 +1,8 @@
 Cocotb testlerinin çalışması için cocotbext-axi kütüphanesi gerekiyor
 
-
-pip install cocotb cocotbext-axi
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 make clean 
 make 
 
