@@ -1,0 +1,9 @@
+Cocotb testlerinin çalışması için cocotbext-axi kütüphanesi gerekiyor
+
+
+pip install cocotb cocotbext-axi
+make clean 
+make 
+
+
+

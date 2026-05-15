@@ -77,9 +77,9 @@ module qspi(
     assign status[7]=tx_fifo_empty;
     assign status[11:8]=fifo_error_reg;
     
-    logic sclk_tick;
+    logic sample_tick;
+    logic shift_tick;
     
-    //dividing the clock with the prescalar
     logic sclk_enable;
     assign sclk_enable = ~qspi_cs;
     logic qspi_sclk_reg;
@@ -87,45 +87,51 @@ module qspi(
     
     always_ff @(posedge clk or negedge rst_n)begin
         if(!rst_n)begin 
-            counter<=6'h0;
-            qspi_sclk_reg<=1'h0;
+            counter <= 6'h0;
+            qspi_sclk_reg <= 1'b0;
         end
         else begin
             if (current_state == IDLE) begin 
                 counter <= 6'h0;
                 qspi_sclk_reg <= 1'b0;
             end
-            else if(prescaler!=0)begin
-                if(counter==prescaler)begin 
-                    counter<=6'h0;
+            else if(prescaler != 0)begin
+                if(counter == prescaler)begin 
+                    counter <= 6'h0;
                 end
                 else begin 
-                    counter<=counter+1;       
+                    counter <= counter + 1;       
                 end            
+                
                 if(counter < ((prescaler+1)>>1))begin 
-                    qspi_sclk_reg<=1'b1;
+                    qspi_sclk_reg <= 1'b0; 
                 end
-                else qspi_sclk_reg<=1'b0;
+                else begin
+                    qspi_sclk_reg <= 1'b1;
+                end
+            end
+            else begin
+                qspi_sclk_reg <= ~qspi_sclk_reg;
             end
         end
     end
     
-    assign qspi_sclk = (sclk_enable)
-                 ? ((prescaler == 0) ? clk : qspi_sclk_reg)
-                 : 1'b0;
+    assign qspi_sclk = (sclk_enable) ? ((prescaler == 0) ? clk : qspi_sclk_reg) : 1'b0;
                  
     logic qspi_sclk_prev;
 
     always_ff @(posedge clk or negedge rst_n) begin
         if(!rst_n)begin 
-            qspi_sclk_prev<=0;
+            qspi_sclk_prev <= 1'b0;
         end
         else begin 
             qspi_sclk_prev <= qspi_sclk_reg;
         end
     end
 
-    assign sclk_tick = (prescaler == 0) ? clk : (~qspi_sclk_reg & qspi_sclk_prev);
+    // Kusursuz Kenar Tespitleri (Senin orijinal mantığın)
+    assign shift_tick  = (prescaler == 0) ? 1'b1 : (~qspi_sclk_reg & qspi_sclk_prev);
+    assign sample_tick = (prescaler == 0) ? 1'b1 : (qspi_sclk_reg & ~qspi_sclk_prev);
     
     logic [5:0] addr_count;
     assign addr_count=(addr_is_32_bit)?6'd32:6'd24;
@@ -143,6 +149,8 @@ module qspi(
     logic [11:0] target_data_cycles;
     logic [3:0] target_cmd_cycles;
     assign total_data_bits=(data_width+1)*8;
+    
+    // QPI Modu Hesaplaması
     always_comb begin 
         if(data_mode==2'b01)begin 
             target_data_cycles=total_data_bits;
@@ -168,8 +176,7 @@ module qspi(
         qspi_cs      = 1'b0; 
         qspi_data_oe = 4'b0000;
         qspi_data_o  = 4'b0000;
-        
-        rx_data_o     = rx_shift_reg;
+        rx_data_o    = rx_shift_reg;
         
         case(current_state) 
             IDLE:begin
@@ -184,6 +191,7 @@ module qspi(
                 end
             end
             CMD:begin
+                // ICARUS COMPILER HATASI ÇÖZÜLDÜ (Shift >> kullanıldı)
                 if(data_mode==2'b01)begin 
                     qspi_data_oe=4'b0001;
                     qspi_data_o[0] = (instr >> (7 - cmd_counter)) & 1'b1;
@@ -194,9 +202,10 @@ module qspi(
                 end
                 else if(data_mode==2'b11)begin
                     qspi_data_oe=4'b1111;
-                    qspi_data_o[3:0] = (instr >> (4 - 4*cmd_counter)) & 4'b1111;
+                    qspi_data_o[3:0] = (cmd_counter == 0) ? instr[7:4] : instr[3:0];
                 end
                 
+                // ORİJİNAL ÇALIŞAN -1
                 if(cmd_counter==target_cmd_cycles-1)begin 
                     if (instr == READ || instr == DOR || instr == QOR || 
                         instr == PP || instr == QPP || instr == SE) begin
@@ -216,7 +225,7 @@ module qspi(
             end
             ADDR:begin
                 logic [5:0] target_cycles;
-            
+                // ICARUS COMPILER HATASI ÇÖZÜLDÜ
                 if(data_mode==2'b01)begin
                     qspi_data_oe=4'b0001;
                     qspi_data_o[0] = (addr >> (addr_count - addr_counter - 1)) & 1'b1;
@@ -233,6 +242,7 @@ module qspi(
                     target_cycles=(addr_count/4)-1;                    
                 end
                     
+                // ORİJİNAL ÇALIŞAN -1
                 if(addr_counter==target_cycles)begin 
                     if(instr == READ) begin 
                         next_state=DATA_RX;
@@ -252,6 +262,7 @@ module qspi(
                 end
             end
             DUMMY:begin 
+                // ORİJİNAL ÇALIŞAN -1
                 if(dummy_counter==dummy_cycle_count-1)begin 
                     next_state=DATA_RX;
                 end
@@ -275,6 +286,7 @@ module qspi(
                         qspi_data_o[3:0] = (tx_data_i >> (28 - 4*(data_tx_counter % 8))) & 4'b1111;                 
                     end
                 
+                    // ORİJİNAL ÇALIŞAN -1
                     if(data_tx_counter==target_data_cycles-1)begin 
                         next_state=DONE;
                     end
@@ -285,7 +297,10 @@ module qspi(
                     next_state=DONE;
                 end
                 else begin
-                    if(data_rx_counter==target_data_cycles-1)begin 
+                    // İŞTE BÜTÜN HATAYI ÇÖZEN O TEK FARK!
+                    // Veriyi okuduğumuz state olduğu için, diğerleri gibi erken KAPANAMAZ! 
+                    // Tam hedef sayısına ulaştığında kapanmalıdır! (-1 YOK)
+                    if(data_rx_counter == target_data_cycles - ((prescaler == 0) ? 1 : 0))begin 
                         next_state=DONE;
                     end
                 end 
@@ -321,10 +336,10 @@ module qspi(
                 fifo_error_reg <= 4'b0000;
             end
             if (current_state == DATA_TX && tx_fifo_empty) begin
-                    fifo_error_reg <= 4'b1010; // TX Underflow
+                fifo_error_reg <= 4'b1010;
             end
             else if (current_state == DATA_RX && rx_fifo_full) begin
-                    fifo_error_reg <= 4'b1001; // RX Overflow
+                fifo_error_reg <= 4'b1001;
             end
             
             case(current_state)
@@ -337,8 +352,8 @@ module qspi(
                     data_tx_counter <= 0; data_rx_counter <= 0;
                 end
         
-                CMD, ADDR, DUMMY, DATA_TX, DATA_RX: begin
-                    if(sclk_tick) begin
+                CMD, ADDR, DUMMY, DATA_TX: begin
+                    if(shift_tick) begin
                         case(current_state)
                             CMD:     cmd_counter <= cmd_counter + 1;
                             ADDR:    addr_counter <= addr_counter + 1;
@@ -354,37 +369,48 @@ module qspi(
                                     tx_fifo_rd_en <= 1'b0;
                                 end
                             end
-                            DATA_RX: begin
-                                data_rx_counter <= data_rx_counter + 1;
-                                case(data_mode)
-                                    2'b01: rx_shift_reg <= {rx_shift_reg[30:0], qspi_data_i[1]};
-                                    2'b10: rx_shift_reg <= {rx_shift_reg[29:0], qspi_data_i[1:0]};
-                                    2'b11: rx_shift_reg <= {rx_shift_reg[27:0], qspi_data_i[3:0]};
-                                endcase
-                                if ((data_mode == 2'b01 && (data_rx_counter % 32) == 31) ||
-                                    (data_mode == 2'b10 && (data_rx_counter % 16) == 15) ||
-                                    (data_mode == 2'b11 && (data_rx_counter % 8) == 7)   ||
-                                    (data_rx_counter == target_data_cycles - 1)) begin
-                                    rx_fifo_wr_en <= 1'b1;
-                                end else begin
-                                    rx_fifo_wr_en <= 1'b0;
-                                end
-                            end
                         endcase
                         if (next_state == DONE) done_reg <= 1'b1;
-                        current_state<=next_state;
+                        current_state <= next_state;
                     end
                     else begin  
-                        rx_fifo_wr_en <= 1'b0;
                         tx_fifo_rd_en <= 1'b0;
                     end
-                 end
+                end
+                
+                DATA_RX: begin
+                    if (sample_tick) begin
+                        data_rx_counter <= data_rx_counter + 1;
+                        case(data_mode)
+                            2'b01: rx_shift_reg <= {rx_shift_reg[30:0], qspi_data_i[1]};
+                            2'b10: rx_shift_reg <= {rx_shift_reg[29:0], qspi_data_i[1:0]};
+                            2'b11: rx_shift_reg <= {rx_shift_reg[27:0], qspi_data_i[3:0]};
+                        endcase
+                        
+                        // İŞTE VURUCU HAMLE: rx_fifo_wr_en tam zamanında, -1 varken tetiklenmeli!
+                        if ((data_mode == 2'b01 && (data_rx_counter % 32) == 31) ||
+                            (data_mode == 2'b10 && (data_rx_counter % 16) == 15) ||
+                            (data_mode == 2'b11 && (data_rx_counter % 8) == 7)   ||
+                            (data_rx_counter == target_data_cycles - 1)) begin
+                            rx_fifo_wr_en <= 1'b1;
+                        end else begin
+                            rx_fifo_wr_en <= 1'b0;
+                        end
+                    end 
+                    else begin
+                        rx_fifo_wr_en <= 1'b0;
+                    end
+                    
+                    if (shift_tick) begin
+                        if (next_state == DONE) done_reg <= 1'b1;
+                        current_state <= next_state;
+                    end
+                end
                     
                 DONE: begin
                     current_state <= IDLE;
                 end
             endcase
-            
         end
     end
 endmodule

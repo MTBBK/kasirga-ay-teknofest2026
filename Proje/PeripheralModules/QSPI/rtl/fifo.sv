@@ -44,7 +44,7 @@ module fifo #(parameter DATA_WIDTH=32,parameter DEPTH=64)(
     
     assign full=((wr_ptr[PTR_WIDTH]!=rd_ptr[PTR_WIDTH])&&(wr_ptr[PTR_WIDTH-1:0]==rd_ptr[PTR_WIDTH-1:0]));
     assign empty=(wr_ptr==rd_ptr);
-    assign data_out=mem[rd_ptr[PTR_WIDTH-1:0]];
+    assign data_out = empty ? {DATA_WIDTH{1'b0}} : mem[rd_ptr[PTR_WIDTH-1:0]];
     
     always_ff @(posedge clk or negedge rst_n)begin 
         if(!rst_n)begin 

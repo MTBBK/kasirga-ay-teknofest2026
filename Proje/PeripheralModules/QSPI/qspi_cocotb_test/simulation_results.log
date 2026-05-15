@@ -1,0 +1,1328 @@
+2026-05-15 17:10:41,167 - INFO - Found test test_qspi.Single_Write_Read_Test
+2026-05-15 17:10:41,167 - INFO - Found test test_qspi.Quad_Read_Dummy_Test
+2026-05-15 17:10:41,167 - INFO - Found test test_qspi.Advanced_Corner_Cases_Test
+2026-05-15 17:10:41,167 - INFO - Found test test_qspi.Prescaler_Sweep_Test
+2026-05-15 17:10:41,167 - INFO - [34mrunning[49m[39m Single_Write_Read_Test (1/4)
+2026-05-15 17:10:41,169 - INFO - AXI lite master (write)
+2026-05-15 17:10:41,169 - INFO - cocotbext-axi version 0.1.28
+2026-05-15 17:10:41,169 - INFO - Copyright (c) 2020-2025 Alex Forencich
+2026-05-15 17:10:41,169 - INFO - https://github.com/alexforencich/cocotbext-axi
+2026-05-15 17:10:41,169 - INFO - Reset de-asserted
+2026-05-15 17:10:41,169 - INFO - Reset de-asserted
+2026-05-15 17:10:41,169 - INFO - Reset de-asserted
+2026-05-15 17:10:41,169 - INFO - AXI lite master configuration:
+2026-05-15 17:10:41,169 - INFO -   Address width: 32 bits
+2026-05-15 17:10:41,169 - INFO -   Byte size: 8 bits
+2026-05-15 17:10:41,169 - INFO -   Data width: 32 bits (4 bytes)
+2026-05-15 17:10:41,169 - INFO - AXI lite master signals:
+2026-05-15 17:10:41,169 - INFO -   awaddr width: 32 bits
+2026-05-15 17:10:41,169 - INFO -   awprot: not present
+2026-05-15 17:10:41,169 - INFO -   awready width: 1 bits
+2026-05-15 17:10:41,169 - INFO -   awvalid width: 1 bits
+2026-05-15 17:10:41,169 - INFO -   wdata width: 32 bits
+2026-05-15 17:10:41,169 - INFO -   wready width: 1 bits
+2026-05-15 17:10:41,169 - INFO -   wstrb width: 4 bits
+2026-05-15 17:10:41,169 - INFO -   wvalid width: 1 bits
+2026-05-15 17:10:41,169 - INFO -   bready width: 1 bits
+2026-05-15 17:10:41,169 - INFO -   bresp width: 2 bits
+2026-05-15 17:10:41,169 - INFO -   bvalid width: 1 bits
+2026-05-15 17:10:41,169 - INFO - Reset de-asserted
+2026-05-15 17:10:41,169 - INFO - AXI lite master (read)
+2026-05-15 17:10:41,169 - INFO - cocotbext-axi version 0.1.28
+2026-05-15 17:10:41,169 - INFO - Copyright (c) 2020-2025 Alex Forencich
+2026-05-15 17:10:41,169 - INFO - https://github.com/alexforencich/cocotbext-axi
+2026-05-15 17:10:41,170 - INFO - Reset de-asserted
+2026-05-15 17:10:41,170 - INFO - Reset de-asserted
+2026-05-15 17:10:41,170 - INFO - AXI lite master configuration:
+2026-05-15 17:10:41,170 - INFO -   Address width: 32 bits
+2026-05-15 17:10:41,170 - INFO -   Byte size: 8 bits
+2026-05-15 17:10:41,170 - INFO -   Data width: 32 bits (4 bytes)
+2026-05-15 17:10:41,170 - INFO - AXI lite master signals:
+2026-05-15 17:10:41,170 - INFO -   araddr width: 32 bits
+2026-05-15 17:10:41,170 - INFO -   arprot: not present
+2026-05-15 17:10:41,170 - INFO -   arready width: 1 bits
+2026-05-15 17:10:41,170 - INFO -   arvalid width: 1 bits
+2026-05-15 17:10:41,170 - INFO -   rdata width: 32 bits
+2026-05-15 17:10:41,170 - INFO -   rready width: 1 bits
+2026-05-15 17:10:41,170 - INFO -   rresp width: 2 bits
+2026-05-15 17:10:41,170 - INFO -   rvalid width: 1 bits
+2026-05-15 17:10:41,170 - INFO - Reset de-asserted
+2026-05-15 17:10:41,170 - INFO - Write start addr: 0x00090010 prot: 2 data: 03 00 00 00
+2026-05-15 17:10:41,171 - INFO - Write complete addr: 0x00090010 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,171 - INFO - Write start addr: 0x00090010 prot: 2 data: 00 00 00 00
+2026-05-15 17:10:41,171 - INFO - Write complete addr: 0x00090010 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,171 - INFO - --- 1. ASAMA: 0xaa Adresine 0x8899aabb Yaziliyor (SINGLE) ---
+2026-05-15 17:10:41,171 - INFO - Write start addr: 0x00090004 prot: 2 data: aa 00 00 00
+2026-05-15 17:10:41,172 - INFO - Write complete addr: 0x00090004 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,172 - INFO - Write start addr: 0x00090008 prot: 2 data: bb aa 99 88
+2026-05-15 17:10:41,172 - INFO - Write complete addr: 0x00090008 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,172 - INFO - Write start addr: 0x00090000 prot: 2 data: 02 01 03 04
+2026-05-15 17:10:41,173 - INFO - Write complete addr: 0x00090000 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,173 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,173 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,173 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,174 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,174 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,174 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,174 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,175 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,175 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,175 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,176 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,176 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,176 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,177 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,177 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,177 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,177 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,178 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,178 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,178 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,179 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,179 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,179 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,180 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,180 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,180 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,180 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,181 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,181 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,181 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,181 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,182 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,182 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,182 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,183 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,183 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,183 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,184 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,184 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,184 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,184 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,185 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,185 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,185 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,186 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,186 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,186 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,187 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,187 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,187 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,187 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,188 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,188 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,188 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,189 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,189 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,189 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,190 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,190 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,190 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,190 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,191 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,191 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,191 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,191 - INFO - [VIP] YAZMA ALINDI -> Adres: 0xaa, Veri: 0x8899aabb
+2026-05-15 17:10:41,192 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,192 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,192 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,192 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a1 00 00 00
+2026-05-15 17:10:41,193 - INFO - Read start addr: 0x00090008 prot: 2 length: 4
+2026-05-15 17:10:41,193 - INFO - Read complete addr: 0x00090008 prot: 2 resp: 0 data: 00 00 00 00
+2026-05-15 17:10:41,193 - INFO - --- 2. ASAMA: 0xaa Adresinden Veri Okunuyor (SINGLE) ---
+2026-05-15 17:10:41,193 - INFO - Write start addr: 0x00090000 prot: 2 data: 03 01 03 04
+2026-05-15 17:10:41,193 - INFO - Write complete addr: 0x00090000 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,194 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,194 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,194 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,194 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,195 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,195 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,195 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,196 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,196 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,196 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,197 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,197 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,197 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,197 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,198 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,198 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,198 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,199 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,199 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,199 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,199 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,200 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,200 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,200 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,201 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,201 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,201 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,201 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,202 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,202 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,202 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,203 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,203 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,203 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,204 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,204 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,204 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,205 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,205 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,205 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,205 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,206 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,206 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,206 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,207 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,207 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,207 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,208 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,208 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,208 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,208 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,209 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,209 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,209 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,210 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,210 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,210 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,210 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,211 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,211 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,211 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,212 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,212 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,212 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,212 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,213 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 82 01 00 00
+2026-05-15 17:10:41,213 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,214 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 81 01 00 00
+2026-05-15 17:10:41,214 - INFO - Read start addr: 0x00090008 prot: 2 length: 4
+2026-05-15 17:10:41,214 - INFO - Read complete addr: 0x00090008 prot: 2 resp: 0 data: bb aa 99 88
+2026-05-15 17:10:41,214 - INFO - >>>> SINGLE WRITE/READ MUKEMMEL ZAFER! <<<<
+
+2026-05-15 17:10:41,215 - INFO - Single_Write_Read_Test [32mpassed[49m[39m
+2026-05-15 17:10:41,215 - INFO - [34mrunning[49m[39m Quad_Read_Dummy_Test (2/4)
+2026-05-15 17:10:41,216 - INFO - AXI lite master (write)
+2026-05-15 17:10:41,216 - INFO - cocotbext-axi version 0.1.28
+2026-05-15 17:10:41,216 - INFO - Copyright (c) 2020-2025 Alex Forencich
+2026-05-15 17:10:41,216 - INFO - https://github.com/alexforencich/cocotbext-axi
+2026-05-15 17:10:41,216 - INFO - Reset de-asserted
+2026-05-15 17:10:41,216 - INFO - Reset de-asserted
+2026-05-15 17:10:41,217 - INFO - Reset de-asserted
+2026-05-15 17:10:41,217 - INFO - AXI lite master configuration:
+2026-05-15 17:10:41,217 - INFO -   Address width: 32 bits
+2026-05-15 17:10:41,217 - INFO -   Byte size: 8 bits
+2026-05-15 17:10:41,217 - INFO -   Data width: 32 bits (4 bytes)
+2026-05-15 17:10:41,217 - INFO - AXI lite master signals:
+2026-05-15 17:10:41,217 - INFO -   awaddr width: 32 bits
+2026-05-15 17:10:41,217 - INFO -   awprot: not present
+2026-05-15 17:10:41,217 - INFO -   awready width: 1 bits
+2026-05-15 17:10:41,217 - INFO -   awvalid width: 1 bits
+2026-05-15 17:10:41,217 - INFO -   wdata width: 32 bits
+2026-05-15 17:10:41,217 - INFO -   wready width: 1 bits
+2026-05-15 17:10:41,217 - INFO -   wstrb width: 4 bits
+2026-05-15 17:10:41,217 - INFO -   wvalid width: 1 bits
+2026-05-15 17:10:41,217 - INFO -   bready width: 1 bits
+2026-05-15 17:10:41,217 - INFO -   bresp width: 2 bits
+2026-05-15 17:10:41,217 - INFO -   bvalid width: 1 bits
+2026-05-15 17:10:41,217 - INFO - Reset de-asserted
+2026-05-15 17:10:41,217 - INFO - AXI lite master (read)
+2026-05-15 17:10:41,217 - INFO - cocotbext-axi version 0.1.28
+2026-05-15 17:10:41,217 - INFO - Copyright (c) 2020-2025 Alex Forencich
+2026-05-15 17:10:41,217 - INFO - https://github.com/alexforencich/cocotbext-axi
+2026-05-15 17:10:41,217 - INFO - Reset de-asserted
+2026-05-15 17:10:41,217 - INFO - Reset de-asserted
+2026-05-15 17:10:41,217 - INFO - AXI lite master configuration:
+2026-05-15 17:10:41,217 - INFO -   Address width: 32 bits
+2026-05-15 17:10:41,217 - INFO -   Byte size: 8 bits
+2026-05-15 17:10:41,217 - INFO -   Data width: 32 bits (4 bytes)
+2026-05-15 17:10:41,217 - INFO - AXI lite master signals:
+2026-05-15 17:10:41,217 - INFO -   araddr width: 32 bits
+2026-05-15 17:10:41,217 - INFO -   arprot: not present
+2026-05-15 17:10:41,217 - INFO -   arready width: 1 bits
+2026-05-15 17:10:41,217 - INFO -   arvalid width: 1 bits
+2026-05-15 17:10:41,217 - INFO -   rdata width: 32 bits
+2026-05-15 17:10:41,217 - INFO -   rready width: 1 bits
+2026-05-15 17:10:41,217 - INFO -   rresp width: 2 bits
+2026-05-15 17:10:41,217 - INFO -   rvalid width: 1 bits
+2026-05-15 17:10:41,217 - INFO - Reset de-asserted
+2026-05-15 17:10:41,218 - INFO - Write start addr: 0x00090010 prot: 2 data: 03 00 00 00
+2026-05-15 17:10:41,218 - INFO - Write complete addr: 0x00090010 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,218 - INFO - Write start addr: 0x00090010 prot: 2 data: 00 00 00 00
+2026-05-15 17:10:41,219 - INFO - Write complete addr: 0x00090010 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,219 - INFO - --- QUAD READ TEST: 0x44 Adresi 8 Dummy Cycle ile Okunuyor ---
+2026-05-15 17:10:41,219 - INFO - Write start addr: 0x00090004 prot: 2 data: 44 00 00 00
+2026-05-15 17:10:41,219 - INFO - Write complete addr: 0x00090004 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,219 - INFO - Write start addr: 0x00090000 prot: 2 data: 6b 43 03 04
+2026-05-15 17:10:41,219 - INFO - Write complete addr: 0x00090000 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,220 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,220 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,220 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,221 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,221 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,221 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,221 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,222 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,222 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,222 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,223 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,223 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,223 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,223 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,224 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,224 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,224 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,225 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,225 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,225 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,225 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,226 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,226 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,226 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,227 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,227 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 82 00 00 00
+2026-05-15 17:10:41,227 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,227 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 81 00 00 00
+2026-05-15 17:10:41,228 - INFO - Read start addr: 0x00090008 prot: 2 length: 4
+2026-05-15 17:10:41,228 - INFO - Read complete addr: 0x00090008 prot: 2 resp: 0 data: 00 ff 00 ff
+2026-05-15 17:10:41,228 - INFO - >>>> QUAD READ & DUMMY CYCLE MUKEMMEL ZAFER! <<<<
+
+2026-05-15 17:10:41,229 - INFO - Quad_Read_Dummy_Test [32mpassed[49m[39m
+2026-05-15 17:10:41,229 - INFO - [34mrunning[49m[39m Advanced_Corner_Cases_Test (3/4)
+2026-05-15 17:10:41,229 - INFO - AXI lite master (write)
+2026-05-15 17:10:41,229 - INFO - cocotbext-axi version 0.1.28
+2026-05-15 17:10:41,229 - INFO - Copyright (c) 2020-2025 Alex Forencich
+2026-05-15 17:10:41,229 - INFO - https://github.com/alexforencich/cocotbext-axi
+2026-05-15 17:10:41,230 - INFO - Reset de-asserted
+2026-05-15 17:10:41,230 - INFO - Reset de-asserted
+2026-05-15 17:10:41,230 - INFO - Reset de-asserted
+2026-05-15 17:10:41,230 - INFO - AXI lite master configuration:
+2026-05-15 17:10:41,230 - INFO -   Address width: 32 bits
+2026-05-15 17:10:41,230 - INFO -   Byte size: 8 bits
+2026-05-15 17:10:41,230 - INFO -   Data width: 32 bits (4 bytes)
+2026-05-15 17:10:41,230 - INFO - AXI lite master signals:
+2026-05-15 17:10:41,230 - INFO -   awaddr width: 32 bits
+2026-05-15 17:10:41,230 - INFO -   awprot: not present
+2026-05-15 17:10:41,230 - INFO -   awready width: 1 bits
+2026-05-15 17:10:41,230 - INFO -   awvalid width: 1 bits
+2026-05-15 17:10:41,230 - INFO -   wdata width: 32 bits
+2026-05-15 17:10:41,230 - INFO -   wready width: 1 bits
+2026-05-15 17:10:41,230 - INFO -   wstrb width: 4 bits
+2026-05-15 17:10:41,230 - INFO -   wvalid width: 1 bits
+2026-05-15 17:10:41,230 - INFO -   bready width: 1 bits
+2026-05-15 17:10:41,230 - INFO -   bresp width: 2 bits
+2026-05-15 17:10:41,230 - INFO -   bvalid width: 1 bits
+2026-05-15 17:10:41,230 - INFO - Reset de-asserted
+2026-05-15 17:10:41,230 - INFO - AXI lite master (read)
+2026-05-15 17:10:41,230 - INFO - cocotbext-axi version 0.1.28
+2026-05-15 17:10:41,230 - INFO - Copyright (c) 2020-2025 Alex Forencich
+2026-05-15 17:10:41,230 - INFO - https://github.com/alexforencich/cocotbext-axi
+2026-05-15 17:10:41,230 - INFO - Reset de-asserted
+2026-05-15 17:10:41,230 - INFO - Reset de-asserted
+2026-05-15 17:10:41,230 - INFO - AXI lite master configuration:
+2026-05-15 17:10:41,230 - INFO -   Address width: 32 bits
+2026-05-15 17:10:41,230 - INFO -   Byte size: 8 bits
+2026-05-15 17:10:41,231 - INFO -   Data width: 32 bits (4 bytes)
+2026-05-15 17:10:41,231 - INFO - AXI lite master signals:
+2026-05-15 17:10:41,231 - INFO -   araddr width: 32 bits
+2026-05-15 17:10:41,231 - INFO -   arprot: not present
+2026-05-15 17:10:41,231 - INFO -   arready width: 1 bits
+2026-05-15 17:10:41,231 - INFO -   arvalid width: 1 bits
+2026-05-15 17:10:41,231 - INFO -   rdata width: 32 bits
+2026-05-15 17:10:41,231 - INFO -   rready width: 1 bits
+2026-05-15 17:10:41,231 - INFO -   rresp width: 2 bits
+2026-05-15 17:10:41,231 - INFO -   rvalid width: 1 bits
+2026-05-15 17:10:41,231 - INFO - Reset de-asserted
+2026-05-15 17:10:41,231 - INFO - Write start addr: 0x00090010 prot: 2 data: 03 00 00 00
+2026-05-15 17:10:41,231 - INFO - Write complete addr: 0x00090010 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,231 - INFO - Write start addr: 0x00090010 prot: 2 data: 00 00 00 00
+2026-05-15 17:10:41,232 - INFO - Write complete addr: 0x00090010 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,232 - INFO - >>> STRES TEST 1: Dual Mod (2 Hat) Okuma...
+2026-05-15 17:10:41,232 - INFO - Write start addr: 0x00090004 prot: 2 data: 56 34 12 00
+2026-05-15 17:10:41,232 - INFO - Write complete addr: 0x00090004 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,232 - INFO - Write start addr: 0x00090000 prot: 2 data: 3b 42 03 04
+2026-05-15 17:10:41,233 - INFO - Write complete addr: 0x00090000 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,233 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,233 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,233 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,234 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,234 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,234 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,235 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,235 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,235 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,236 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,236 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,236 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,236 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,237 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,237 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,237 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,238 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,238 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,238 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,239 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,239 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,239 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,239 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,240 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,240 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,240 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,241 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,241 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,241 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,241 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,242 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,242 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,242 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,243 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,243 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,243 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,243 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,244 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,244 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,244 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 00 00 00
+2026-05-15 17:10:41,245 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,245 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 82 00 00 00
+2026-05-15 17:10:41,245 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,246 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 81 00 00 00
+2026-05-15 17:10:41,246 - INFO - Read start addr: 0x00090008 prot: 2 length: 4
+2026-05-15 17:10:41,246 - INFO - Read complete addr: 0x00090008 prot: 2 resp: 0 data: ff ee cd ab
+2026-05-15 17:10:41,246 - INFO -     -> Dual Mod PASS!
+2026-05-15 17:10:41,246 - INFO - >>> STRES TEST 2: Hizalanmamış (Unaligned) 1 Byte Okuma...
+2026-05-15 17:10:41,246 - INFO - Write start addr: 0x00090004 prot: 2 data: 99 88 77 00
+2026-05-15 17:10:41,247 - INFO - Write complete addr: 0x00090004 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,247 - INFO - Write start addr: 0x00090000 prot: 2 data: 03 01 00 04
+2026-05-15 17:10:41,247 - INFO - Write complete addr: 0x00090000 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,247 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,248 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,248 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,248 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,248 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,249 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,249 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,249 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,250 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,250 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,250 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,250 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,251 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,251 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,251 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,252 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,252 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,252 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,252 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,253 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,253 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,253 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,254 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,254 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,254 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,255 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,255 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,255 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,255 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,256 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,256 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,256 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,257 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,257 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,257 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,258 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,258 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,258 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,258 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,259 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,259 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,259 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 82 01 00 00
+2026-05-15 17:10:41,260 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,260 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 81 01 00 00
+2026-05-15 17:10:41,260 - INFO - Read start addr: 0x00090008 prot: 2 length: 4
+2026-05-15 17:10:41,260 - INFO - Read complete addr: 0x00090008 prot: 2 resp: 0 data: 55 ff ee cd
+2026-05-15 17:10:41,260 - INFO -     -> Tek Byte Okuma PASS!
+2026-05-15 17:10:41,261 - INFO - >>> STRES TEST 3: RX FIFO Overflow Koruması...
+2026-05-15 17:10:41,261 - INFO - Write start addr: 0x00090000 prot: 2 data: 03 01 17 04
+2026-05-15 17:10:41,261 - INFO - Write complete addr: 0x00090000 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,274 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,274 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 82 01 00 00
+2026-05-15 17:10:41,274 - INFO -     -> Overflow Başarıyla Engellendi ve Raporlandı (Status: 0x182) PASS!
+2026-05-15 17:10:41,275 - INFO - Advanced_Corner_Cases_Test [32mpassed[49m[39m
+2026-05-15 17:10:41,275 - INFO - [34mrunning[49m[39m Prescaler_Sweep_Test (4/4)
+2026-05-15 17:10:41,276 - INFO - AXI lite master (write)
+2026-05-15 17:10:41,276 - INFO - cocotbext-axi version 0.1.28
+2026-05-15 17:10:41,276 - INFO - Copyright (c) 2020-2025 Alex Forencich
+2026-05-15 17:10:41,276 - INFO - https://github.com/alexforencich/cocotbext-axi
+2026-05-15 17:10:41,276 - INFO - Reset de-asserted
+2026-05-15 17:10:41,276 - INFO - Reset de-asserted
+2026-05-15 17:10:41,276 - INFO - Reset de-asserted
+2026-05-15 17:10:41,276 - INFO - AXI lite master configuration:
+2026-05-15 17:10:41,276 - INFO -   Address width: 32 bits
+2026-05-15 17:10:41,276 - INFO -   Byte size: 8 bits
+2026-05-15 17:10:41,276 - INFO -   Data width: 32 bits (4 bytes)
+2026-05-15 17:10:41,276 - INFO - AXI lite master signals:
+2026-05-15 17:10:41,276 - INFO -   awaddr width: 32 bits
+2026-05-15 17:10:41,276 - INFO -   awprot: not present
+2026-05-15 17:10:41,276 - INFO -   awready width: 1 bits
+2026-05-15 17:10:41,276 - INFO -   awvalid width: 1 bits
+2026-05-15 17:10:41,276 - INFO -   wdata width: 32 bits
+2026-05-15 17:10:41,276 - INFO -   wready width: 1 bits
+2026-05-15 17:10:41,276 - INFO -   wstrb width: 4 bits
+2026-05-15 17:10:41,276 - INFO -   wvalid width: 1 bits
+2026-05-15 17:10:41,276 - INFO -   bready width: 1 bits
+2026-05-15 17:10:41,276 - INFO -   bresp width: 2 bits
+2026-05-15 17:10:41,276 - INFO -   bvalid width: 1 bits
+2026-05-15 17:10:41,276 - INFO - Reset de-asserted
+2026-05-15 17:10:41,276 - INFO - AXI lite master (read)
+2026-05-15 17:10:41,277 - INFO - cocotbext-axi version 0.1.28
+2026-05-15 17:10:41,277 - INFO - Copyright (c) 2020-2025 Alex Forencich
+2026-05-15 17:10:41,277 - INFO - https://github.com/alexforencich/cocotbext-axi
+2026-05-15 17:10:41,277 - INFO - Reset de-asserted
+2026-05-15 17:10:41,277 - INFO - Reset de-asserted
+2026-05-15 17:10:41,277 - INFO - AXI lite master configuration:
+2026-05-15 17:10:41,277 - INFO -   Address width: 32 bits
+2026-05-15 17:10:41,277 - INFO -   Byte size: 8 bits
+2026-05-15 17:10:41,277 - INFO -   Data width: 32 bits (4 bytes)
+2026-05-15 17:10:41,277 - INFO - AXI lite master signals:
+2026-05-15 17:10:41,277 - INFO -   araddr width: 32 bits
+2026-05-15 17:10:41,277 - INFO -   arprot: not present
+2026-05-15 17:10:41,277 - INFO -   arready width: 1 bits
+2026-05-15 17:10:41,277 - INFO -   arvalid width: 1 bits
+2026-05-15 17:10:41,277 - INFO -   rdata width: 32 bits
+2026-05-15 17:10:41,277 - INFO -   rready width: 1 bits
+2026-05-15 17:10:41,277 - INFO -   rresp width: 2 bits
+2026-05-15 17:10:41,277 - INFO -   rvalid width: 1 bits
+2026-05-15 17:10:41,277 - INFO - Reset de-asserted
+2026-05-15 17:10:41,277 - INFO - Write start addr: 0x00090010 prot: 2 data: 03 00 00 00
+2026-05-15 17:10:41,278 - INFO - Write complete addr: 0x00090010 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,278 - INFO - Write start addr: 0x00090010 prot: 2 data: 00 00 00 00
+2026-05-15 17:10:41,278 - INFO - Write complete addr: 0x00090010 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,278 - INFO - 
+==================================================
+2026-05-15 17:10:41,278 - INFO - >>> TEST 4: PRESCALER STRES TESTİ BAŞLIYOR <<<
+2026-05-15 17:10:41,278 - INFO - ==================================================
+2026-05-15 17:10:41,278 - INFO - >>> AŞAMA 1: Prescaler = 1 (Yüksek Frekans Simülasyonu)
+2026-05-15 17:10:41,278 - INFO - Write start addr: 0x00090004 prot: 2 data: 00 01 00 00
+2026-05-15 17:10:41,279 - INFO - Write complete addr: 0x00090004 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,279 - INFO - Write start addr: 0x00090008 prot: 2 data: 44 33 22 11
+2026-05-15 17:10:41,279 - INFO - Write complete addr: 0x00090008 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,279 - INFO - Write start addr: 0x00090000 prot: 2 data: 02 01 03 02
+2026-05-15 17:10:41,280 - INFO - Write complete addr: 0x00090000 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,280 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,280 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,280 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,281 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,281 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,281 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,282 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,282 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,282 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,283 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,283 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,283 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,283 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,284 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,284 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,284 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,285 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,285 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,285 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,286 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,286 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,286 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,286 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,287 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,287 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,287 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,288 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,288 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,288 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,289 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,289 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,289 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,289 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,290 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,290 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,290 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,291 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,291 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,291 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,291 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,292 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,292 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,292 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,293 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 00 00 00
+2026-05-15 17:10:41,293 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,293 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a1 00 00 00
+2026-05-15 17:10:41,293 - INFO - Read start addr: 0x00090008 prot: 2 length: 4
+2026-05-15 17:10:41,294 - INFO - Read complete addr: 0x00090008 prot: 2 resp: 0 data: 00 00 00 00
+2026-05-15 17:10:41,294 - INFO - Write start addr: 0x00090000 prot: 2 data: 03 01 03 02
+2026-05-15 17:10:41,294 - INFO - Write complete addr: 0x00090000 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,294 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,295 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,295 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,295 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,296 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,296 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,296 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,297 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,297 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,297 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,297 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,298 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,298 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,298 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,299 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,299 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,299 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,300 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,300 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,300 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,300 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,301 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,301 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,301 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,302 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,302 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,302 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,303 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,303 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,303 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,304 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,304 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,304 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,305 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,305 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,305 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,305 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,306 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,306 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,307 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,307 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,307 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,307 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,308 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,308 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,308 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 81 01 00 00
+2026-05-15 17:10:41,308 - INFO - Read start addr: 0x00090008 prot: 2 length: 4
+2026-05-15 17:10:41,309 - INFO - Read complete addr: 0x00090008 prot: 2 resp: 0 data: 44 33 22 11
+2026-05-15 17:10:41,309 - INFO -     -> Prescaler = 1 TESTİ PASS!
+2026-05-15 17:10:41,309 - INFO - >>> AŞAMA 2: Prescaler = 15 (Yavaş Frekans)
+2026-05-15 17:10:41,309 - INFO - Write start addr: 0x00090004 prot: 2 data: 00 02 00 00
+2026-05-15 17:10:41,309 - INFO - Write complete addr: 0x00090004 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,309 - INFO - Write start addr: 0x00090008 prot: 2 data: 66 77 88 99
+2026-05-15 17:10:41,310 - INFO - Write complete addr: 0x00090008 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,310 - INFO - Write start addr: 0x00090000 prot: 2 data: 02 01 03 1e
+2026-05-15 17:10:41,310 - INFO - Write complete addr: 0x00090000 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,310 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,311 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,311 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,311 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,311 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,312 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,312 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,312 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,312 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,313 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,313 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,313 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,314 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,314 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,314 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,314 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,315 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,315 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,315 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,315 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,316 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,316 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,316 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,317 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,317 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,317 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,317 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,318 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,318 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,318 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,318 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,319 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,319 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,319 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,319 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,320 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,320 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,320 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,320 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,321 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,321 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,321 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,321 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,322 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,322 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,322 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,323 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,323 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,323 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,323 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,324 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,324 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,324 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,325 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,325 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,325 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,325 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,326 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,326 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,326 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,327 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,327 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,327 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,327 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,328 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,328 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,328 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,328 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,329 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,329 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,329 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,329 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,330 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,330 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,330 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,331 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,331 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,331 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,331 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,332 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,332 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,332 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,332 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,333 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,333 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,333 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,333 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,334 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,334 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,334 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,334 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,335 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,335 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,335 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,336 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,336 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,336 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,336 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,337 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,337 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,337 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,337 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,338 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,338 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,338 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,339 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,339 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,339 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,339 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,340 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,340 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,340 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,340 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,341 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,341 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,341 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,341 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,342 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,342 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,342 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,342 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,343 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,343 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,343 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,343 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,344 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,344 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,344 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,345 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,345 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,345 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,346 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,346 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,346 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,346 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,347 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,347 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,347 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,347 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,348 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,348 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,348 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,348 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,349 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,349 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,349 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,349 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,350 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,350 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,350 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,350 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,351 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,351 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,351 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,351 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,352 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,352 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,352 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,353 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,353 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,353 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,353 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,354 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,354 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,354 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,355 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,355 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,355 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,355 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,356 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,356 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,356 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,356 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,357 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,357 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,357 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,357 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,358 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,358 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,358 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,358 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,359 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,359 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,359 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,359 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,360 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,360 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,360 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,361 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,361 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,361 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,361 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,362 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,362 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,362 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,362 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,363 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,363 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,363 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,364 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,364 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,364 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,364 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,365 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,365 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,365 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,365 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,366 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,366 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,366 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,366 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,367 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,367 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,367 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,368 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,368 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,368 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,368 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,369 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,369 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,369 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,370 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,370 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,370 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,370 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,371 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,371 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,371 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,371 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,372 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,372 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,372 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,372 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,373 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,373 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,373 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,374 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,374 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,374 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,374 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,375 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,375 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,375 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,376 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,376 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,376 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,376 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,377 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,377 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,377 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,377 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,378 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,378 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,378 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,378 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,379 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,379 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,379 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,379 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,380 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,380 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,380 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,381 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,381 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,381 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,381 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,382 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,382 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,382 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,382 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,383 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,383 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,383 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,384 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,384 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,384 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,384 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,385 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,385 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,385 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,385 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,386 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,386 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,386 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,387 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,387 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,387 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,387 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,388 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,388 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,388 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,389 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,389 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,389 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,389 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,390 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,390 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,390 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,390 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,391 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,391 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,391 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,391 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,392 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,392 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,392 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,393 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,393 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,393 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,393 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,394 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,394 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,394 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,395 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,395 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,395 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,395 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,396 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,396 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,396 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,396 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,397 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,397 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,397 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,397 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,398 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,398 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,398 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,399 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,399 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,399 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,399 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,400 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,400 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,400 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,400 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,401 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,401 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,401 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,401 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,402 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,402 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 22 01 00 00
+2026-05-15 17:10:41,402 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,403 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a1 01 00 00
+2026-05-15 17:10:41,403 - INFO - Read start addr: 0x00090008 prot: 2 length: 4
+2026-05-15 17:10:41,403 - INFO - Read complete addr: 0x00090008 prot: 2 resp: 0 data: 00 00 00 00
+2026-05-15 17:10:41,403 - INFO - Write start addr: 0x00090000 prot: 2 data: 03 01 03 1e
+2026-05-15 17:10:41,404 - INFO - Write complete addr: 0x00090000 prot: 2 resp: 0 length: 4
+2026-05-15 17:10:41,404 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,404 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,404 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,405 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,405 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,405 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,405 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,406 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,406 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,406 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,406 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,407 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,407 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,407 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,407 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,408 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,408 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,408 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,409 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,409 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,409 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,409 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,410 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,410 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,410 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,411 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,411 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,411 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,411 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,412 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,412 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,412 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,412 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,413 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,413 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,413 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,414 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,414 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,414 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,414 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,415 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,415 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,415 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,416 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,416 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,416 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,416 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,417 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,417 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,417 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,417 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,418 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,418 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,418 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,419 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,419 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,419 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,419 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,420 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,420 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,420 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,420 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,421 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,421 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,421 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,422 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,422 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,422 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,422 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,423 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,423 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,423 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,423 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,424 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,424 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,424 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,425 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,425 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,425 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,425 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,426 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,426 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,426 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,427 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,427 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,427 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,427 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,428 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,428 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,428 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,428 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,429 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,429 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,429 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,429 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,430 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,430 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,430 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,431 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,431 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,431 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,431 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,432 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,432 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,432 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,432 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,433 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,433 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,433 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,434 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,434 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,434 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,434 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,435 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,435 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,435 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,435 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,436 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,436 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,436 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,437 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,437 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,437 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,437 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,438 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,438 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,438 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,439 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,439 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,439 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,439 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,440 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,440 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,440 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,440 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,441 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,441 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,441 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,441 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,442 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,442 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,442 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,443 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,443 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,443 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,443 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,444 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,444 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,444 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,444 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,445 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,445 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,445 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,446 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,446 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,446 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,446 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,447 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,447 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,447 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,447 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,448 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,448 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,448 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,448 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,449 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,449 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,449 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,450 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,450 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,450 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,450 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,451 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,451 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,451 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,451 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,452 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,452 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,452 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,453 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,453 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,453 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,453 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,454 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,454 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,454 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,454 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,455 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,455 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,455 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,456 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,456 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,456 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,456 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,457 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,457 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,457 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,458 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,458 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,458 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,458 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,459 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,459 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,459 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,459 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,460 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,460 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,460 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,460 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,461 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,461 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,461 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,462 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,462 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,462 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,462 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,463 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,463 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,463 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,463 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,464 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,464 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,464 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,465 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,465 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,465 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,465 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,466 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,466 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,466 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,467 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,467 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,467 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,467 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,468 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,468 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,468 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,469 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,469 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,469 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,469 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,470 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,470 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,470 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,470 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,471 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,471 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,471 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,471 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,472 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,472 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,472 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,473 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,473 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,473 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,473 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,474 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,474 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,474 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,475 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,475 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,475 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,475 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,476 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,476 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,476 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,476 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,477 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,477 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,477 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,477 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,478 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,478 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,478 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,479 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,479 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,479 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,479 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,480 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,480 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,480 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,480 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,481 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,481 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,481 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,482 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,482 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,482 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,482 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,483 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,483 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,483 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,483 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,484 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,484 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,484 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,484 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,485 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,485 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,485 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,486 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,486 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,486 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,486 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,487 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,487 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,487 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,487 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,488 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,488 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,488 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,489 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,489 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,489 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,489 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,490 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,490 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,490 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,490 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,491 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,491 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,491 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,491 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,492 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,492 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,492 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,493 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,493 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,493 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,493 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,494 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,494 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,494 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,495 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,495 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,495 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,495 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,496 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,496 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,496 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: a2 01 00 00
+2026-05-15 17:10:41,496 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,497 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 82 01 00 00
+2026-05-15 17:10:41,497 - INFO - Read start addr: 0x0009000c prot: 2 length: 4
+2026-05-15 17:10:41,497 - INFO - Read complete addr: 0x0009000c prot: 2 resp: 0 data: 81 01 00 00
+2026-05-15 17:10:41,497 - INFO - Read start addr: 0x00090008 prot: 2 length: 4
+2026-05-15 17:10:41,498 - INFO - Read complete addr: 0x00090008 prot: 2 resp: 0 data: 66 77 88 99
+2026-05-15 17:10:41,498 - INFO -     -> Prescaler = 15 TESTİ PASS!
+2026-05-15 17:10:41,498 - INFO - >>>> PRESCALER SWEEP TESTİ MÜKEMMEL ZAFER! <<<<
+2026-05-15 17:10:41,499 - INFO - Prescaler_Sweep_Test [32mpassed[49m[39m
+2026-05-15 17:10:41,499 - INFO - **********************************************************************************************
+** TEST                                  STATUS  SIM TIME (ns)  REAL TIME (s)  RATIO (ns/s) **
+**********************************************************************************************
+** test_qspi.Single_Write_Read_Test      [32m PASS [49m[39m       8920.00           0.05     187815.36  **
+** test_qspi.Quad_Read_Dummy_Test        [32m PASS [49m[39m       2200.00           0.01     173377.04  **
+** test_qspi.Advanced_Corner_Cases_Test  [32m PASS [49m[39m      11180.00           0.05     245928.01  **
+** test_qspi.Prescaler_Sweep_Test        [32m PASS [49m[39m      48040.00           0.22     215423.66  **
+**********************************************************************************************
+** TESTS=4 PASS=4 FAIL=0 SKIP=0                      70340.00           0.38     187292.32  **
+**********************************************************************************************
+
