@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 module tb_I2C_master;
-
+//because the test is long you have type "run -all" in TCL console for the test to finish all the way
     localparam CLK_FREQ=50_000_000;
     localparam I2C_FREQ=400_000;
     localparam TICKS=CLK_FREQ / I2C_FREQ;
@@ -23,6 +23,7 @@ module tb_I2C_master;
     logic o_error;
 
     logic slave_sda=1;
+    logic slave_is_sending=0;
     
     logic sda_bus;
     always_comb begin
@@ -30,10 +31,15 @@ module tb_I2C_master;
             sda_bus=o_sda_out & slave_sda;
         end
         else begin
-            sda_bus=slave_sda;
+            if(slave_is_sending) begin 
+                sda_bus=slave_sda;
+            end
+            else begin 
+                sda_bus=1'b0;
+            end
         end    
     end
-
+    
     I2C_master#(
         .CLK_FREQ(CLK_FREQ),
         .I2C_FREQ(I2C_FREQ)
@@ -62,6 +68,7 @@ module tb_I2C_master;
     task send_slave_byte;
         input [7:0] data;
         integer b;
+        slave_is_sending=1;
         for (b=7; b>=0; b=b-1) begin
             #(CLK_P);
             slave_sda=(data>>b) & 1'b1;
@@ -69,6 +76,7 @@ module tb_I2C_master;
             @(negedge o_scl);
         end
         slave_sda=1;
+        slave_is_sending=0;
     endtask
 
     initial begin
@@ -94,7 +102,7 @@ module tb_I2C_master;
         #1; 
         i_tx_en=0;
 
-        @(posedge o_tx_done);
+        wait (o_tx_done);
         @(posedge clk); 
         #1;
 
@@ -169,12 +177,12 @@ module tb_I2C_master;
         @(posedge clk); 
         #1;
 
-        repeat(10) @(posedge clk);
+        repeat(15) @(posedge clk);
         $finish;
     end
 
     initial begin
-        #100_000_000;
+        #500_000;
         $finish;
     end
 endmodule
