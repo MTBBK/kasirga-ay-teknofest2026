@@ -185,8 +185,8 @@ async def test_num_bytes_overflow(dut):
     )
 
 @cocotb.test()
-async def test_write(dut):
-    """slave testing writing"""
+async def test_write_1_byte(dut):
+    """golden slave test, writing 1 byte"""
     cocotb.start_soon(Clock(dut.clk, 20, unit="ns").start())
     slave = I2cMemory(
         sda=dut.slave_sda_i, sda_o=dut.slave_sda_o,
@@ -217,13 +217,69 @@ async def test_write(dut):
     await RisingEdge(dut.clk)
     assert dut.o_busy.value == 0, "stuck in busy state"
     written_data = slave.mem[0]
-    assert written_data == 0xAA, "slave memory got "+ hex(written_data) +" instead of 0xaa!"
+    assert written_data == 0xAA, "slave memory got "+ hex(written_data) +" instead of 0xAA"
     dut._log.info("write test is successful")
+
+@cocotb.test()
+async def test_write_2_bytes(dut):
+    """golden slave test, writing 2 bytes"""
+    cocotb.start_soon(Clock(dut.clk, 20, unit="ns").start())
+
+    slave=I2cMemory(
+        sda=dut.slave_sda_i,
+        sda_o=dut.slave_sda_o,
+        scl=dut.slave_scl_i,
+        scl_o=dut.slave_scl_o,
+        addr=0x55,
+        size=256
+    )
+
+    dut.rst_n.value=0
+    await Timer(20,unit="ns")
+    dut.rst_n.value=1
+
+    dut.i_tx_en.value=0
+    dut.i_rx_en.value=0
+    dut.i_slave_addr.value=0
+    dut.i_num_bytes.value=0
+    dut.i_tx_data.value=0
+
+    for _ in range(2):
+        await RisingEdge(dut.clk)
+
+    dut.i_slave_addr.value=0x55
+    dut.i_num_bytes.value=3        
+    dut.i_tx_data.value=0x00332211 #again the first byte being sent will be used a memmory offset 
+
+    await RisingEdge(dut.clk)
+    dut.i_tx_en.value = 1
+    await RisingEdge(dut.clk)
+    dut.i_tx_en.value = 0
+
+    try:
+        await with_timeout(RisingEdge(dut.o_tx_done),200000,"ns")
+    except SimTimeoutError:
+        assert False, "fsm stuck"
+
+    await RisingEdge(dut.clk)
+    assert dut.o_error.value == 0,"o_error should not be 1 on a valid transfer"
+    assert dut.o_busy.value == 0,  "master should be S_IDLE after this"
+
+
+    # The 3 data bytes
+    assert slave.mem[0x11] == 0x22, "Expected 0x22 at mem[0x11], got "+ {hex(slave.mem[0x11])}
+    assert slave.mem[0x12] == 0x33, "Expected 0x33 at mem[0x12], got "+ {hex(slave.mem[0x12])}
+
+    dut._log.info(
+        "tested writing 2 bytes "
+        "I2cMemory used 0x11 as address offset, data 0x22/0x33 verified, "
+        
+    )
 
 
 @cocotb.test()
-async def test_read(dut):
-    """golden slave testing reading"""
+async def test_read_1_byte(dut):
+    """golden slave test, reading 1 byte"""
     cocotb.start_soon(Clock(dut.clk, 20, unit="ns").start())
     slave = I2cMemory(
         sda=dut.slave_sda_i, sda_o=dut.slave_sda_o,
@@ -253,4 +309,88 @@ async def test_read(dut):
         assert False, "fsm got stuck"
     read = int(dut.o_rx_data.value)
     assert read == 0xBB, "Instead of 0xBB master read " + hex(read)
+    dut._log.info("read test is successful")
+
+
+@cocotb.test()
+async def test_read_2_bytes(dut):
+    """golden slave test, reading 2 bytes"""
+    cocotb.start_soon(Clock(dut.clk, 20, unit="ns").start())
+    slave = I2cMemory(
+        sda=dut.slave_sda_i, sda_o=dut.slave_sda_o,
+        scl=dut.slave_scl_i, scl_o=dut.slave_scl_o,
+        addr=0x11, size=256
+    )
+    slave.mem[0]=0xBB
+    slave.mem[1]=0xAA
+    dut.rst_n.value=0
+    await Timer(40,unit="ns")
+    dut.rst_n.value=1
+    dut.i_tx_en.value=0
+    dut.i_rx_en.value=0
+    dut.i_slave_addr.value=0
+    dut.i_num_bytes.value=0
+    dut.i_tx_data.value=0
+    for _ in range(2):
+        await RisingEdge(dut.clk)
+    dut.i_slave_addr.value=0x11
+    dut.i_num_bytes.value=2
+    await RisingEdge(dut.clk)
+    dut.i_rx_en.value =1
+    await RisingEdge(dut.clk)
+    dut.i_rx_en.value=0
+    try:
+        await with_timeout(RisingEdge(dut.o_rx_done), 200000, "ns")
+    except SimTimeoutError:
+        assert False, "fsm got stuck"
+    read = int(dut.o_rx_data.value)
+    read0=read & 0xFF
+    read1=(read >> 8) & 0xFF
+    assert read0==0xBB, "Instead of 0xBB master read " + hex(read)
+    assert read1==0xAA, "Instead of 0xAA master read " + hex(read)  
+    dut._log.info("read test is successful")
+
+
+@cocotb.test()
+async def test_read_4_bytes(dut):
+    """golden slave test, reading 4 bytes"""
+    cocotb.start_soon(Clock(dut.clk, 20, unit="ns").start())
+    slave = I2cMemory(
+        sda=dut.slave_sda_i, sda_o=dut.slave_sda_o,
+        scl=dut.slave_scl_i, scl_o=dut.slave_scl_o,
+        addr=0x11, size=256
+    )
+    slave.mem[0]=0xDD
+    slave.mem[1]=0xEE
+    slave.mem[2]=0xDD
+    slave.mem[3]=0xEE 
+    dut.rst_n.value=0
+    await Timer(40,unit="ns")
+    dut.rst_n.value=1
+    dut.i_tx_en.value=0
+    dut.i_rx_en.value=0
+    dut.i_slave_addr.value=0
+    dut.i_num_bytes.value=0
+    dut.i_tx_data.value=0
+    for _ in range(2):
+        await RisingEdge(dut.clk)
+    dut.i_slave_addr.value=0x11
+    dut.i_num_bytes.value=4
+    await RisingEdge(dut.clk)
+    dut.i_rx_en.value =1
+    await RisingEdge(dut.clk)
+    dut.i_rx_en.value=0
+    try:
+        await with_timeout(RisingEdge(dut.o_rx_done), 200000, "ns")
+    except SimTimeoutError:
+        assert False, "fsm got stuck"
+    read = int(dut.o_rx_data.value)
+    read0=read & 0xFF
+    read1=(read >> 8) & 0xFF
+    read2= (read >> 16) & 0xFF
+    read3= (read >> 24) & 0xFF
+    assert read0==0xDD, "Instead of 0xDD master read " + hex(read)
+    assert read1==0xEE, "Instead of 0xEE master read " + hex(read)
+    assert read2==0xDD, "Instead of 0xDD master read " + hex(read)
+    assert read3==0xEE, "Instead of 0xEE master read " + hex(read)  
     dut._log.info("read test is successful")
