@@ -1,8 +1,15 @@
-Cocotb testlerinin çalışması için cocotbext-axi kütüphanesi gerekiyor
+Cocotb testlerinin çalışması için cocotb ve cocotbext-axi kütüphaneleri gerekiyor
+Bu kütüphanelerin kurulumunu kolaylaştırmak için virtual environment kurulabilir.
 
+//venv kurma
 python3 -m venv venv
 source venv/bin/activate
+
+
+//gerekli kütüphaneleri indirme
 pip install -r requirements.txt
+
+//testi çalıştırma
 make clean 
 make 
 
