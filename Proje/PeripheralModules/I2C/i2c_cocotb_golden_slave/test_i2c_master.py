@@ -309,7 +309,7 @@ async def test_read_1_byte(dut):
         assert False, "fsm got stuck"
     read = int(dut.o_rx_data.value)
     assert read == 0xBB, "Instead of 0xBB master read " + hex(read)
-    dut._log.info("read test is successful")
+    dut._log.info("1 byte read test is successful")
 
 
 @cocotb.test()
@@ -348,7 +348,7 @@ async def test_read_2_bytes(dut):
     read1=(read >> 8) & 0xFF
     assert read0==0xBB, "Instead of 0xBB master read " + hex(read)
     assert read1==0xAA, "Instead of 0xAA master read " + hex(read)  
-    dut._log.info("read test is successful")
+    dut._log.info("2 byte read test is successful")
 
 
 @cocotb.test()
@@ -393,4 +393,4 @@ async def test_read_4_bytes(dut):
     assert read1==0xEE, "Instead of 0xEE master read " + hex(read)
     assert read2==0xDD, "Instead of 0xDD master read " + hex(read)
     assert read3==0xEE, "Instead of 0xEE master read " + hex(read)  
-    dut._log.info("read test is successful")
+    dut._log.info("4 byte read test is successful")
