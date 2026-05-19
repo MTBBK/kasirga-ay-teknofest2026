@@ -4,7 +4,7 @@ module matrixBuffer (
     
     input logic indekstipi, //0 satır 1 sütun indeksi satır adreslerken mi sutun adreslerken mi kullanacağımızı belirliyor
     
-    input logic we_a,     
+    input logic we_a,
     input logic [2:0] indeks_a,// bu her zaman satırı göstersin yükleme sırasında kullanılıyor zaten
     input logic [7:0] din_a [0:7],
     

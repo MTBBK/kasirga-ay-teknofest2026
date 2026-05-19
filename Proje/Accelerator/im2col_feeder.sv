@@ -5,7 +5,9 @@ module im2col_feeder(
     input logic rst,
     input logic [63:0]buff_read_data,
     output logic [9:0]buff_read_addr,
-    output logic [7:0]sa_word_o[0:9]
+    output logic [7:0]sa_word_o[0:9],
+    output logic sawordo_started,//diğer besleyici modul için sinyal. ben veri göndermeye başladım diyor
+    output logic endofregion
     );
     
     logic [2:0] global_word_offset;
@@ -60,7 +62,7 @@ module im2col_feeder(
             .sendtofifo(laneregs[i])//buraya doğrudan fifofeederı mı bağlasam diye denemeler yaptım şuan araya bu şekilde kablo atıp handshake esnasında fifofeedera almaya karar verdim
             );
         end
-    endgenerate    
+    endgenerate
     
     
     typedef enum logic [1:0] {
@@ -69,6 +71,7 @@ module im2col_feeder(
     } fifofeederstate;
     fifofeederstate feeder_state;
     
+    logic [4:0]endofregioncount;
     
     always_ff @(posedge clk)begin
         if(rst)begin
@@ -80,12 +83,16 @@ module im2col_feeder(
             fifofeeder_colcnt <= '0;
             fifofeeder <= '{default: '0};
             fifofeeder_ready <= 1'b1;
+            endofregioncount <= '0;
         end
         else begin
+            endofregion<= 1'b0;
             case(feeder_state)
                 //!!!!bir çevrim bekleme oluyor besleme yapılırken, senddata durumu bitince eğer zaten tekrar hazırsa göndermeye direkt waitlanes e gelmeden tekrar senddata başlayabilir
+                //ping pong yapılabilir?
                 waitlanes:begin
                     fifofeeder_ready <= 1'b1;
+                    sawordo_started <= 1'b0;
                     for (int i = 0; i < 10; i=i+1) begin
                         sa_word_o[i] <= '0;
                     end
@@ -94,6 +101,13 @@ module im2col_feeder(
                         fifofeeder_ready <= 1'b0;
                         feeder_state <= senddata;
                         fifofeeder_colcnt <= 3'b000;
+                        sawordo_started <= 1'b1;
+                        
+                        endofregioncount <= endofregioncount+1'b1;//yeni kısım
+                        if(endofregioncount == 4'd10)begin
+                            endofregioncount<= 5'd1;
+                            endofregion <= 1'b1;
+                        end
                     end
                 end
                 senddata:begin
@@ -106,7 +120,14 @@ module im2col_feeder(
                     else begin
                         feeder_state <= waitlanes;
                         fifofeeder_ready <= 1'b1;
+                        sawordo_started <= 1'b0;
+                        
                     end
+                    
+                    ///////////////////
+                    //1 çevrimlik gecikmeyi gidermek için: son hattı vermeden önceki çevrim ready=1 yapıyoruz sonraki 
+                    //çevrim de feedlane verisini yakalamaya çalışıyoruz aynı anda son hattı çıkışa verirken
+                    
                 end
             endcase
         end
