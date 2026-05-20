@@ -28,7 +28,7 @@ module tb_axi_uart_wrapper();
     logic        rready;
     logic        rresp;
 
-    // Register Addresses [cite: 24]
+    // Register Addresses
     localparam ADDR_UART_CPB = 32'h00005000;
     localparam ADDR_UART_STP = 32'h00005004;
     localparam ADDR_UART_RDR = 32'h00005008;
@@ -40,7 +40,7 @@ module tb_axi_uart_wrapper();
     always #5 clk = ~clk;
 
     // DUT Instantiation 
-    axi_uart_wrapper #(
+    uart_top #(
         .baud_rate(115200),
         .clock_frequency(100)
     ) dut (
@@ -122,14 +122,14 @@ module tb_axi_uart_wrapper();
 
         $display("--- Starting AXI UART Test ---");
 
-        // 1. Configure Stop Bits (1 Stop Bit) [cite: 61, 87]
+        // 1. Configure Stop Bits (1 Stop Bit)
         axi_write(ADDR_UART_STP, 32'h0);
         
-        // 2. Load Data into Transmit Data Register [cite: 35, 91]
-        $display("Writing 0xAB to TDR...");
-        axi_write(ADDR_UART_TDR, 32'hAB);
+        // 2. Load Data into Transmit Data Register
+        $display("Writing 0xCB to TDR...");
+        axi_write(ADDR_UART_TDR, 32'hCB);
 
-        // 3. Start Transmission (Set CFG[0]) [cite: 37, 47]
+        // 3. Start Transmission (Set CFG[0])
         $display("Starting Transmission...");
         axi_write(ADDR_UART_CFG, 32'h00000001);
 
@@ -144,11 +144,11 @@ module tb_axi_uart_wrapper();
         axi_read(ADDR_UART_CFG, read_val);
         $display("Status Register: 0x%h (Expect bit 1 and 2 to be set)", read_val);
 
-        // 6. Read Received Data [cite: 42, 73]
+        // 6. Read Received Data
         axi_read(ADDR_UART_RDR, read_val);
-        $display("Received Data: 0x%h (Expect 0xAB)", read_val[7:0]);
+        $display("Received Data: 0x%h (Expect 0xCB)", read_val[7:0]);
 
-        if (read_val[7:0] == 8'hAB)
+        if (read_val[7:0] == 8'hCB)
             $display("TEST PASSED");
         else
             $display("TEST FAILED");

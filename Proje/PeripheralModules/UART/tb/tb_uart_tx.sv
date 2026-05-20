@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module uart_tx_tb();
+module tb_uart_tx();
 
     // Inputs to the DUT
     logic        clock_i;
