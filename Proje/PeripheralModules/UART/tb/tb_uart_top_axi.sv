@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module tb_axi_uart_wrapper();
+module tb_uart_top_axi();
 
     // Clock and Reset
     logic clk;
@@ -158,3 +158,4 @@ module tb_axi_uart_wrapper();
     end
 
 endmodule
+

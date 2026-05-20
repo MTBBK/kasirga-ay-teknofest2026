@@ -41,7 +41,7 @@ module top_uart_echo (
     logic tx_start;
     logic tx_done;
 
-    assign uart_cpb = 32'd100; // Basys 3 = 100 MHz, 100000000 / 1000000 ≈ 100
+    assign uart_cpb = 32'd100; // Basys 3 = 100 MHz
     assign uart_stp = 32'd0;   // 1 stop bit
 
     uart_rx RX (
