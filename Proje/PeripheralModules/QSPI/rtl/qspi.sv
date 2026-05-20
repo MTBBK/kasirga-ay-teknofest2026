@@ -191,10 +191,19 @@ module qspi(
                 end
             end
             CMD:begin
-                // ICARUS COMPILER HATASI ÇÖZÜLDÜ (Shift >> kullanıldı)
                 if(data_mode==2'b01)begin 
-                    qspi_data_oe=4'b0001;
-                    qspi_data_o[0] = (instr >> (7 - cmd_counter)) & 1'b1;
+                    if(instr==QOR || instr==QPP)begin
+                        qspi_data_oe=4'b1111;
+                        qspi_data_o[3:0] = (cmd_counter == 0) ? instr[7:4] : instr[3:0];
+                    end
+                    else if(instr== DOR)begin 
+                        qspi_data_oe=4'b0011;
+                        qspi_data_o[1:0] = (instr >> (6 - 2*cmd_counter)) & 2'b11;
+                    end
+                    else begin 
+                        qspi_data_oe=4'b0001;
+                        qspi_data_o[0] = (instr >> (7 - cmd_counter)) & 1'b1;
+                    end
                 end
                 else if(data_mode==2'b10)begin 
                     qspi_data_oe=4'b0011;
@@ -227,9 +236,21 @@ module qspi(
                 logic [5:0] target_cycles;
                 // ICARUS COMPILER HATASI ÇÖZÜLDÜ
                 if(data_mode==2'b01)begin
-                    qspi_data_oe=4'b0001;
-                    qspi_data_o[0] = (addr >> (addr_count - addr_counter - 1)) & 1'b1;
-                    target_cycles=addr_count-1;
+                    if(instr==QOR || instr==QPP)begin
+                        qspi_data_oe=4'b1111; 
+                        qspi_data_o[3:0] = (addr >> (addr_count - 4*addr_counter - 4)) & 4'b1111;
+                        target_cycles=(addr_count/4)-1;
+                    end
+                    else if(instr== DOR)begin 
+                        qspi_data_oe=4'b0011; 
+                        qspi_data_o[1:0] = (addr >> (addr_count - 2*addr_counter - 2)) & 2'b11;
+                        target_cycles=(addr_count/2)-1;
+                    end
+                    else begin 
+                        qspi_data_oe=4'b0001;
+                        qspi_data_o[0] = (addr >> (addr_count - addr_counter - 1)) & 1'b1;
+                        target_cycles=addr_count-1;
+                    end
                 end                
                 else if(data_mode==2'b10)begin
                     qspi_data_oe=4'b0011; 
@@ -297,10 +318,7 @@ module qspi(
                     next_state=DONE;
                 end
                 else begin
-                    // İŞTE BÜTÜN HATAYI ÇÖZEN O TEK FARK!
-                    // Veriyi okuduğumuz state olduğu için, diğerleri gibi erken KAPANAMAZ! 
-                    // Tam hedef sayısına ulaştığında kapanmalıdır! (-1 YOK)
-                    if(data_rx_counter == target_data_cycles - ((prescaler == 0) ? 1 : 0))begin 
+                    if(data_rx_counter == (target_data_cycles - ((prescaler == 0) ? 1 : 0)))begin 
                         next_state=DONE;
                     end
                 end 
@@ -378,7 +396,7 @@ module qspi(
                     end
                 end
                 
-                DATA_RX: begin
+               DATA_RX: begin
                     if (sample_tick) begin
                         data_rx_counter <= data_rx_counter + 1;
                         case(data_mode)
@@ -387,7 +405,7 @@ module qspi(
                             2'b11: rx_shift_reg <= {rx_shift_reg[27:0], qspi_data_i[3:0]};
                         endcase
                         
-                        // İŞTE VURUCU HAMLE: rx_fifo_wr_en tam zamanında, -1 varken tetiklenmeli!
+                        
                         if ((data_mode == 2'b01 && (data_rx_counter % 32) == 31) ||
                             (data_mode == 2'b10 && (data_rx_counter % 16) == 15) ||
                             (data_mode == 2'b11 && (data_rx_counter % 8) == 7)   ||
@@ -413,4 +431,6 @@ module qspi(
             endcase
         end
     end
+    
+    
 endmodule
