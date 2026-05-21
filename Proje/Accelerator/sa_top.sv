@@ -6,13 +6,13 @@ input logic rst,
 input logic [7:0]left_in[0:9],
 input logic [7:0]top_in[0:7],
 input logic interestregionfinished,
-output logic [31:0] pe_outputs[0:79] ,
+output logic signed [31:0] pe_outputs[0:79] ,
 output logic alloutputsready
     );
     
     logic [7:0] yataykablo [0:9][0:8];
     logic [7:0] dikeykablo [0:10][0:7];
-    logic [31:0] outputs [0:79];
+    logic signed [31:0] outputs [0:79];
     
     logic endofregionkablo[0:10][0:7];
     assign endofregionkablo[0][0] = interestregionfinished;

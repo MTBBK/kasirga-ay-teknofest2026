@@ -41,7 +41,7 @@ input logic rst
         .sa_weight_o(sa_weight_o)
     );
     
-    logic [31:0] pe_outputs[0:79];
+    logic signed[31:0] pe_outputs[0:79];
     logic alloutputsready;
     sa_wrapper sa_wrapper(
         .clk(clk),
