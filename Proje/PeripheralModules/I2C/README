@@ -1,0 +1,29 @@
+Cocotb testlerinin çalışması için cocotb ve cocotbext-axi kütüphaneleri gerekiyor
+Bu kütüphanelerin kurulumunu kolaylaştırmak için virtual environment kurulabilir.
+
+venv kurma
+python3 -m venv venv
+source venv/bin/activate
+
+gerekli kütüphaneleri indirme
+pip install cocotb
+pip install cocotbext-i2c
+
+testi çalıştırmak için python test dosyalarının olduğu klasörde terminalde verilen komutu çalıştırın
+make 
+
+tb_I2C_master.sv testinin tamamlanması için TCL console'ye run -all yazılmalı
+
+.wdb uzantılı dosyaları açabilmek için Vivadoda menüden Flow -> Open Static Simulation denilip açılan pencereden açılmalılar 
+
+.ila uzantılı dosya içinse Vivado içerisinde verilen komutlar çalıştırılmalı
+open_hw_manager
+read_hw_ila_data /path/of_hw_test.ila - burayı kendi pathinize göre düzenlemelisiniz.
+display_hw_ila_data [get_hw_ila_data of_hw_test]
+
+ayrıca Basys3 üzerinde test edebilmek için verilen proje yapısı korunarak bir Vivado projesi oluşturup Generate Bitstream -> Open Hardware Manager diyerek Basys3 programlanabilir ve açılan vio ve ila pencereleri ile sinyaller ayarlanabilir. 
+
+
+
+
+
