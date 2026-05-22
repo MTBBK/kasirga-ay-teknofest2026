@@ -6,7 +6,7 @@ input logic rst,
 input logic [7:0]left_in[0:9],
 input logic [7:0]top_in[0:7],
 input logic interestregionfinished,
-output logic [31:0] pe_outputs[0:79], 
+output logic signed [31:0] pe_outputs[0:79], 
 output logic alloutputsready
     );
     //bu module diziye girecek satır ve sutun gelir

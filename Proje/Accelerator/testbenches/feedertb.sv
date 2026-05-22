@@ -9,17 +9,22 @@ module feedertb(
     logic [9:0]buff_read_addr;
     logic [7:0]sa_word_o[0:9];
     
+    logic sawordo_started;
+    logic endofregion;
+    
     im2col_feeder uut(
         .clk(clk),
         .rst(rst),
         .buff_read_data(buff_read_data),
         .buff_read_addr(buff_read_addr),
-        .sa_word_o(sa_word_o)
+        .sa_word_o(sa_word_o),
+        .sawordo_started(sawordo_started),
+        .endofregion(endofregion)
     );
     
     //bu testbenchte doğrudan veri yüklü bufferı test ettik buffera yükleme yapmıyoruz
-    logic write_enable = 0;//kullanmıyorum
-    logic [63:0] din = '0;//kullanmıyorum
+    logic write_enable = 0;//kullanmıyorum bu tb de 
+    logic [63:0] din = '0;//kullanmıyorum bu tb de
     
     bufferv3 buffer(
         .clk(clk),                  
