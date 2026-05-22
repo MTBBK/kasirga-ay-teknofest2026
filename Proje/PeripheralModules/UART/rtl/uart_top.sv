@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 module uart_top #(
-    parameter integer baud_rate = 115200, //(bps) Safe default for 115200 at 100MHz
+    parameter integer baud_rate = 921600, //(bps) Safe default for 115200 at 100MHz
     parameter integer clock_frequency = 100 //Mhz
 ) (
     // Physical UART Ports
@@ -58,7 +58,9 @@ module uart_top #(
     // Internal UART wires
     logic tx_done, rx_done, tx_busy;
     logic [31:0] rx_data_raw;
-
+	logic rx_clear_trigger;
+	assign rx_clear_trigger = (S_AXI_ARVALID && S_AXI_ARREADY && (S_AXI_ARADDR == ADDR_UART_RDR));
+	
     // 1. AXI4-Lite Bus Signals & Handshaking
     logic axi_awready, axi_arready, axi_rvalid, axi_bvalid;
 
@@ -129,14 +131,22 @@ module uart_top #(
 				        if(S_AXI_WSTRB[3]) uart_tdr[31:24] <= S_AXI_WDATA[31:24];
 				    end
 					ADDR_UART_CFG:begin // 0x10
-				        if(S_AXI_WSTRB[0]) uart_cfg[0] <= S_AXI_WDATA[0];
+				        if(S_AXI_WSTRB[0]) begin
+				            uart_cfg[0] <= S_AXI_WDATA[0];
+				            // Clear tx_done when a new TX is started
+				            if (S_AXI_WDATA[0]) uart_cfg[2] <= 1'b0;
+				        end
 				    end
                 endcase
             end
-            
-            // Hardware Status Updates
+
             if (rx_done) begin
                 uart_cfg[1] <= 1'b1; // Set data received bit
+            end
+            
+            // Clear rx_data_ready when software reads RDR
+            if (rx_clear_trigger) begin
+                uart_cfg[1] <= 1'b0;
             end
             
             if (tx_done) begin
@@ -184,7 +194,7 @@ module uart_top #(
         .uart_cpb(uart_cpb),
         .uart_stp(uart_stp),
         .rx_in(uart_rx_i),
-        .rx_clear(1'b0),
+        .rx_clear(rx_clear_trigger),
         .uart_rdr(rx_data_raw),
         .rx_done(rx_done)
     );

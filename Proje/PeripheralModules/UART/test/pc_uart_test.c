@@ -80,12 +80,14 @@ int setup_uart(const char *device) {
         exit(1);
     }
 
-// CRITICAL: Ensure settings match your FPGA UART configuration
-    tty.c_cflag &= ~PARENB; // No parity
-    tty.c_cflag &= ~CSTOPB; // 1 stop bit
-    tty.c_cflag |= CS8;     // 8 bits
-    cfsetispeed(&tty, B115200);
-    cfsetospeed(&tty, B115200);
+    cfsetospeed(&tty, B921600);
+    cfsetispeed(&tty, B921600);
+
+    tty.c_cflag = (tty.c_cflag & ~CSIZE) | CS8;
+    tty.c_cflag |= CLOCAL | CREAD;
+    tty.c_cflag &= ~PARENB;
+    tty.c_cflag &= ~CSTOPB;
+    tty.c_cflag &= ~CRTSCTS;
 
     tty.c_lflag = 0;
     tty.c_iflag = 0;
@@ -110,7 +112,7 @@ int main() {
     printf("AAAAAAAAAAAAAAAAAAAA: ");
 
     while (fgets(input, sizeof(input), stdin)) {
-        if (input[0] == 'a') {
+        if (input[0] == 'b') {
             int len = strlen(logo);
 
             printf("\nSending logo to Basys3...\n\n");
@@ -131,7 +133,7 @@ int main() {
 
             printf("\n\nDone.\n");
         } else {
-            printf("Unknown command. Type a then Enter.\n");
+            printf("Unknown command. Type 'b' then Enter.\n");
         }
 
         printf("\nAAAAAAAAAAAAAAAAA: ");
