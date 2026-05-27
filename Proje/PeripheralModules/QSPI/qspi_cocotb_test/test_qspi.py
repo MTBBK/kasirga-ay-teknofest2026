@@ -104,13 +104,13 @@ async def setup_test(dut):
 
 async def wait_done(axi_master):
     done = False
-    for _ in range(200): 
+    for _ in range(2000): 
         status_resp = await axi_master.read(ADDR_QSPI_STA, 4)
         if int.from_bytes(status_resp.data, 'little') & 0x01:
             done = True
             break
         await Timer(50, units='ns')
-    assert done, "HATA: FSM 'DONE' sinyalini vermedi!"
+    assert done, "HATA: FSM 'DONE' sinyalini vermedi (Timeout)!"
 
 async def wait_for_done_and_read(axi_master, dut):
     await wait_done(axi_master)
@@ -183,8 +183,11 @@ async def Advanced_Corner_Cases_Test(dut):
     axi_master = await setup_test(dut)
     vip = SmartFlashVIP(dut)
 
+    # --- 3.1: DUAL MOD KONTROLÜ ---
+    dut._log.info(">>> STRES TEST 1: Dual Mod (2 Hat) Okuma...")
     test_addr_dual, test_data_dual = 0x123456, 0xABCDEEFF
     async def dual_logic():
+        await FallingEdge(dut.cs) # Senkronizasyon garantisi
         cmd = await vip.recv(L_DUAL, 8) 
         if cmd == 0x3B: 
             addr = await vip.recv(L_DUAL, 24)
@@ -200,8 +203,11 @@ async def Advanced_Corner_Cases_Test(dut):
     assert res == test_data_dual, f"Dual Hata! Beklenen: {hex(test_data_dual)}, Gelen: {hex(res)}"
     vip_task_1.kill()
 
+    # --- 3.2: TEK BYTE (UNALIGNED) OKUMA KONTROLÜ ---
+    dut._log.info(">>> STRES TEST 2: Tek Byte (Unaligned) Okuma...")
     test_addr_byte, test_data_byte = 0x778899, 0x55
     async def single_byte_logic():
+        await FallingEdge(dut.cs)
         await vip.recv(L_SINGLE, 8); await vip.recv(L_SINGLE, 24) 
         await vip.send(L_SINGLE, 8, test_data_byte) 
         await vip.release_bus()
@@ -214,18 +220,35 @@ async def Advanced_Corner_Cases_Test(dut):
     assert (res & 0xFF) == test_data_byte, f"Byte Hata! Beklenen: {hex(test_data_byte)}, Gelen: {hex(res&0xFF)}"
     vip_task_2.kill()
 
-    await axi_master.write(ADDR_QSPI_CCR, build_ccr(width_bytes=280, mode=MODE_SINGLE, cmd=0x03).to_bytes(4, 'little'))
+    # --- 3.3: SPAM/OVERFLOW KÖŞE DURUMU KONTROLÜ (2 AŞAMALI TAŞIRMA) ---
+    dut._log.info(">>> STRES TEST 3: SPAM/Overflow Testi (2 Aşamalı)...")
+    
     async def spam_logic():
-        await vip.recv(L_SINGLE, 8); await vip.recv(L_SINGLE, 24)
-        for _ in range(70): await vip.send(L_SINGLE, 32, 0xAAAAAAAA) 
-        await vip.release_bus()
+        while True:
+            await FallingEdge(dut.cs)
+            cmd = await vip.recv(L_SINGLE, 8)
+            if cmd == 0x03:
+                addr = await vip.recv(L_SINGLE, 24)
+                for _ in range(100): await vip.send(L_SINGLE, 32, 0xAAAAAAAA) 
+                await vip.release_bus()
         
     vip_task_3 = cocotb.start_soon(spam_logic())
     
+    # 1. Aşama: FIFO'yu Tamamen Doldur (255 byte)
+    await axi_master.write(ADDR_QSPI_ADR, (0x04).to_bytes(4, 'little'))
+    await axi_master.write(ADDR_QSPI_CCR, build_ccr(prescaler=0, width_bytes=255, mode=MODE_SINGLE, cmd=0x03).to_bytes(4, 'little'))
+    await wait_done(axi_master) 
+    
+    # 2. Aşama: Doluyken 1 kelime daha okutup taşır
+    await axi_master.write(ADDR_QSPI_CCR, build_ccr(prescaler=0, width_bytes=3, mode=MODE_SINGLE, cmd=0x03).to_bytes(4, 'little'))
     await Timer(5, units='us') 
+    
     status_resp = await axi_master.read(ADDR_QSPI_STA, 4)
     status_val = int.from_bytes(status_resp.data, 'little')
-    assert (status_val >> 8) & 0xF > 0, f"HATA! FIFO taşmasına rağmen hata bayrağı yanmadı! Status: {hex(status_val)}"
+    
+    rx_overflow = (status_val >> 11) & 0x1
+    assert rx_overflow == 1, f"HATA! FIFO taşmasına rağmen RX Overflow bayrağı (bit 11) yanmadı! Status: {hex(status_val)}"
+    
     vip_task_3.kill()
 
 @cocotb.test()
@@ -281,65 +304,83 @@ async def Register_Access_And_Reset_Test(dut):
 
 @cocotb.test()
 async def FIFO_Error_Status_Test(dut):
-    """Test 6: 4'lü FIFO Entegre Stres Testi (Zamanlamaları Düzeltilmiş)"""
+    """Test 6: 4'lü FIFO Entegre Stres Testi (Güncellenmiş Bit 10 ve 11)"""
     axi_master = await setup_test(dut)
     dut._log.info("\n" + "="*60)
-    dut._log.info("--- TEST 6: 4'LÜ FIFO ENTEGRE STRES TESTI BASLIYOR ---")
+    dut._log.info("--- TEST 6: FIFO DONANIM HATALARI TESTİ ---")
     dut._log.info("="*60)
 
-    # --- 6.1: AXI-SIDE RX UNDERFLOW KONTROLÜ ---
-    dut._log.info(">>> 6.1: AXI-Side RX Underflow/Empty Kontrolü...")
+    # --- 6.1: AXI-SIDE RX UNDERFLOW ---
     status_resp = await axi_master.read(ADDR_QSPI_STA, 4)
     status_val = int.from_bytes(status_resp.data, 'little')
-    assert (status_val & (1 << 5)), "HATA: RX FIFO bos olmasina ragmen status[5] (rx_empty) yanmadi!"
-    dut._log.info("    -> AXI RX Underflow/Empty Durumu PASS")
+    assert (status_val & (1 << 5)), "HATA: RX FIFO empty bayrağı yanmadı!"
+    dut._log.info("-> AXI RX Underflow/Empty Durumu PASS")
 
-    # --- 6.2: AXI-SIDE TX OVERFLOW KONTROLÜ ---
-    dut._log.info(">>> 6.2: AXI-Side TX Overflow/Full Kontrolü...")
-    dut._log.info("    -> TX FIFO AXI üzerinden dolduruluyor (Flood)...")
-    for i in range(70):
-        await axi_master.write(ADDR_QSPI_DR, i.to_bytes(4, 'little'))
-        
+    # --- 6.2: AXI-SIDE TX OVERFLOW ---
+    for i in range(70): await axi_master.write(ADDR_QSPI_DR, i.to_bytes(4, 'little'))
     status_resp = await axi_master.read(ADDR_QSPI_STA, 4)
     status_val = int.from_bytes(status_resp.data, 'little')
-    assert (status_val & (1 << 6)), "HATA: TX FIFO doldurulmasina ragmen status[6] (tx_full) yanmadi!"
-    dut._log.info("    -> AXI TX Overflow/Full Durumu PASS")
+    assert (status_val & (1 << 6)), "HATA: TX FIFO full bayrağı yanmadı!"
+    dut._log.info("-> AXI TX Overflow/Full Durumu PASS")
 
     axi_master = await setup_test(dut)
 
-    # --- 6.3: QSPI-CORE TX UNDERFLOW HARDWARE ERROR ---
-    dut._log.info(">>> 6.3: QSPI Core TX Underflow Donanım Hatası Tetikleniyor...")
-    
-    # FIFO boşken AXI üzerinden yazma emri ver (prescaler=0)
-    await axi_master.write(ADDR_QSPI_ADR, (0x00000004).to_bytes(4, 'little'))
+    # --- 6.3: QSPI-CORE TX UNDERFLOW (BIT 10) ---
+    dut._log.info(">>> 6.3: QSPI Core TX Underflow Testi (Bit 10)...")
+    await axi_master.write(ADDR_QSPI_ADR, (0x04).to_bytes(4, 'little'))
     await axi_master.write(ADDR_QSPI_CCR, build_ccr(prescaler=0, mode=MODE_SINGLE, cmd=0x02).to_bytes(4, 'little'))
+    await Timer(2, units='us')
     
-    # DÜZELTME: wait_done KULLANMIYORUZ! FSM'in DATA_TX fazına girmesi için yeterli süreyi (1 us) bekliyoruz.
-    await Timer(1, units='us')
-    
-    status_resp = await axi_master.read(ADDR_QSPI_STA, 4)
-    status_val = int.from_bytes(status_resp.data, 'little')
-    fifo_error = (status_val >> 8) & 0xF
-    
-    dut._log.info(f"    -> TX Underflow Sonrasi Status[11:8]: {bin(fifo_error)} ({hex(fifo_error)})")
-    assert fifo_error == 10, f"HATA: Donanim TX Underflow durumunda 1010 basmadi! Gelen: {bin(fifo_error)}"
-    dut._log.info("    -> QSPI Core TX Underflow (1010) PASS")
+    status_val = int.from_bytes((await axi_master.read(ADDR_QSPI_STA, 4)).data, 'little')
+    tx_underflow = (status_val >> 10) & 0x1
+    assert tx_underflow == 1, f"HATA: Bit 10 yanmadı! Status: {bin(status_val)}"
+    dut._log.info("-> QSPI Core TX Underflow (Bit 10) PASS")
 
     axi_master = await setup_test(dut)
 
-    # --- 6.4: QSPI-CORE RX OVERFLOW HARDWARE ERROR ---
-    dut._log.info(">>> 6.4: QSPI Core RX Overflow Donanım Hatası Tetikleniyor...")
+    # --- 6.4: QSPI-CORE RX OVERFLOW (BIT 11) ---
+    dut._log.info(">>> 6.4: QSPI Core RX Overflow Testi (2 Aşamalı Taşırma)...")
+    vip = SmartFlashVIP(dut)
     
-    # Okuma emri ver (prescaler=0)
-    await axi_master.write(ADDR_QSPI_ADR, (0x00000004).to_bytes(4, 'little'))
-    await axi_master.write(ADDR_QSPI_CCR, build_ccr(prescaler=0, width_bytes=280, mode=MODE_SINGLE, cmd=0x03).to_bytes(4, 'little'))
-    
+    # VIP her okuma isteğinde durmadan veri basacak
     async def spam_logic():
         from test_qspi import L_SINGLE
-        cmd = await vip.recv(L_SINGLE, 8); 
-        if cmd == 0x03:
-            addr = await vip.recv(L_SINGLE, 24)
-            # DÜZELTME: VIP çok hızlı veri bassın ki RX FIFO hemen taşsın!
+        while True:
+            cmd = await vip.recv(L_SINGLE, 8)
+            if cmd == 0x03:
+                addr = await vip.recv(L_SINGLE, 24)
+                # İstediği kadar veri basabilmesi için 100 kelime gönderiyoruz
+                for _ in range(100): await vip.send(L_SINGLE, 32, 0xAAAAAAAA)
+                await vip.release_bus()
+
+    vip_task = cocotb.start_soon(spam_logic())
+
+    # 1. AŞAMA: FIFO'yu TAMAMEN DOLDUR (64 Word = width 255)
+    dut._log.info("    -> 1. Aşama: RX FIFO %100 Dolduruluyor...")
+    await axi_master.write(ADDR_QSPI_ADR, (0x04).to_bytes(4, 'little'))
+    await axi_master.write(ADDR_QSPI_CCR, build_ccr(prescaler=0, width_bytes=255, mode=MODE_SINGLE, cmd=0x03).to_bytes(4, 'little'))
+    await wait_done(axi_master) # İşlem bitti, FIFO şu an tam kapasite dolu.
+
+    # 2. AŞAMA: FIFO DOLUYKEN 1 KELİME DAHA OKUMAYA ÇALIŞ (Taşma Anı!)
+    dut._log.info("    -> 2. Aşama: Dolu FIFO'ya fazladan okuma emri veriliyor (Overflow!)...")
+    await axi_master.write(ADDR_QSPI_ADR, (0x08).to_bytes(4, 'little'))
+    await axi_master.write(ADDR_QSPI_CCR, build_ccr(prescaler=0, width_bytes=3, mode=MODE_SINGLE, cmd=0x03).to_bytes(4, 'little'))
+
+    await Timer(2, units='us') # FSM'in hatayı fark edip bayrağı yakması için bekle
+    
+    # STATÜYÜ KONTROL ET
+    status_val = int.from_bytes((await axi_master.read(ADDR_QSPI_STA, 4)).data, 'little')
+    rx_overflow = (status_val >> 11) & 0x1
+    
+    dut._log.info(f"    -> RX Overflow Sonrasi Status: {hex(status_val)}")
+    assert rx_overflow == 1, f"HATA: Bit 11 yanmadı! Status: {bin(status_val)}"
+    dut._log.info("    -> QSPI Core RX Overflow (Bit 11) PASS")
+    
+    vip_task.kill()
+
+    dut._log.info("\n" + "*"*60)
+    dut._log.info("🏆 4'LÜ FIFO ENTEGRE STRES TEST PAKETİ BAŞARIYLA GEÇTİ! 🏆")
+    dut._log.info("*"*60 + "\n")
 
 @cocotb.test()
 async def Boot_Read_Sequence_Test(dut):
@@ -351,10 +392,9 @@ async def Boot_Read_Sequence_Test(dut):
     vip.memory[boot_address + 4] = 0x55667788  
 
     async def boot_flash_behavior():
-        # QOR testinde de Fiziksel hat (L_QUAD=4) kullanılmalı
-        cmd = await vip.recv(L_QUAD, 8)
+        cmd = await vip.recv(L_SINGLE, 8)
         if cmd == 0x6B: 
-            addr = await vip.recv(L_QUAD, 24)
+            addr = await vip.recv(L_SINGLE, 24)
             for _ in range(8): 
                 await RisingEdge(dut.sclk)
             
@@ -365,7 +405,7 @@ async def Boot_Read_Sequence_Test(dut):
     vip_task = cocotb.start_soon(boot_flash_behavior())
 
     await axi_master.write(ADDR_QSPI_ADR, boot_address.to_bytes(4, 'little'))
-    await axi_master.write(ADDR_QSPI_CCR, build_ccr(dummy=8, width_bytes=8, mode=MODE_QUAD, cmd=0x6B).to_bytes(4, 'little'))
+    await axi_master.write(ADDR_QSPI_CCR, build_ccr(dummy=8, width_bytes=8, mode=MODE_SINGLE, cmd=0x6B).to_bytes(4, 'little'))
 
     await wait_done(axi_master)
     

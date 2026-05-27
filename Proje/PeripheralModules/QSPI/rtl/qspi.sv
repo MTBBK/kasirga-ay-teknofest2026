@@ -153,7 +153,16 @@ module qspi(
     // QPI Modu Hesaplaması
     always_comb begin 
         if(data_mode==2'b01)begin 
-            target_data_cycles=total_data_bits;
+            
+            if(instr==QOR||instr==QPP)begin 
+                target_data_cycles=total_data_bits/4;
+            end
+            else if(instr==DOR)begin 
+                target_data_cycles=total_data_bits/2;
+            end
+            else begin 
+                target_data_cycles=total_data_bits;
+            end
             target_cmd_cycles=8;
         end
         else if(data_mode==2'b10)begin 
@@ -192,18 +201,8 @@ module qspi(
             end
             CMD:begin
                 if(data_mode==2'b01)begin 
-                    if(instr==QOR || instr==QPP)begin
-                        qspi_data_oe=4'b1111;
-                        qspi_data_o[3:0] = (cmd_counter == 0) ? instr[7:4] : instr[3:0];
-                    end
-                    else if(instr== DOR)begin 
-                        qspi_data_oe=4'b0011;
-                        qspi_data_o[1:0] = (instr >> (6 - 2*cmd_counter)) & 2'b11;
-                    end
-                    else begin 
-                        qspi_data_oe=4'b0001;
-                        qspi_data_o[0] = (instr >> (7 - cmd_counter)) & 1'b1;
-                    end
+                    qspi_data_oe=4'b0001;
+                    qspi_data_o[0] = (instr >> (7 - cmd_counter)) & 1'b1;
                 end
                 else if(data_mode==2'b10)begin 
                     qspi_data_oe=4'b0011;
@@ -236,21 +235,9 @@ module qspi(
                 logic [5:0] target_cycles;
                 // ICARUS COMPILER HATASI ÇÖZÜLDÜ
                 if(data_mode==2'b01)begin
-                    if(instr==QOR || instr==QPP)begin
-                        qspi_data_oe=4'b1111; 
-                        qspi_data_o[3:0] = (addr >> (addr_count - 4*addr_counter - 4)) & 4'b1111;
-                        target_cycles=(addr_count/4)-1;
-                    end
-                    else if(instr== DOR)begin 
-                        qspi_data_oe=4'b0011; 
-                        qspi_data_o[1:0] = (addr >> (addr_count - 2*addr_counter - 2)) & 2'b11;
-                        target_cycles=(addr_count/2)-1;
-                    end
-                    else begin 
-                        qspi_data_oe=4'b0001;
+                    qspi_data_oe=4'b0001;
                         qspi_data_o[0] = (addr >> (addr_count - addr_counter - 1)) & 1'b1;
                         target_cycles=addr_count-1;
-                    end
                 end                
                 else if(data_mode==2'b10)begin
                     qspi_data_oe=4'b0011; 
@@ -295,8 +282,14 @@ module qspi(
                 end
                 else begin
                     if(data_mode==2'b01)begin
-                        qspi_data_oe=4'b0001;
-                        qspi_data_o[0] = (tx_data_i >> (31 - (data_tx_counter % 32))) & 1'b1;
+                        if(instr==QPP)begin
+                            qspi_data_oe=4'b1111; 
+                            qspi_data_o[3:0] = (tx_data_i >> (28 - 4*(data_tx_counter % 8))) & 4'b1111; 
+                        end
+                        else begin 
+                            qspi_data_oe=4'b0001;
+                            qspi_data_o[0] = (tx_data_i >> (31 - (data_tx_counter % 32))) & 1'b1;
+                        end
                     end                
                     else if(data_mode==2'b10)begin
                         qspi_data_oe=4'b0011; 
@@ -354,10 +347,10 @@ module qspi(
                 fifo_error_reg <= 4'b0000;
             end
             if (current_state == DATA_TX && tx_fifo_empty) begin
-                fifo_error_reg <= 4'b1010;
+                fifo_error_reg[2] <= 1'b1;
             end
-            else if (current_state == DATA_RX && rx_fifo_full) begin
-                fifo_error_reg <= 4'b1001;
+            if (current_state == DATA_RX && rx_fifo_full) begin
+                fifo_error_reg[3] <= 1'b1;
             end
             
             case(current_state)
@@ -378,7 +371,8 @@ module qspi(
                             DUMMY:   dummy_counter <= dummy_counter + 1;
                             DATA_TX: begin 
                                 data_tx_counter <= data_tx_counter + 1; 
-                                if ((data_mode == 2'b01 && (data_tx_counter % 32) == 31) ||
+                                if ((data_mode == 2'b01 && instr == QPP && (data_tx_counter % 8) == 7)   ||
+                                    (data_mode == 2'b01 && instr != QPP && (data_tx_counter % 32) == 31) ||
                                     (data_mode == 2'b10 && (data_tx_counter % 16) == 15) ||
                                     (data_mode == 2'b11 && (data_tx_counter % 8) == 7)   ||
                                     (data_tx_counter == target_data_cycles - 1)) begin
@@ -400,13 +394,27 @@ module qspi(
                     if (sample_tick) begin
                         data_rx_counter <= data_rx_counter + 1;
                         case(data_mode)
-                            2'b01: rx_shift_reg <= {rx_shift_reg[30:0], qspi_data_i[1]};
+                            2'b01:begin  
+                                if(instr==QOR)begin 
+                                    rx_shift_reg <= {rx_shift_reg[27:0], qspi_data_i[3:0]};
+                                end
+                                else if(instr==DOR)begin 
+                                    rx_shift_reg <= {rx_shift_reg[29:0], qspi_data_i[1:0]};
+                                end
+                                else begin 
+                                    rx_shift_reg <= {rx_shift_reg[30:0], qspi_data_i[1]};
+                                end
+                                 
+                            
+                            end
                             2'b10: rx_shift_reg <= {rx_shift_reg[29:0], qspi_data_i[1:0]};
                             2'b11: rx_shift_reg <= {rx_shift_reg[27:0], qspi_data_i[3:0]};
                         endcase
                         
                         
-                        if ((data_mode == 2'b01 && (data_rx_counter % 32) == 31) ||
+                        if ((data_mode == 2'b01 && instr!=QOR && instr!=DOR &&(data_rx_counter % 32) == 31) ||
+                            (data_mode == 2'b01 && instr == QOR && (data_rx_counter % 8) == 7)   ||
+                            (data_mode == 2'b01 && instr == DOR && (data_rx_counter % 16) == 15) ||
                             (data_mode == 2'b10 && (data_rx_counter % 16) == 15) ||
                             (data_mode == 2'b11 && (data_rx_counter % 8) == 7)   ||
                             (data_rx_counter == target_data_cycles - 1)) begin
