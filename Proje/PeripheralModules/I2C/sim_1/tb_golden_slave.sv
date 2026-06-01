@@ -35,7 +35,7 @@ logic enable=1;
 logic release_bus=0;
 
 // dut
-i2c_golden_slave #(.FILTER_LEN(4)) dut (
+i2c_slave #(.FILTER_LEN(4)) dut (
     .clk(clk),
     .rst(rst),
     .release_bus(release_bus),
@@ -44,6 +44,7 @@ i2c_golden_slave #(.FILTER_LEN(4)) dut (
     .s_axis_data_tready(s_axis_tready),
     .m_axis_data_tdata(m_axis_tdata),
     .m_axis_data_tvalid(m_axis_tvalid),
+    .s_axis_data_tlast(1'b0),
     .m_axis_data_tready(m_axis_tready),
     .m_axis_data_tlast(m_axis_tlast),
     .scl_i(scl_bus),

@@ -114,7 +114,7 @@ module qspi_tb();
         #50;
         prescaler=1;
         #50
-        prescaler=0;
+        prescaler=6;
         start_req=0;
         
         #10;
@@ -529,20 +529,8 @@ module qspi_tb();
     always @(posedge qspi_sclk)begin 
         if(!qspi_cs)begin 
             if(dut.current_state==3'd1)begin 
-                if(data_mode==2'b01)begin  
-                    if(instr==dut.QOR||instr==dut.QPP)begin 
-                        cmd_out[7-4*(cmd_counter)]<=qspi_data_o[3];
-                        cmd_out[7-4*(cmd_counter)-1]<=qspi_data_o[2];
-                        cmd_out[7-4*(cmd_counter)-2]<=qspi_data_o[1];
-                        cmd_out[7-4*(cmd_counter)-3]<=qspi_data_o[0];
-                    end
-                    else if(instr==dut.DOR)begin 
-                        cmd_out[7-2*(cmd_counter)]<=qspi_data_o[1];
-                        cmd_out[7-2*(cmd_counter)-1]<=qspi_data_o[0];
-                    end
-                    else begin 
-                        cmd_out[7-cmd_counter]<=qspi_data_o[0];                 
-                    end
+                if(data_mode==2'b01)begin   
+                    cmd_out[7-cmd_counter]<=qspi_data_o[0];                 
                 end
                 else if(data_mode==2'b10)begin 
                     cmd_out[7-2*(cmd_counter)]<=qspi_data_o[1];
@@ -567,19 +555,7 @@ module qspi_tb();
         if(!qspi_cs)begin 
             if(dut.current_state==3'd2)begin 
                 if(data_mode==2'b01)begin 
-                    if(instr==dut.QOR||instr==dut.QPP)begin 
-                        addr_out[addr_count-4*(addr_counter)-1]<=qspi_data_o[3];
-                        addr_out[addr_count-4*(addr_counter)-2]<=qspi_data_o[2];
-                        addr_out[addr_count-4*(addr_counter)-3]<=qspi_data_o[1];
-                        addr_out[addr_count-4*(addr_counter)-4]<=qspi_data_o[0];
-                    end
-                    else if(instr==dut.DOR)begin 
-                        addr_out[addr_count-2*(addr_counter)-1]<=qspi_data_o[1];
-                        addr_out[addr_count-2*(addr_counter)-2]<=qspi_data_o[0];
-                    end
-                    else begin 
-                        addr_out[addr_count-addr_counter-1]<=qspi_data_o[0];                 
-                    end
+                    addr_out[addr_count-addr_counter-1]<=qspi_data_o[0];                 
                 end
                 else if(data_mode==2'b10)begin 
                     addr_out[addr_count-2*(addr_counter)-1]<=qspi_data_o[1];
@@ -610,7 +586,16 @@ module qspi_tb();
         if(!qspi_cs)begin 
             if(dut.current_state==3'd4)begin 
                 if(data_mode==2'b01)begin 
-                    data_out[data_width_in_bits-data_counter]<=qspi_data_o[0];
+
+                    if(instr==dut.QPP)begin 
+                        data_out[data_width_in_bits-4*(data_counter)]<=qspi_data_o[3];
+                        data_out[data_width_in_bits-4*(data_counter)-1]<=qspi_data_o[2];
+                        data_out[data_width_in_bits-4*(data_counter)-2]<=qspi_data_o[1];
+                        data_out[data_width_in_bits-4*(data_counter)-3]<=qspi_data_o[0];
+                    end
+                    else begin 
+                        data_out[data_width_in_bits-data_counter]<=qspi_data_o[0];
+                    end
                 end
                 else if(data_mode==2'b10)begin 
                     data_out[data_width_in_bits-2*(data_counter)]<=qspi_data_o[1];
@@ -652,9 +637,26 @@ module qspi_tb();
             sclk_ctr = sclk_ctr + 1; // Her düşen kenarda saat sayılır
             
             if (sclk_ctr >= active_cycle) begin
-                if(data_mode==2'b01) begin 
-                    qspi_data_i[1] = mock_flash_data[bit_idx];
-                    if (bit_idx >= 1) bit_idx = bit_idx - 1;
+                if(data_mode==2'b01) begin
+                    if(instr==dut.QOR)begin 
+                        qspi_data_i[3] = mock_flash_data[bit_idx];
+                        qspi_data_i[2] = mock_flash_data[bit_idx-1];
+                        qspi_data_i[1] = mock_flash_data[bit_idx-2];
+                        qspi_data_i[0] = mock_flash_data[bit_idx-3];
+                        if (bit_idx >= 3) bit_idx = bit_idx - 4;      
+                        else bit_idx = 31;
+                    end
+                    else if(instr==dut.DOR)begin 
+                        qspi_data_i[1] = mock_flash_data[bit_idx];
+                        qspi_data_i[0] = mock_flash_data[bit_idx-1];
+                        if (bit_idx >= 1) bit_idx = bit_idx - 2;      
+                        else bit_idx = 31;
+                    end
+                    else begin 
+                        qspi_data_i[1] = mock_flash_data[bit_idx];
+                        if (bit_idx >= 1) bit_idx = bit_idx - 1;
+                    end
+
                 end
                 else if(data_mode==2'b10) begin 
                     qspi_data_i[1] = mock_flash_data[bit_idx];

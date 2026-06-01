@@ -1,17 +1,3 @@
-`timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 05/04/2026 11:14:56 AM
-// Design Name: 
-// Module Name: i2c_golden_slave
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
 /*
 
 Copyright (c) 2017 Alex Forencich
@@ -43,7 +29,7 @@ THE SOFTWARE.
 /*
  * I2C slave
  */
-module i2c_golden_slave #(
+module i2c_slave #(
     parameter FILTER_LEN = 4
 )
 (
@@ -58,6 +44,7 @@ module i2c_golden_slave #(
     input  wire [7:0]  s_axis_data_tdata,
     input  wire        s_axis_data_tvalid,
     output wire        s_axis_data_tready,
+    input  wire        s_axis_data_tlast,
 
     output wire [7:0]  m_axis_data_tdata,
     output wire        m_axis_data_tvalid,
@@ -514,9 +501,3 @@ always @(posedge clk) begin
 end
 
 endmodule
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-

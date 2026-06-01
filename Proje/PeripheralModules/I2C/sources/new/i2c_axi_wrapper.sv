@@ -50,7 +50,7 @@ module i2c_axi_wrapper #(
     reg [31:0] I2C_NBY;
     reg [31:0] I2C_ADR;
     reg [31:0] I2C_TDR;
-    reg [31:0] I2C_CFG; // [0]:TX_EN, [1]:TX_DONE, [2]:RX_EN, [3]:RX_DONE, [4]:BUSY
+    reg [31:0] I2C_CFG; // [0]:TX_EN, [1]:TX_DONE, [2]:RX_EN, [3]:RX_DONE, [4]:ERROR
     
     wire [31:0] core_rx_data;
     wire core_tx_done, core_rx_done, core_busy;

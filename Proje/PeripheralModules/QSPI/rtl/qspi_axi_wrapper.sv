@@ -160,7 +160,7 @@ module qspi_axi_wrapper(
 	assign S_AXI_BRESP  = 2'b00;
 	assign S_AXI_RRESP  = 2'b00;
     assign S_AXI_AWREADY = axi_awready;
-    assign S_AXI_WREADY = axi_wready;
+    assign S_AXI_WREADY = axi_awready;
     assign S_AXI_ARREADY = axi_arready;
     
     assign S_AXI_BVALID  = axi_bvalid;
@@ -172,34 +172,20 @@ module qspi_axi_wrapper(
     always_ff @(posedge S_AXI_ACLK) begin
         if (!S_AXI_ARESETN) begin
             axi_awready <= 1'b0;
-            axi_wready  <= 1'b0;
             axi_bvalid  <= 1'b0;
             axi_arready <= 1'b0;
             axi_rvalid  <= 1'b0;
         end else begin
-            if (~axi_awready && S_AXI_AWVALID)
-            axi_awready <= 1'b1;
-        else
-            axi_awready <= 1'b0;
+            // Write handshaking
+            axi_awready <= (~axi_awready && S_AXI_AWVALID && S_AXI_WVALID);
+            if (axi_awready && ~axi_bvalid)
+                axi_bvalid <= 1'b1;
+            else if (S_AXI_BREADY && axi_bvalid)
+                axi_bvalid <= 1'b0;
 
-        // Write Data Ready: WVALID geldiği an hazır ol, kabul edince indir
-        if (~axi_wready && S_AXI_WVALID)
-            axi_wready <= 1'b1;
-        else
-            axi_wready <= 1'b0;
-
-        // Write Response (BVALID): Hem adres hem veri el sıkışması tamamlandığında
-        if (axi_awready && S_AXI_AWVALID && axi_wready && S_AXI_WVALID)
-            axi_bvalid <= 1'b1;
-        else if (S_AXI_BREADY && axi_bvalid)
-            axi_bvalid <= 1'b0;
-            
-            if (~axi_arready && S_AXI_ARVALID)
-                axi_arready <= 1'b1;
-            else
-                axi_arready <= 1'b0;
-
-            if (axi_arready && S_AXI_ARVALID && ~axi_rvalid)
+            // Read handshaking
+            axi_arready <= (~axi_arready && S_AXI_ARVALID);
+            if (axi_arready && ~axi_rvalid)
                 axi_rvalid <= 1'b1;
             else if (axi_rvalid && S_AXI_RREADY)
                 axi_rvalid <= 1'b0;
@@ -207,10 +193,8 @@ module qspi_axi_wrapper(
     end
 
 
-    logic write_en;
-    assign write_en = S_AXI_AWVALID && S_AXI_WVALID && ~axi_bvalid;
-    assign tx_fifo_wr_en = (S_AXI_AWREADY && (S_AXI_AWADDR == ADDR_QSPI_DR)&&!tx_fifo_full);
-    assign rx_fifo_rd_en = (S_AXI_ARVALID && ~axi_arready && (S_AXI_ARADDR == ADDR_QSPI_DR) && !rx_fifo_empty);
+    assign tx_fifo_wr_en = (axi_awready && S_AXI_WVALID && (S_AXI_AWADDR == ADDR_QSPI_DR) && !tx_fifo_full);
+    assign rx_fifo_rd_en = (axi_arready && S_AXI_ARVALID && (S_AXI_ARADDR == ADDR_QSPI_DR) && !rx_fifo_empty);
     assign rx_underflow = axi_arready && (S_AXI_ARADDR == ADDR_QSPI_DR) && rx_fifo_empty;
     assign tx_overflow = S_AXI_AWREADY && (S_AXI_AWADDR == ADDR_QSPI_DR) && tx_fifo_full;
 
@@ -222,7 +206,7 @@ module qspi_axi_wrapper(
         end
         else begin
             QSPI_FCR<=32'd0;
-            if (write_en)begin 
+            if (axi_awready)begin 
                 case(S_AXI_AWADDR) 
                 ADDR_QSPI_CCR:begin 
                     if(S_AXI_WSTRB[0]) QSPI_CCR[7:0]<=S_AXI_WDATA[7:0];
@@ -247,31 +231,21 @@ module qspi_axi_wrapper(
        end
     end
     
-    always_ff @(posedge S_AXI_ACLK)begin 
-        if(!S_AXI_ARESETN)begin 
+    always_ff @(posedge S_AXI_ACLK) begin 
+        if(!S_AXI_ARESETN) begin 
             axi_rdata <= 32'd0;
+        end else if (axi_rvalid && S_AXI_RREADY) begin // AXI veri hattı hazırsa
+            axi_rdata <= 32'd0; // Bir sonraki çevrim için temizle
+        end else if (axi_arready && S_AXI_ARVALID) begin 
+            case(S_AXI_ARADDR)
+                ADDR_QSPI_CCR:  axi_rdata <= QSPI_CCR;
+                ADDR_QSPI_ADR:  axi_rdata <= QSPI_ADR;
+                ADDR_QSPI_DR:   axi_rdata <= axi_rx_data; // FIFO'dan gelen veriyi doğrudan bas
+                ADDR_QSPI_STA:  axi_rdata <= QSPI_STA;
+                ADDR_QSPI_FCR:  axi_rdata <= QSPI_FCR;
+                default:        axi_rdata <= 32'd0;
+            endcase
         end
-        else begin 
-            if(S_AXI_ARVALID&&~axi_arready)begin 
-                case(S_AXI_ARADDR)
-                    ADDR_QSPI_CCR:  axi_rdata <= QSPI_CCR;
-                    ADDR_QSPI_ADR:  axi_rdata <= QSPI_ADR;
-                    ADDR_QSPI_DR: begin
-                        if(rx_fifo_empty)
-                            axi_rdata <= 32'd0;
-                        else
-                            axi_rdata <= axi_rx_data;
-                    end
-                    ADDR_QSPI_STA:  axi_rdata <= QSPI_STA;
-                    ADDR_QSPI_FCR:  axi_rdata <= QSPI_FCR;
-                    default:        axi_rdata <= 32'h0;
-                endcase
-            
-            end
-        
-        end
-    
-    
     end
     
     always_ff @(posedge S_AXI_ACLK)begin 
