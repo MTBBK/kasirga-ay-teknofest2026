@@ -4,6 +4,7 @@
 #include <termios.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/time.h>
 
 char logo[] ="\
                                                                                                                                                                                                         \r\n\
@@ -64,6 +65,7 @@ char logo[] ="\
                                                                    *,**,,******************/(#%%%%#///*/(((((((((((#/(((/,,,...,,...................,...,,,...................                          \r\n\
                                                                  ,*,*,,**/*,,,***********/(###%#(((///////((((((//****,*..,..,..............,,,,,..............................,                        \r\n\
 ";
+
 int setup_uart(const char *device) {
     int fd = open(device, O_RDWR | O_NOCTTY | O_SYNC);
 
@@ -103,10 +105,8 @@ int setup_uart(const char *device) {
 
     return fd;
 }
-
 int main() {
-    int fd = setup_uart("/dev/ttyUSB1");
-
+    int fd = setup_uart("/dev/ttyUSB0");
     char input[32];
 
     printf("AAAAAAAAAAAAAAAAAAAA: ");
@@ -114,8 +114,11 @@ int main() {
     while (fgets(input, sizeof(input), stdin)) {
         if (input[0] == 'b') {
             int len = strlen(logo);
+            struct timeval start, end;
 
             printf("\nSending logo to Basys3...\n\n");
+
+            gettimeofday(&start, NULL); 
 
             for (int i = 0; i < len; i++) {
                 write(fd, &logo[i], 1);
@@ -128,10 +131,28 @@ int main() {
                     fflush(stdout);
                 }
 
-                usleep(500); // small delay for UART stability
+                //usleep(500); // small delay for UART stability
             }
 
-            printf("\n\nDone.\n");
+            gettimeofday(&end, NULL); 
+
+            printf("\n\nDone.\n\n");
+
+            double elapsed_sec = (end.tv_sec - start.tv_sec) + 
+                                 (end.tv_usec - start.tv_usec) / 1000000.0;
+
+            double bytes_per_sec = len / elapsed_sec;
+            // 8N1 (1 start bit + 8 data bits + 1 stop bit = 10 bits per byte)
+            double bits_per_sec = (len * 10) / elapsed_sec; 
+
+            printf("--- Transfer Statistics ---\n");
+            printf("Start Time : %ld.%06ld s\n", start.tv_sec, start.tv_usec);
+            printf("End Time   : %ld.%06ld s\n", end.tv_sec, end.tv_usec);
+            printf("Time Taken : %.4f seconds\n", elapsed_sec);
+            printf("Total Sent : %d bytes\n", len);
+            printf("Eff. Speed : %.2f Bytes/sec (%.2f bps)\n", bytes_per_sec, bits_per_sec);
+            printf("---------------------------\n");
+
         } else {
             printf("Unknown command. Type 'b' then Enter.\n");
         }

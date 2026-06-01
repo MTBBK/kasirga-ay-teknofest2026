@@ -1,11 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Module Name: top_uart_obi
-// Description: Top-level FPGA module for Basys3 that performs UART echo
-//              through the full OBI → AXI-Lite → uart_top register stack.
-//              The OBI Master FSM mimics what a RISC-V CPU would do:
-//              poll status, read RX data, write TX data, trigger TX.
-//////////////////////////////////////////////////////////////////////////////////
 
 module top_uart_obi (
     input  logic clk_i,
