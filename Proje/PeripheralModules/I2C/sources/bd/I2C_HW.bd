@@ -299,15 +299,15 @@
       "master_wrapper_0_o_scl": {
         "ports": [
           "master_wrapper_0/o_scl",
-          "dummy_slave_block_0/scl_i",
-          "ila_0/probe5"
+          "ila_0/probe5",
+          "dummy_slave_block_0/scl_i"
         ]
       },
       "master_wrapper_0_o_sda_drive": {
         "ports": [
           "master_wrapper_0/o_sda_drive",
-          "dummy_slave_block_0/sda_i",
-          "ila_0/probe6"
+          "ila_0/probe6",
+          "dummy_slave_block_0/sda_i"
         ]
       },
       "master_wrapper_0_o_tx_done": {
@@ -319,8 +319,8 @@
       "vio_0_probe_out0": {
         "ports": [
           "vio_0/probe_out0",
-          "dummy_slave_block_0/rst_n",
-          "master_wrapper_0/rst_n"
+          "master_wrapper_0/rst_n",
+          "dummy_slave_block_0/rst_n"
         ]
       },
       "vio_0_probe_out1": {

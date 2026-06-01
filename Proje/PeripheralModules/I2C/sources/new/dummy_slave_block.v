@@ -8,7 +8,7 @@ module dummy_slave_block (
     output wire sda_o
 );
 
-i2c_golden_slave #(
+i2c_slave #(
     .FILTER_LEN(4)
 ) osman (
     .clk(clk),
@@ -28,7 +28,8 @@ i2c_golden_slave #(
 
     // Auto-feed the axi interface so it doesn't freeze
     .s_axis_data_tdata(8'hAA), 
-    .s_axis_data_tvalid(1'b1), 
+    .s_axis_data_tvalid(1'b1),
+    .s_axis_data_tlast(1'b0), 
     .s_axis_data_tready(),     
     .m_axis_data_tdata(),      
     .m_axis_data_tvalid(),     
