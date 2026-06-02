@@ -219,8 +219,7 @@ module xbar(
     input wire rvalid_slv7,
     output wire rready_slv7,
     input wire [1:0] rresp_slv7,
-    input wire [31:0] rdata_slv7,
-
+    input wire [31:0] rdata_slv7
 );
     reg [8:0] select_slv;
     always @(*) begin
