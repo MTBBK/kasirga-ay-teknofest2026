@@ -759,7 +759,7 @@ module top(
     );
     
     instruction_memory_axi  #(
-         .BASE_ADDRESS(32'h00010000),
+         .BASE_ADDRESS(32'h0000_1000),
          .SIZE(8192)
         ) instruction_memory (
         .clk(clk_i),
@@ -786,7 +786,7 @@ module top(
    memory_axi_readonly #(
         .SIZE(1024),
         .MEMFILE("system.mem"),
-        .BASE_ADDRESS(32'h00000000)
+        .BASE_ADDRESS(32'h0000_0000)
     ) ROM (
         .clk(clk_i),
         .rst_i(rst_n_i),
@@ -799,7 +799,7 @@ module top(
     );
     
      memory_axi#(
-        .BASE_ADDRESS(32'h00011000)
+        .BASE_ADDRESS(32'h0000_3000)
         ) data_memory(
         .clk(clk_i),
         .rst_i(rst_n_i),
