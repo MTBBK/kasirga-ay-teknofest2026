@@ -26,7 +26,8 @@ module timer_top #(
 
     output wire RVALID,
     input wire RREADY,
-    output wire [31:0] RDATA
+    output wire [31:0] RDATA,  
+    output wire RRESP
 );
 
     localparam ADDR_TIM_PRE = 32'h0011_0000,
@@ -40,7 +41,8 @@ module timer_top #(
 
     reg [31:0] TIM_PRE, TIM_ARE, TIM_CLR, TIM_ENA, TIM_MOD, TIM_EVC;
     wire [31:0] tim_cnt_wire, tim_evn_wire;
-
+    
+    assign RRESP = 2'b00;
     reg axi_awready;
     reg [31:0] axi_rdata;
     reg axi_bvalid, axi_rvalid;

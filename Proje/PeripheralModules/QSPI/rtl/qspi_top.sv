@@ -65,7 +65,11 @@ module qspi_top(
     IOBUF iobuf_inst_1 (.IO(qspi_io_1), .I(qspi_data_o[1]), .O(qspi_data_i[1]), .T(~qspi_data_oe[1]));
     IOBUF iobuf_inst_2 (.IO(qspi_io_2), .I(qspi_data_o[2]), .O(qspi_data_i[2]), .T(~qspi_data_oe[2]));
     IOBUF iobuf_inst_3 (.IO(qspi_io_3), .I(qspi_data_o[3]), .O(qspi_data_i[3]), .T(~qspi_data_oe[3]));
-    
+    //assign qspi_io_0=qspi_data_oe[0] ? qspi_data_o[0] : 1'bz;
+    //assign qspi_io_1=qspi_data_oe[1] ? qspi_data_o[1] : 1'bz;
+    //assign qspi_io_2=qspi_data_oe[2] ? qspi_data_o[2] : 1'bz;
+    //assign qspi_io_3=qspi_data_oe[3] ? qspi_data_o[3] : 1'bz;
+    //assign qspi_data_i ={qspi_io_3,qspi_io_2,qspi_io_1,qspi_io_0};
     
     pullup(qspi_io_0);
     pullup(qspi_io_1);

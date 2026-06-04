@@ -36,7 +36,8 @@ module i2c_axi_wrapper #(
 
     output wire        RVALID,
     input  wire        RREADY,
-    output wire [31:0] RDATA
+    output wire [31:0] RDATA,
+    output wire        RRESP
 );
 
     // Bellek Haritasý Offset Tanýmlarý
@@ -45,6 +46,7 @@ module i2c_axi_wrapper #(
                       OFFSET_I2C_RDR = 16'h7008,
                       OFFSET_I2C_TDR = 16'h700C,
                       OFFSET_I2C_CFG = 16'h7010;
+    assign RRESP = 2'b00;
 
     // Yazmaçlar 
     reg [31:0] I2C_NBY;

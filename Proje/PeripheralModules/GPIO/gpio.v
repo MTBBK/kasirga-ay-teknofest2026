@@ -25,12 +25,14 @@ module gpio(
 
     output wire RVALID,
     input wire RREADY,
-    output wire [31:0] RDATA
+    output wire [31:0] RDATA,
+    output wire RRESP
     );
     
     reg [31:0] GPIO_ODR;
     
     assign BRESP = 2'b00;
+    assign RRESP = 2'b00;
 
     reg axi_rready, axi_awready;
     reg [31:0] axi_rdata;

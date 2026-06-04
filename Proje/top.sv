@@ -23,6 +23,7 @@
 module top(
     input logic clk_i,
     input logic rst_n_i,
+    input logic fetch_enable,
     
     input  logic uart_rx_i,
     output logic uart_tx_o,
@@ -37,7 +38,7 @@ module top(
     input  logic [15:0] gpio_i,
     
     output logic sclk_o,
-    output logic cs_,
+    output logic cs_o,
     inout wire qspi_io_0,
     inout wire qspi_io_1,
     inout wire qspi_io_2,
@@ -60,21 +61,27 @@ module top(
     logic [3:0] obi_be_data;     
     logic [31:0] obi_rdata_data;
                        
-    logic [31:0] axi_araddr_o_data;
-    logic axi_arvalid_o_data;    
-    logic axi_arready_i_data;                       
-    logic [31:0] axi_rdata_i_data;
-    logic axi_rvalid_i_data;      
-    logic axi_rready_o_data;                          
-    logic [31:0] axi_awaddr_o_data;
-    logic axi_awvalid_o_data;    
-    logic axi_awready_i_data;      
-    logic axi_wready_i_data;       
-    logic [31:0] axi_wdata_o_data; 
-    logic axi_wvalid_o_data;      
-    logic [3:0] axi_wstrb_o_data;  
-    logic axi_bvalid_i_data;       
-    logic axi_bready_i_data;
+    
+    logic obi_req_instr_i;
+    logic obi_gnt_instr_o;
+    logic obi_rvalid_instr_o;
+    logic [31:0] obi_addr_instr_i;
+    logic [31:0] obi_rdata_instr_o;
+    logic [31:0] axi_araddr_instr_o;
+    logic axi_arvalid_instr_o;
+    logic axi_arready_instr_i;
+    logic [31:0] axi_rdata_instr_i;
+    logic axi_rvalid_instr_i;
+    logic axi_rready_instr_;
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     // MASTER(core) INTERFACE
     // WRITE ADDRESS CHANNEL
@@ -298,13 +305,82 @@ module top(
     wire [31:0] rdata_slv7;
     
     
+    //AI Accelerator Axi Signals
+    // WRITE ADDRESS CHANNEL
+     wire awvalid_ac;
+    wire awready_ac;
+     wire [31:0] awaddr_ac;
+    // WRITE DATA CHANNEL
+     wire wvalid_ac;
+    wire wready_ac;
+     wire [31:0] wdata_ac;
+     wire [3:0] wstrb_ac;
+    // WRITE RESPONSE CHANNEL
+    wire bvalid_ac;
+     wire bready_ac;
+    wire [1:0] bresp_ac;
+    // READ ADDRESS CHANNEL
+     wire arvalid_ac;
+    wire arready_ac;
+     wire [31:0] araddr_ac;
+    // READ DATA CHANNEL
+    wire rvalid_ac;
+     wire rready_ac;
+    wire [1:0] rresp_ac;
+    wire [31:0] rdata_ac;
+    logic arlen_ac;
+    logic rlast_ac;
+    logic awlen_ac;
+    logic wlast_ac;
+    
+    logic sleep_en;
+    
+    logic [31:0] interrupt;
+    assign interrupt=32'd0;
+    logic [31:0] boot_addr;
+    assign boot_addr=32'h0000_0000;
+    
+    wire r_arvalid_slv0,r_arready_slv0,r_rvalid_slv0,r_rready_slv0,r_arvalid_slv1,r_arready_slv1,r_rvalid_slv1,r_rready_slv1;
+    wire [31:0] r_araddr_slv0, r_rdata_slv0,r_araddr_slv1;
+    wire [31:0] r_rdata_slv1;
+    
+    wire boot_ended;
+    wire boot_ended_o;
+    logic program_enable;
+    assign program_enable=1'b1;
+    assign boot_ended = program_enable ? 1 : boot_ended_o;
+    assign rvalid_slv0 = r_rvalid_slv1 & !boot_ended;
+    assign arready_slv0 = r_arready_slv1 & !boot_ended;
     
     
     
+    xbar_readonly ro_xbar(
+            .arvalid_master(axi_arvalid_instr_o),    
+            .arready_master(axi_arready_instr_i),    
+            .araddr_master(axi_araddr_instr_o),     
+                                                   
+            .rvalid_master(axi_rvalid_instr_i),     
+            .rready_master(axi_rready_instr_o),     
+            .rdata_master(axi_rdata_instr_i),      
+                                                                 
+            .arvalid_slv0(r_arvalid_slv0),      
+            .arready_slv0(r_arready_slv0),      
+            .araddr_slv0(r_araddr_slv0),       
+                                                  
+            .rvalid_slv0(r_rvalid_slv0),       
+            .rready_slv0(r_rready_slv0),       
+            .rdata_slv0(r_rdata_slv0),        
+                                         
+            .arvalid_slv1(r_arvalid_slv1),      
+            .arready_slv1(r_arready_slv1),      
+            .araddr_slv1(r_araddr_slv1),       
+                                                    
+            .rvalid_slv1(r_rvalid_slv1),       
+            .rready_slv1(r_rready_slv1),       
+            .rdata_slv1(r_rdata_slv1)         
     
     
-    
-    
+    );
     
     
     
@@ -363,52 +439,72 @@ module top(
     
     
     
+   
+    cv32e40p_top #(
+    .FPU                      ( 0 ),
+    .FPU_ADDMUL_LAT           ( 0 ),
+    .FPU_OTHERS_LAT           ( 0 ),
+    .ZFINX                    ( 0 ),
+    .COREV_PULP               ( 0 ),
+    .COREV_CLUSTER            ( 0 ),
+    .NUM_MHPMCOUNTERS         ( 1 )
+) u_core (
+    // Clock and reset
+    .rst_ni                   (rst_n_i),
+    .clk_i                    (clk_i),
+    .scan_cg_en_i             (1'b0),
+
+    // Special control signals
+    .fetch_enable_i           (fetch_enable),
+    .pulp_clock_en_i          (1'b0),
+    .core_sleep_o             (sleep_en),
+
+    // Configuration
+    .boot_addr_i              (boot_addr),
+    .mtvec_addr_i             (32'd0),
+    .dm_halt_addr_i           (32'd0),
+    .dm_exception_addr_i      (32'd0),
+    .hart_id_i                (32'd0),
+
+    // Instruction memory interface
+    .instr_addr_o             (obi_addr_instr_i),
+    .instr_req_o              (obi_req_instr_i),
+    .instr_gnt_i              (obi_gnt_instr_o),
+    .instr_rvalid_i           (obi_rvalid_instr_o),
+    .instr_rdata_i            (obi_rdata_instr_o),
+
+    // Data memory interface
+    .data_addr_o              (obi_addr_data),
+    .data_req_o               (obi_req_data),
+    .data_gnt_i               (obi_gnt_data),
+    .data_we_o                (obi_we_data),
+    .data_be_o                (obi_be_data),
+    .data_wdata_o             (obi_wdata_data),
+    .data_rvalid_i            (obi_rvalid_data),
+    .data_rdata_i             (obi_rdata_data),
+
+     // Interrupt interface
+    .irq_i                    (interrupt),
+    .irq_ack_o                (),
+    .irq_id_o                 (),
+
+    // Debug interface
+    .debug_req_i              (1'b0),
+    .debug_havereset_o        (),
+    .debug_running_o          (),
+    .debug_halted_o           ()
+);
+
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    cv32e40p_top core_top_inst(.clk_i(clk_i), 
-                               .rst_ni(rst_n_i),
-                               .boot_addr_i(),
-                               .instr_req_o(),   
-                               .instr_gnt_i(),   
-                               .instr_rvalid_i(),
-                               .instr_addr_o(),  
-                               .instr_rdata_i(),
-                               .data_req_o(obi_req_data),   
-                               .data_gnt_i(obi_gnt_data),   
-                               .data_rvalid_i(obi_rvalid_data),
-                               .data_we_o(obi_we_data),    
-                               .data_be_o(obi_be_data),    
-                               .data_addr_o(obi_addr_data),  
-                               .data_wdata_o(obi_wdata_data), 
-                               .data_rdata_i(obi_rdata_data), 
-                               .fetch_enable_i(),
-                               .core_sleep_o(),
-                               .irq_i(),
-                               .irq_ack_o(),
-                               .irq_id_o()
-                                
-    );
     i2c_axi_wrapper i2c_top_inst();
     qspi_top qspi_top_inst( .S_AXI_ACLK(clk_i),
                             .S_AXI_ARESETN(rst_n_i),
                             .sclk(sclk_o),
                             .cs(cs_o),
                             .qspi_io_0(qspi_io_0),
-                            .qspi_io_1(qspi_io_0),
-                            .qspi_io_2(qspi_io_0),
-                            .qspi_io_3(qspi_io_0),
+                            .qspi_io_1(qspi_io_1),
+                            .qspi_io_2(qspi_io_2),
+                            .qspi_io_3(qspi_io_3),
                             .S_AXI_AWVALID(awvalid_slv7), .S_AXI_AWREADY(awready_slv7), .S_AXI_AWADDR(awaddr_slv7),
                             .S_AXI_WDATA(wdata_slv7),     .S_AXI_WSTRB(wstrb_slv7), .S_AXI_WVALID(wvalid_slv7), .S_AXI_WREADY(wready_slv7) ,
                             .S_AXI_BVALID(bvalid_slv7),   .S_AXI_BREADY(bready_slv7), .S_AXI_BRESP(bresp_slv7),
@@ -416,7 +512,7 @@ module top(
                             .S_AXI_ARVALID(arvalid_slv7), .S_AXI_ARREADY(arready_slv7), .S_AXI_ARADDR(araddr_slv7),
                             .S_AXI_RVALID(rvalid_slv7),   .S_AXI_RREADY(rready_slv7),   .S_AXI_RDATA(rdata_slv7), .S_AXI_RRESP(rresp_slv7)
     );
-    timer_top #(.CLK_FREQ(clk_freq_Hz)) timer_top_inst(.clk(clk),
+    timer_top #(.CLK_FREQ(clk_freq_Hz)) timer_top_inst(.clk(clk_i),
                              .rst_i(rst_n_i),
                              .AWVALID(awvalid_slv3), .AWREADY(awready_slv3), .AWADDR(awaddr_slv3),
                              .WDATA(wdata_slv3),     .WSTRB(wstrb_slv3),     .WVALID(wvalid_slv3), .WREADY(wready_slv3) ,
@@ -426,7 +522,7 @@ module top(
     
     
     );
-    gpio gpio_top_inst(.clk(clk),
+    gpio gpio_top_inst(.clk(clk_i),
                        .rst_i(rst_n_i),
                        .output_pins(gpio_o),
                        .input_pins(gpio_i),
@@ -473,23 +569,24 @@ module top(
             .rdata_master (rdata_master),
             
             
-            .awvalid_slv(awvalid_slv),
-            .awready_slv(awready_slv),
-            .awaddr_slv(awaddr_slv),
-            .wvalid_slv(wvalid_slv),
-            .wready_slv(wready_slv),
-            .wdata_slv(wdata_slv),
-            .wstrb_slv(wstrb_slv),
-            .bvalid_slv(bvalid_slv),
-            .bready_slv(bready_slv),
-            .bresp_slv(bresp_slv),
-            .arvalid_slv(arvalid_slv),
-            .arready_slv(arready_slv),
-            .araddr_slv(araddr_slv),
-            .rvalid_slv(rvalid_slv),
-            .rready_slv(rready_slv),
-            .rresp_slv(rresp_slv),
-            .rdata_slv(rdata_slv),
+            .awvalid_slv0(awvalid_slv0),
+            .awready_slv0(awready_slv0),
+            .awaddr_slv0(awaddr_slv0),
+            .wvalid_slv0(wvalid_slv0),
+            .wready_slv0(wready_slv0),
+            .wdata_slv0(wdata_slv0),
+            .wstrb_slv0(wstrb_slv0),
+            .bvalid_slv0(bvalid_slv0),
+            .bready_slv0(bready_slv0),
+            .bresp_slv0(),
+            //read is done from r/o xbar
+            .arvalid_slv0(),
+            .arready_slv0(),
+            .araddr_slv0(),
+            .rvalid_slv0(),
+            .rready_slv0(),
+            .rresp_slv0(),
+            .rdata_slv0(),
             
             .awvalid_slv1(awvalid_slv1),
             .awready_slv1(awready_slv1),
@@ -617,7 +714,20 @@ module top(
             .rresp_slv7(rresp_slv7),
             .rdata_slv7(rdata_slv7)
     );
-    obi_to_axi obi_to_axi_instr();
+    obi_to_axi_readonly obi_to_axi_instr(
+       .obi_req_i(obi_req_instr_i),          
+       .obi_gnt_o(obi_gnt_instr_o),          
+       .obi_rvalid_o(obi_rvalid_instr_o),       
+       .obi_addr_i(obi_addr_instr_i),  
+       .obi_rdata_o(obi_rdata_instr_o),                  
+       .axi_araddr_o(axi_araddr_instr_o),
+       .axi_arvalid_o(axi_arvalid_instr_o),      
+       .axi_arready_i(axi_arready_instr_i),                        
+       .axi_rdata_i(axi_rdata_instr_i), 
+       .axi_rvalid_i(axi_rvalid_instr_i),       
+       .axi_rready_o(axi_rready_instr_o)       
+    
+    );
     
     
     obi_to_axi obi_to_axi_data(
@@ -630,24 +740,109 @@ module top(
     .obi_be_i(obi_be_data),
     .obi_rdata_o(obi_rdata_data),
     
-    .axi_araddr_o(axi_araddr_o_data),
-    .axi_arvalid_o(axi_arvalid_o_data),
-    .axi_arready_i(axi_arready_i_data),
-    .axi_rdata_i(axi_rdata_i_data),
-    .axi_rvalid_i(axi_rvalid_i_data),
-    .axi_rready_o(axi_rready_o_data),
-    .axi_awaddr_o(axi_awaddr_o_data),
-    .axi_awvalid_o(axi_awvalid_o_data),
-    .axi_awready_i(axi_awready_i_data),
-    .axi_wready_i(axi_wready_i_data),
-    .axi_wdata_o(axi_wdata_o_data),
-    .axi_wvalid_o(axi_wvalid_o_data),
-    .axi_wstrb_o(axi_wstrb_o_data),
-    .axi_bvalid_i(axi_bvalid_i_data),
-    .axi_bready_o(axi_bready_o_data)
+    .axi_araddr_o(araddr_master),
+    .axi_arvalid_o(arvalid_master),
+    .axi_arready_i(arready_master),
+    .axi_rdata_i(rdata_master),
+    .axi_rvalid_i(rvalid_master),
+    .axi_rready_o(rready_master),
+    .axi_awaddr_o(awaddr_master),
+    .axi_awvalid_o(awvalid_master),
+    .axi_awready_i(awready_master),
+    .axi_wready_i(wready_master),
+    .axi_wdata_o(wdata_master),
+    .axi_wvalid_o(wvalid_master),
+    .axi_wstrb_o(wstrb_master),
+    .axi_bvalid_i(bvalid_master),
+    .axi_bready_o(bready_master)
     
     );
     
+    instruction_memory_axi  #(
+         .BASE_ADDRESS(32'h00010000),
+         .SIZE(8192)
+        ) instruction_memory (
+        .clk(clk_i),
+        .rst_i(rst_n_i),
+        .AWVALID(awvalid_slv0),
+        .AWREADY(awready_slv0),
+        .AWADDR(awaddr_slv0),
+        .WVALID(wvalid_slv0),
+        .WREADY(wready_slv0),
+        .WDATA(wdata_slv0),
+        .WSTRB(wstrb_slv0),
+        .BVALID(bvalid_slv0),
+        .BREADY(bready_slv0),
+        .BRESP(bresp_slv0),
+        .ARVALID(r_arvalid_slv1),
+        .ARREADY(r_arready_slv1),
+        .ARADDR(r_araddr_slv1),
+        .RVALID(r_rvalid_slv1),
+        .RREADY(r_rready_slv1),
+        .RDATA(r_rdata_slv1),
+        .boot_ended(boot_ended_o)
+    );
+    
+   memory_axi_readonly #(
+        .SIZE(1024),
+        .MEMFILE("system.mem"),
+        .BASE_ADDRESS(32'h00000000)
+    ) ROM (
+        .clk(clk_i),
+        .rst_i(rst_n_i),
+        .ARVALID(r_arvalid_slv0),
+        .ARREADY(r_arready_slv0),
+        .ARADDR(r_araddr_slv0),
+        .RVALID(r_rvalid_slv0),
+        .RREADY(r_rready_slv0),
+        .RDATA(r_rdata_slv0)
+    );
+    
+     memory_axi#(
+        .BASE_ADDRESS(32'h00011000)
+        ) data_memory(
+        .clk(clk_i),
+        .rst_i(rst_n_i),
+        .ARADDR(araddr_slv1),
+        .ARVALID(arvalid_slv1),
+        .ARREADY(arready_slv1),
+        .RDATA(rdata_slv1),
+        .RVALID(rvalid_slv1),
+        .RREADY(rready_slv1),
+        .AWADDR(awaddr_slv1),
+        .AWVALID(awvalid_slv1),
+        .AWREADY(awready_slv1),
+        .WREADY(wready_slv1),
+        .WSTRB(wstrb_slv1),
+        .WDATA(wdata_slv1),
+        .BVALID(bvalid_slv1),
+        .BREADY(bready_slv1),
+        .WVALID(wvalid_slv1),
+        
+        .AWVALID_DMA(awvalid_ac),
+        .ARREADY_DMA(arready_ac),
+        .AWREADY_DMA(awready_ac),
+        .AWADDR_DMA(awaddr_ac),
+        .WVALID_DMA(wvalid_ac),
+        .WREADY_DMA(wready_ac),
+        .WDATA_DMA(wdata_ac),
+        .WSTRB_DMA(wstrb_ac),
+        .BVALID_DMA(bvalid_ac),
+        .BREADY_DMA(bready_ac),
+        .ARVALID_DMA(arvalid_ac),
+        .ARADDR_DMA(araddr_ac),
+        .RVALID_DMA(rvalid_ac),
+        .RREADY_DMA(rready_ac),
+        .RDATA_DMA(rdata_ac),
+        
+        .ARLEN_DMA(arlen_ac),
+        .RLAST_DMA(rlast_ac),
+        
+        .AWLEN_DMA(awlen_ac),
+        .WLAST_DMA(wlast_ac)
+       
+        );
+
     
     
 endmodule
