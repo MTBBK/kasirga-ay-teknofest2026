@@ -8,7 +8,8 @@ input logic signed[31:0] pe_outputs[0:79],
 
 output logic [63:0]buffwritedata,
 output logic [9:0]buffwriteaddr,
-output logic buffwriteenable
+output logic buffwriteenable,
+output logic feederbasla
     );
     
     typedef enum logic [1:0] {
@@ -31,7 +32,7 @@ output logic buffwriteenable
     genvar i;
     generate
         for(i=0;i<8;i=i+1)begin: post_p
-            req_relu postprocess(
+            relu_req postprocess(
                 .clk(clk),                
                 .rst(rst),          
                 .input_valid(invalid),                 
@@ -90,17 +91,25 @@ output logic buffwriteenable
         end
     end
     
+    logic [3:0] sayac;
     always_ff @(posedge clk)begin
         if(rst)begin
-        
+            sayac <= '0;
         end
         else begin
             bufferdata <= '{default: '0};
             buffwriteenable <= 1'b0;
+            feederbasla <= 1'b0;
             if(outvalid == 1'b1)begin
                 bufferdata <= postp_out; 
                 buffwriteenable <= 1'b1;
                 buffaddress <= buffaddress + 1'b1;
+                
+                sayac <= sayac + 1'b1;
+                if(sayac == 4'd9)begin
+                    sayac <= '0;
+                    feederbasla <= 1'b1;
+                end
             end
         end
     end

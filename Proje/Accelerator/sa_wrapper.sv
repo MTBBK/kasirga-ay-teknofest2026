@@ -33,7 +33,7 @@ output logic alloutputsready
     );
     
     //logic alloutputsready;
-    sa_top sistoli_kdizi (
+    systolic_array sa(
         .clk(clk),
         .rst(rst),
         .left_in(solkenarskewed),

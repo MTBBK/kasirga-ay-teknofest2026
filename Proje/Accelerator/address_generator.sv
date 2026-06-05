@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-module index_counters(
+module address_generator(
 input logic clk,
 input logic rst,
 
