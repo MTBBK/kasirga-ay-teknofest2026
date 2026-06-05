@@ -1,5 +1,5 @@
-set DESIGN_RTL_DIR "/mnt/disk2/Gtihub_Projects/kasirga-ay-teknofest2026/Proje/Core/rtl"
-set PROJE_DIR "/mnt/disk2/Gtihub_Projects/kasirga-ay-teknofest2026/Proje"
+set DESIGN_RTL_DIR "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/Core/rtl"
+set PROJE_DIR "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje"
 
 set INCLUDE_PATHS [list \
     "${DESIGN_RTL_DIR}/include" \
