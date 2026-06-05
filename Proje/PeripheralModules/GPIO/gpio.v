@@ -26,7 +26,7 @@ module gpio(
     output wire RVALID,
     input wire RREADY,
     output wire [31:0] RDATA,
-    output wire RRESP
+    output wire [1:0] RRESP
     );
     
     reg [31:0] GPIO_ODR;
@@ -34,20 +34,22 @@ module gpio(
     assign BRESP = 2'b00;
     assign RRESP = 2'b00;
 
-    reg axi_rready, axi_awready;
+    reg axi_arready;
+    reg axi_awready;
     reg [31:0] axi_rdata;
     reg axi_bvalid, axi_rvalid;
 
+    assign AWREADY = axi_awready;
+    assign WREADY  = axi_awready;
     assign BVALID  = axi_bvalid;
     assign RVALID  = axi_rvalid;
     assign RDATA   = axi_rdata;
-    assign WREADY  = axi_awready;
-    assign AWREADY = axi_awready;
-    assign ARREADY = axi_rready;
+
+    assign ARREADY = axi_arready;
     
     wire axi_write_ready, axi_read_ready;
     
-    assign axi_write_ready = axi_awready;
+    assign axi_write_ready = axi_awready && AWVALID && WVALID;
     assign axi_read_ready = (ARVALID && ARREADY);
 
     localparam ADDR_GPIO_IDR = 32'h00000000, // Giriş veri yazmacı (Offset 0x00)
@@ -75,7 +77,7 @@ module gpio(
     always @(posedge clk) begin
         if(!rst_i)
             axi_rdata <= 32'b0;
-        else if(!ARVALID || RREADY) begin
+        else if(axi_read_ready) begin
             case(ARADDR)
                 ADDR_GPIO_IDR: axi_rdata <= {16'b0, input_pins}; // Üst 16-bit her zaman 0 
                 ADDR_GPIO_ODR: axi_rdata <= GPIO_ODR;
@@ -90,7 +92,7 @@ module gpio(
             axi_bvalid <= 1'b0;
         else if(axi_write_ready)
             axi_bvalid <= 1'b1;
-        else if(BREADY)
+        else if(BREADY && axi_bvalid)
             axi_bvalid <= 1'b0;
     end
 
@@ -100,7 +102,7 @@ module gpio(
             axi_rvalid <= 1'b0;
         else if(axi_read_ready)
             axi_rvalid <= 1'b1;
-        else if(RREADY)
+        else if(RREADY && axi_rvalid)
             axi_rvalid <= 1'b0;
     end
 
@@ -109,11 +111,17 @@ module gpio(
         if(!rst_i)
             axi_awready <= 1'b0;
         else 
-            axi_awready <= !axi_awready && (AWVALID && WVALID) && (!BVALID && BREADY);
+            axi_awready <= !axi_awready && (AWVALID && WVALID) && !BVALID;
     end
 
-    always@(*) begin
-        axi_rready = !RVALID;
+    initial axi_arready = 1'b0;
+    always @(posedge clk) begin
+        if (!rst_i)
+            axi_arready <= 1'b0;
+        else if (ARVALID && !axi_rvalid && !axi_arready)
+            axi_arready <= 1'b1;
+        else
+            axi_arready <= 1'b0;
     end
 
 endmodule
