@@ -44,7 +44,7 @@ module tb_top();
     // Standart SPI Quad modu için genelde aşağıdaki gibidir:
     
     wire vcc = 1'b1; // VCC sinyali (modelin internal logic'i için gerekebilir)
-    
+    /*
     N25Qxxx flash_mem (
         .S(cs_n),           // Chip Select
         .C_(sclk_o),        // Clock (C_ veya C olarak tanımlı olabilir modelde)
@@ -55,7 +55,7 @@ module tb_top();
         .Vpp_W_DQ2(qspi_io_2) // DQ2 / VPP/WP
         // .RESET2(...) // Eğer model RESET_pin veya Feature_8 tanımıyla derlendiyse bu port da gerekebilir.
     );
-
+*/
     // Clock Üretimi (100 MHz)
     initial begin
         clk_i = 0;

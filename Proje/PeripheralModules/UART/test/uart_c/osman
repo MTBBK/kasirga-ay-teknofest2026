@@ -6,7 +6,7 @@ riscv32-unknown-elf-objdump -d system.elf > system.asm
 
 riscv32-unknown-elf-objcopy -O verilog system.elf system.mem
 
-echo "@00000000" > osman.txt 
+echo "@00000000" > osman.txt
 
 python3 osman.py >> osman.txt
 

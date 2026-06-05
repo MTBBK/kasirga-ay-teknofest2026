@@ -6,7 +6,7 @@ Disassembly of section .text:
 
 00000000 <_start>:
    0:	00005137          	lui	sp,0x5
-   4:	116d                	addi	sp,sp,-5 # 4ffb <uart_get_char+0x4ecb>
+   4:	1141                	addi	sp,sp,-16 # 4ff0 <uart_get_char+0x4ec0>
    6:	2011                	jal	a <main>
 
 00000008 <end>:

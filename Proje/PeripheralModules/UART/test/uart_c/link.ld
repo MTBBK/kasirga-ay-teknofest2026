@@ -3,20 +3,21 @@ ENTRY(_start)
 
 MEMORY
 {
-    ROM (rx)  : ORIGIN = 0x00000000, LENGTH = 4K   /* memory_axi_readonly adresin */
-    RAM (rwx) : ORIGIN = 0x00003000, LENGTH = 8K  /* data_memory adresin */
+    ROM (rx)  : ORIGIN = 0x00000000, LENGTH = 4K
+    RAM (rwx) : ORIGIN = 0x00003000, LENGTH = 8K
 }
 
 SECTIONS
 {
-    /* Text bölümü (Kod) ROM'a gidecek */
     .text : {
-        *(.text.init) /* Önce crt0.S içindeki _start gelsin */
-        *(.text*)     /* Sonra C fonksiyonları */
-        *(.rodata*)   /* Sadece okunabilir veriler (Stringler vs.) */
+        *(.text.init)
+        *(.text*)
     } > ROM
 
-    /* Data bölümü (Değişkenler) RAM'e gidecek */
+    .rodata : {
+        *(.rodata*)
+    } > RAM
+
     .data : {
         *(.data*)
         *(.sdata*)
@@ -27,3 +28,4 @@ SECTIONS
         *(.sbss*)
     } > RAM
 }
+
