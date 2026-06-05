@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module sa_top(
+module systolic_array(
 input logic clk,
 input logic rst,
 input logic [7:0]left_in[0:9],

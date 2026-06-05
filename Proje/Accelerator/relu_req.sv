@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-module req_relu(
+module relu_req(
 input logic clk,
 input logic rst,
 

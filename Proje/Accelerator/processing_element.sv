@@ -1,6 +1,4 @@
 `timescale 1ns / 1ps
-//ZERO GATİNG EKLENEBİLİR GELİŞTİRME OLARAK
-//RESERVE REGİSTER EKLENEBİLİR SANIRIM BLOCK MATRİS MULTİPLATİONU HIZLANDIRIYOR TOPLANACAK VERİYİ RESERVEDE TUTARAK
 module processing_element #(parameter int accum_bit_width = 32
 )(
     input logic clk,
@@ -13,7 +11,6 @@ output logic interestregionfinished_o,
 output logic [7:0] dogu_out,
 output logic [7:0] guney_out,
 output logic [31:0] outputs
-//output logic [8*accum_bit_width-1:0] outputs
 
     ); 
     
