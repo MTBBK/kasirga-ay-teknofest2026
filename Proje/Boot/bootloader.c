@@ -6,7 +6,7 @@
 
 #define QSPI_CCR_ADDR 	0x00009000
 #define QSPI_ADR_ADDR 	0x00009004
-#define QSPI_DR0_ADDR 	0x00009008
+#define QSPI_DR_ADDR 	0x00009008
 #define QSPI_STA_ADDR 	0x00009028
 
 #define WREN            0x06
