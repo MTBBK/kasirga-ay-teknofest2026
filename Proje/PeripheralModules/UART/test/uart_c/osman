@@ -1,10 +1,12 @@
 #!/bin/bash
 
-riscv32-unknown-elf-gcc -g -march=rv32imc_zicsr_zifencei -mabi=ilp32 -T link.ld -nostartfiles crt0.S main.c uart.c -o system.elf
+riscv32-unknown-elf-gcc -g -march=rv32imc_zicsr_zifencei -mabi=ilp32 -T link.ld -nostartfiles -nostdlib crt0.S main.c uart.c -o system.elf
 
 riscv32-unknown-elf-objdump -d system.elf > system.asm
 
 riscv32-unknown-elf-objcopy -O verilog system.elf system.mem
+
+riscv32-unknown-elf-objcopy -O binary system.elf program.bin
 
 echo "@00000000" > osman.txt
 

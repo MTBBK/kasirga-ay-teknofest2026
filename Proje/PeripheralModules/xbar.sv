@@ -227,7 +227,7 @@ module xbar(
 
         if (awvalid_master) begin
             if ((awaddr_master[19:12] >= 8'h01) && (awaddr_master[19:12] < 8'h03))select_slv = 10'b0000000001; //SLAVE 0 (Instructıon Mem)
-            else if (awaddr_master[15:12] >= 4'h3)  select_slv = 10'b0000000010; // SLAVE 1 (Data Mem)
+            else if ((awaddr_master[15:12] >= 4'h3)&&(awaddr_master[15:12] <= 4'h4))  select_slv = 10'b0000000010; // SLAVE 1 (Data Mem)
             else if (awaddr_master[15:12] == 4'h7)   select_slv = 10'b0000000100; // SLAVE 2 (GPIO)
             else if (awaddr_master[19:12] == 8'h11)   select_slv = 10'b0000001000; // SLAVE 3 (Timer)
             else if (awaddr_master[15:12] == 4'h5)   select_slv = 10'b0000010000; // SLAVE 4 (UART)
@@ -238,7 +238,7 @@ module xbar(
         end
         else if (arvalid_master) begin
             //No read instruction from this channel to slv0
-            if (araddr_master[15:12] >= 4'h3)       select_slv = 10'b0000000010; // SLAVE 1 (Data Mem)
+            if ((araddr_master[15:12] >= 4'h3)&&(araddr_master[15:12] <= 4'h4))       select_slv = 10'b0000000010; // SLAVE 1 (Data Mem)
             else if (araddr_master[15:12] == 4'h7)   select_slv = 10'b0000000100; // SLAVE 2 (GPIO)
             else if (araddr_master[19:12] == 8'h11)   select_slv = 10'b0000001000; // SLAVE 3 (Timer)
             else if (araddr_master[15:12] == 4'h5)   select_slv = 10'b0000010000; // SLAVE 4 (UART)
