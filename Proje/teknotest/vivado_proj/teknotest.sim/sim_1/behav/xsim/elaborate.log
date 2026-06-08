@@ -1,0 +1,70 @@
+Vivado Simulator v2021.2
+Copyright 1986-1999, 2001-2021 Xilinx, Inc. All Rights Reserved.
+Running: /home/mtbbk/Vivado/2021.2/Vivado/2021.2/bin/unwrapped/lnx64.o/xelab --incr --debug typical --relax --mt 8 -L xil_defaultlib -L uvm -L unisims_ver -L unimacro_ver -L secureip --snapshot teknotest_tb_behav xil_defaultlib.teknotest_tb xil_defaultlib.glbl -log elaborate.log 
+Using 8 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+WARNING: [VRFC 10-3091] actual bit length 1 differs from formal bit length 5 for port 'ARLEN_DMA' [/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/teknotest/user_files/teknotest_wrapper.sv:767]
+WARNING: [VRFC 10-3091] actual bit length 1 differs from formal bit length 6 for port 'AWLEN_DMA' [/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/teknotest/user_files/teknotest_wrapper.sv:770]
+Completed static elaboration
+Starting simulation data flow analysis
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/teknotest/tb/teknotest_tb.sv" Line 3. Module teknotest_tb has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/TeknofestTest/PeripheralModules/xbar_readonly.sv" Line 1. Module xbar_readonly has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/TeknofestTest/PeripheralModules/UART/rtl/uart_top.sv" Line 3. Module uart_top(baud_rate=115200,clock_frequency=50) has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/TeknofestTest/PeripheralModules/UART/rtl/uart_rx.sv" Line 23. Module uart_rx has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/TeknofestTest/PeripheralModules/UART/rtl/uart_tx.sv" Line 23. Module uart_tx has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/TeknofestTest/PeripheralModules/xbar.sv" Line 1. Module xbar has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/TeknofestTest/PeripheralModules/obi_to_axi_readonly.v" Line 23. Module obi_to_axi_readonly has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/teknotest/tb/teknotest_tb.sv" Line 3. Module teknotest_tb has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/TeknofestTest/PeripheralModules/xbar_readonly.sv" Line 1. Module xbar_readonly has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/TeknofestTest/PeripheralModules/UART/rtl/uart_top.sv" Line 3. Module uart_top(baud_rate=115200,clock_frequency=50) has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/TeknofestTest/PeripheralModules/UART/rtl/uart_rx.sv" Line 23. Module uart_rx has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/TeknofestTest/PeripheralModules/UART/rtl/uart_tx.sv" Line 23. Module uart_tx has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/TeknofestTest/PeripheralModules/xbar.sv" Line 1. Module xbar has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/TeknofestTest/PeripheralModules/obi_to_axi_readonly.v" Line 23. Module obi_to_axi_readonly has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/teknotest/vivado_proj/teknotest.sim/sim_1/behav/xsim/glbl.v" Line 6. Module glbl has a timescale but at least one module in design doesn't have timescale.
+WARNING: [XSIM 43-4100] "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/teknotest/vivado_proj/teknotest.sim/sim_1/behav/xsim/glbl.v" Line 6. Module glbl has a timescale but at least one module in design doesn't have timescale.
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling package xil_defaultlib.cv32e40p_apu_core_pkg
+Compiling package xil_defaultlib.cv32e40p_pkg
+Compiling package xil_defaultlib.cv32e40p_fpu_pkg
+Compiling module xil_defaultlib.xbar_readonly
+Compiling module xil_defaultlib.cv32e40p_clock_gate
+Compiling module xil_defaultlib.cv32e40p_sleep_unit_default
+Compiling module xil_defaultlib.cv32e40p_prefetch_controller(COR...
+Compiling module xil_defaultlib.cv32e40p_fifo(DEPTH=32'b010)
+Compiling module xil_defaultlib.cv32e40p_obi_interface_default
+Compiling module xil_defaultlib.cv32e40p_prefetch_buffer(COREV_P...
+Compiling module xil_defaultlib.cv32e40p_aligner
+Compiling module xil_defaultlib.cv32e40p_compressed_decoder
+Compiling module xil_defaultlib.cv32e40p_if_stage
+Compiling module xil_defaultlib.cv32e40p_register_file(ADDR_WIDT...
+Compiling module xil_defaultlib.cv32e40p_decoder(COREV_PULP=0)
+Compiling module xil_defaultlib.cv32e40p_controller_default
+Compiling module xil_defaultlib.cv32e40p_int_controller_default
+Compiling module xil_defaultlib.cv32e40p_id_stage(COREV_PULP=0)
+Compiling module xil_defaultlib.cv32e40p_popcnt
+Compiling module xil_defaultlib.cv32e40p_ff_one_default
+Compiling module xil_defaultlib.cv32e40p_alu_div_default
+Compiling module xil_defaultlib.cv32e40p_alu
+Compiling module xil_defaultlib.cv32e40p_mult
+Compiling module xil_defaultlib.cv32e40p_ex_stage_default
+Compiling module xil_defaultlib.cv32e40p_obi_interface(TRANS_STA...
+Compiling module xil_defaultlib.cv32e40p_load_store_unit_default
+Compiling module xil_defaultlib.cv32e40p_cs_registers_default
+Compiling module xil_defaultlib.cv32e40p_core_default
+Compiling module xil_defaultlib.cv32e40p_top_default
+Compiling module xil_defaultlib.uart_rx
+Compiling module xil_defaultlib.uart_tx
+Compiling module xil_defaultlib.uart_top(baud_rate=115200,clock_...
+Compiling module xil_defaultlib.xbar
+Compiling module xil_defaultlib.obi_to_axi_readonly
+Compiling module xil_defaultlib.obi_to_axi
+Compiling module xil_defaultlib.instruction_memory_axi(SIZE=8192...
+Compiling module xil_defaultlib.memory_axi_readonly(MEMFILE="hel...
+Compiling module xil_defaultlib.memory_axi(BASE_ADDRESS=32'b0110...
+Compiling module xil_defaultlib.teknotest_wrapper
+Compiling module xil_defaultlib.teknotest_tb
+Compiling module xil_defaultlib.glbl
+Built simulation snapshot teknotest_tb_behav

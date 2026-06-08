@@ -1,0 +1,77 @@
+
+Merging object attributes
+
+
+There are no discarded input sections
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+BOOTROM          0x00000000         0x00000400         xr
+RAM              0x00003000         0x00002000         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/helloworld.o
+LOAD /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/crt0.o
+
+.text           0x00000000       0xe8
+                0x00000000                        . = ALIGN (0x4)
+ *(.init)
+ *(.text.start)
+ .text.start    0x00000000       0x4e /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/crt0.o
+                0x00000000                _start
+ *(.text*)
+ .text          0x0000004e        0x0 /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/helloworld.o
+ .text.startup  0x0000004e       0x9a /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/helloworld.o
+                0x0000004e                main
+ .text          0x000000e8        0x0 /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/crt0.o
+ *(.rodata*)
+                0x000000e8                        . = ALIGN (0x4)
+ *fill*         0x000000e8        0x0 
+
+.rela.dyn       0x000000e8        0x0
+ .rela.text.start
+                0x000000e8        0x0 /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/helloworld.o
+
+.data           0x00003000        0x0 load address 0x000000e8
+                0x00003000                        . = ALIGN (0x4)
+                0x00003000                        __data_start = .
+ *(.data*)
+ .data          0x00003000        0x0 /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/helloworld.o
+ .data          0x00003000        0x0 /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/crt0.o
+                0x00003000                        . = ALIGN (0x4)
+                0x00003000                        __data_end = .
+                0x000000e8                        __data_load_start = LOADADDR (.data)
+
+.bss            0x00003000        0x0 load address 0x000000e8
+                0x00003000                        . = ALIGN (0x4)
+                0x00003000                        __bss_start = .
+ *(.bss*)
+ .bss           0x00003000        0x0 /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/helloworld.o
+ .bss           0x00003000        0x0 /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/crt0.o
+ *(COMMON)
+                0x00003000                        . = ALIGN (0x4)
+                0x00003000                        __bss_end = .
+
+.stack          0x00003000        0x0 load address 0x000000e8
+                0x00003000                        . = ALIGN (0x10)
+                0x00005000                        __stack_top = (ORIGIN (RAM) + LENGTH (RAM))
+OUTPUT(/home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/helloworld.elf elf32-littleriscv)
+
+.comment        0x00000000       0x19
+ .comment       0x00000000       0x19 /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/helloworld.o
+                                 0x1a (size before relaxing)
+
+.note.GNU-stack
+                0x00000000        0x0
+ .note.GNU-stack
+                0x00000000        0x0 /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/helloworld.o
+
+.riscv.attributes
+                0x00000000       0x36
+ .riscv.attributes
+                0x00000000       0x36 /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/helloworld.o
+ .riscv.attributes
+                0x00000036       0x34 /home/mtbbk/Temel/Projeler/Kasirga/teknotest_pack/teknotest/sw/build/crt0.o

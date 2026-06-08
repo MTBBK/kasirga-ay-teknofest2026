@@ -1,0 +1,51 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  -i "../../../../../user_files" \
+"../../../../../../TeknofestTest/MemoryFiles/instruction_memory_axi.v" \
+"../../../../../../TeknofestTest/MemoryFiles/memory_axi.v" \
+"../../../../../../TeknofestTest/MemoryFiles/memory_axi_readonly.v" \
+"../../../../../../TeknofestTest/PeripheralModules/obi_to_axi_readonly.v" \
+
+sv xil_defaultlib  -i "../../../../../user_files" \
+"../../../../../../Core/rtl/cv32e40p_aligner.sv" \
+"../../../../../../Core/rtl/include/cv32e40p_pkg.sv" \
+"../../../../../../Core/rtl/cv32e40p_alu.sv" \
+"../../../../../../Core/rtl/cv32e40p_alu_div.sv" \
+"../../../../../../Core/rtl/include/cv32e40p_apu_core_pkg.sv" \
+"../../../../../../Core/rtl/cv32e40p_apu_disp.sv" \
+"../../../../../../Core/rtl/cv32e40p_compressed_decoder.sv" \
+"../../../../../../Core/rtl/cv32e40p_controller.sv" \
+"../../../../../../Core/rtl/cv32e40p_core.sv" \
+"../../../../../../Core/rtl/cv32e40p_cs_registers.sv" \
+"../../../../../../Core/rtl/include/cv32e40p_fpu_pkg.sv" \
+"../../../../../../Core/rtl/cv32e40p_decoder.sv" \
+"../../../../../../Core/rtl/cv32e40p_ex_stage.sv" \
+"../../../../../../Core/rtl/cv32e40p_ff_one.sv" \
+"../../../../../../Core/rtl/cv32e40p_fifo.sv" \
+"../../../../../../Core/rtl/cv32e40p_hwloop_regs.sv" \
+"../../../../../../Core/rtl/cv32e40p_id_stage.sv" \
+"../../../../../../Core/rtl/cv32e40p_if_stage.sv" \
+"../../../../../../Core/rtl/cv32e40p_int_controller.sv" \
+"../../../../../../Core/rtl/cv32e40p_load_store_unit.sv" \
+"../../../../../../Core/rtl/cv32e40p_mult.sv" \
+"../../../../../../Core/rtl/cv32e40p_obi_interface.sv" \
+"../../../../../../Core/rtl/cv32e40p_popcnt.sv" \
+"../../../../../../Core/rtl/cv32e40p_prefetch_buffer.sv" \
+"../../../../../../Core/rtl/cv32e40p_prefetch_controller.sv" \
+"../../../../../../Core/rtl/cv32e40p_register_file_ff.sv" \
+"../../../../../../Core/bhv/cv32e40p_sim_clock_gate.sv" \
+"../../../../../../Core/rtl/cv32e40p_sleep_unit.sv" \
+"../../../../../../Core/rtl/cv32e40p_top.sv" \
+"../../../../../../TeknofestTest/PeripheralModules/obi_to_axi.sv" \
+"../../../../../user_files/teknotest_wrapper.sv" \
+"../../../../../../TeknofestTest/PeripheralModules/UART/rtl/uart_rx.sv" \
+"../../../../../../TeknofestTest/PeripheralModules/UART/rtl/uart_top.sv" \
+"../../../../../../TeknofestTest/PeripheralModules/UART/rtl/uart_tx.sv" \
+"../../../../../../TeknofestTest/PeripheralModules/xbar.sv" \
+"../../../../../../TeknofestTest/PeripheralModules/xbar_readonly.sv" \
+"../../../../../tb/teknotest_tb.sv" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort
