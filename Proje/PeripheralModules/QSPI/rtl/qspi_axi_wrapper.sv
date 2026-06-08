@@ -56,11 +56,11 @@ module qspi_axi_wrapper(
     );
     
     
-    localparam ADDR_QSPI_CCR=32'h0009_0000,
-               ADDR_QSPI_ADR=32'h0009_0004,
-               ADDR_QSPI_DR=32'h0009_0008,
-               ADDR_QSPI_STA=32'h0009_000C,
-               ADDR_QSPI_FCR=32'h0009_0010;
+    localparam ADDR_QSPI_CCR=32'h0000_9000,
+               ADDR_QSPI_ADR=32'h0000_9004,
+               ADDR_QSPI_DR=32'h0000_9008,
+               ADDR_QSPI_STA=32'h0000_900C,
+               ADDR_QSPI_FCR=32'h0000_9010;
                
     logic [31:0] QSPI_CCR;
     logic [31:0] QSPI_ADR;
