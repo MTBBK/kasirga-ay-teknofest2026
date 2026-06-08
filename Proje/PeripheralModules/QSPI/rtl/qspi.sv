@@ -54,7 +54,8 @@ module qspi(
                            RDSR1      = 8'h05, 
                            RDSR2      = 8'h70, 
                            RDCR       = 8'hB5, 
-                           WRR        = 8'h01, 
+                           WRSR       = 8'h01,
+                           WRCR       = 8'hB1, 
                            WRDI       = 8'h04, 
                            WREN       = 8'h06, 
                            CLSR       = 8'h50, 
@@ -85,53 +86,42 @@ module qspi(
     logic qspi_sclk_reg;
     logic [5:0] counter;
     
+    // 1. GÜNCELLENMİŞ SAAT ÜRETECİ: IDLE ve DONE'da saati güvenle durduruyoruz
     always_ff @(posedge clk or negedge rst_n)begin
         if(!rst_n)begin 
             counter <= 6'h0;
             qspi_sclk_reg <= 1'b0;
         end
         else begin
-            if (current_state == IDLE) begin 
+            if (current_state == IDLE || current_state == DONE) begin 
                 counter <= 6'h0;
-                qspi_sclk_reg <= 1'b0;
+                qspi_sclk_reg <= 1'b0; // Saat güvenli bir şekilde sıfırda bekler
             end
-            else if(prescaler != 0)begin
-                if(counter == prescaler)begin 
-                    counter <= 6'h0;
-                end
-                else begin 
-                    counter <= counter + 1;       
-                end            
-                
-                if(counter < ((prescaler+1)>>1))begin 
-                    qspi_sclk_reg <= 1'b0; 
-                end
-                else begin
-                    qspi_sclk_reg <= 1'b1;
-                end
+            else if(counter == prescaler)begin 
+                counter <= 6'h0;
+                qspi_sclk_reg <= ~qspi_sclk_reg; // Saati tersle
             end
-            else begin
-                qspi_sclk_reg <= ~qspi_sclk_reg;
-            end
+            else begin 
+                counter <= counter + 1;        
+            end            
         end
     end
     
-    assign qspi_sclk = (sclk_enable) ? ((prescaler == 0) ? clk : qspi_sclk_reg) : 1'b0;
+    // 2. GLITCH KORUMASI: Kombinasyonel maske yerine doğrudan register'ı çıkışa veriyoruz
+    // Böylece 0 nanosaniyelik hayalet vuruşlar (tCH ihlali) sonsuza dek yok oluyor.
+    assign qspi_sclk = qspi_sclk_reg;
                  
-    logic qspi_sclk_prev;
+    // Eski qspi_sclk_prev bloğunu tamamen sil!
+    // --------------------------------------------------------
 
-    always_ff @(posedge clk or negedge rst_n) begin
-        if(!rst_n)begin 
-            qspi_sclk_prev <= 1'b0;
-        end
-        else begin 
-            qspi_sclk_prev <= qspi_sclk_reg;
-        end
-    end
-
-    // Kusursuz Kenar Tespitleri (Senin orijinal mantığın)
-    assign shift_tick  = (prescaler == 0) ? 1'b1 : (~qspi_sclk_reg & qspi_sclk_prev);
-    assign sample_tick = (prescaler == 0) ? 1'b1 : (qspi_sclk_reg & ~qspi_sclk_prev);
+    // 3. KUSURSUZ KENAR TESPİTİ (tCHDX İhlalini Çözer)
+    // Veri, saat tam 0'a düşmek üzereyken (Düşen Kenar) değiştirilir.
+    assign shift_tick  = (current_state != IDLE) && (current_state != DONE) && 
+                         (counter == prescaler) && (qspi_sclk_reg == 1'b1);
+                         
+    // Veri, saat tam 1'e çıkmak üzereyken (Yükselen Kenar) örneklenir.
+    assign sample_tick = (current_state != IDLE) && (current_state != DONE) && 
+                         (counter == prescaler) && (qspi_sclk_reg == 1'b0);
     
     logic [5:0] addr_count;
     assign addr_count=(addr_is_32_bit)?6'd32:6'd24;
@@ -223,7 +213,7 @@ module qspi(
                         instr == RDSR1 || instr == RDSR2 || instr == RDCR) begin
                         next_state=DATA_RX;
                     end
-                    else if(instr == WRR)begin 
+                    else if(instr == WRSR||instr==WRCR)begin 
                         next_state=DATA_TX;
                     end
                     else begin 
@@ -311,7 +301,7 @@ module qspi(
                     next_state=DONE;
                 end
                 else begin
-                    if(data_rx_counter == (target_data_cycles - ((prescaler == 0) ? 1 : 0)))begin 
+                    if(data_rx_counter == target_data_cycles)begin 
                         next_state=DONE;
                     end
                 end 
@@ -442,3 +432,5 @@ module qspi(
     
     
 endmodule
+
+

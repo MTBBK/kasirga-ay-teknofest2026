@@ -71,10 +71,7 @@ module qspi_top(
     //assign qspi_io_3=qspi_data_oe[3] ? qspi_data_o[3] : 1'bz;
     //assign qspi_data_i ={qspi_io_3,qspi_io_2,qspi_io_1,qspi_io_0};
     
-    pullup(qspi_io_0);
-    pullup(qspi_io_1);
-    pullup(qspi_io_2);
-    pullup(qspi_io_3);
+
     
     qspi_axi_wrapper wrapper_inst (
         .S_AXI_ACLK(S_AXI_ACLK),
