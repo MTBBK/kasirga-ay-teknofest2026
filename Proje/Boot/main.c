@@ -1,12 +1,18 @@
-// Include whatever header the 2025 team used for their printf function
-extern int ee_printf(const char *fmt, ...); 
+#define UART_TX_REG *((volatile unsigned int *)0x00005000)
+
+void print_msg(const char *str) {
+    while (*str) {
+        UART_TX_REG = *str++; // Karakterleri tek tek UART pinine gönder
+    }
+}
 
 int main(void) {
-    ee_printf("\n\n");
-    ee_printf("boot tets successful \n");
-    ee_printf("hello from address 0x00001000!\n");
-    ee_printf("if you are reading this in the Vivado console,\n");
-    ee_printf("the QSPI read and RAM copy worked perfectly.\n");
+    print_msg("\n\n");
+    print_msg(" boot succesfull \n");
+    print_msg("hello from address 0x00001000\n");
+    print_msg("if you are reading this in the Vivado console,\n");
+    print_msg("the QSPI read and RAM copy worked perfectly.\n");
+
     while(1) {
         //hang forever
     }
