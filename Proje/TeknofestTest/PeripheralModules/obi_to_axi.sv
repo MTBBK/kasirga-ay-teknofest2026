@@ -54,7 +54,7 @@ module obi_to_axi(
         end
     end
 
-    //Assert valids immediately when a request is active AND we are allowed to grant it
+    //Assert valids immediately
     assign axi_arvalid_o = obi_req_i & ~obi_we_i & (!outstanding);
     assign axi_awvalid_o = obi_req_i & obi_we_i & (!outstanding);
     assign axi_wvalid_o  = obi_req_i & obi_we_i & (!outstanding);
