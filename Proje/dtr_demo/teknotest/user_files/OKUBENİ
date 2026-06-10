@@ -1,0 +1,5 @@
+Vivado 2021.2 sürümünde ana sayfadaki TCL Konsolda bu komutları çalıştırarak demoyu proje olarak oluşturabilirsiniz:
+
+cd /*dosyayolu*/Proje/dtr_demo/teknotest
+
+source ./scripts/create_vivado_proj.tcl

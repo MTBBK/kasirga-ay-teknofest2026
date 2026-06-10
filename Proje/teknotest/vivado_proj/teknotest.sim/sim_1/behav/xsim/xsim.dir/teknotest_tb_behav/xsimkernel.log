@@ -1,7 +1,0 @@
-Running: xsim.dir/teknotest_tb_behav/xsimk -simmode gui -wdb teknotest_tb_behav.wdb -simrunnum 0 -socket 49295
-Design successfully loaded
-Design Loading Memory Usage: 35624 KB (Peak: 35632 KB)
-Design Loading CPU Usage: 20 ms
-Simulation completed
-Simulation Memory Usage: 327720 KB (Peak: 327720 KB)
-Simulation CPU Usage: 3210 ms

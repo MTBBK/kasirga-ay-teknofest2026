@@ -1,0 +1,19 @@
+Time resolution is 1 ps
+WARNING: 0ns : none of the conditions were true for unique case from File:/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/dtr_demo/Core/rtl/cv32e40p_load_store_unit.sv:419
+[98450000] INFO: Read byte 0x52 ('R')
+[98450000] INFO: Received expected byte 0x52 ('R')
+[98450000] INFO: Sending byte 0x41 ('A') to DUT
+[268390000] INFO: Read byte 0x48 ('H')
+[355990000] INFO: Read byte 0x65 ('e')
+[443590000] INFO: Read byte 0x6c ('l')
+[531190000] INFO: Read byte 0x6c ('l')
+[618790000] INFO: Read byte 0x6f ('o')
+[706390000] INFO: Read byte 0x20 (' ')
+[793990000] INFO: Read byte 0x57 ('W')
+[881590000] INFO: Read byte 0x6f ('o')
+[969190000] INFO: Read byte 0x72 ('r')
+[1056790000] INFO: Read byte 0x6c ('l')
+[1144390000] INFO: Read byte 0x64 ('d')
+[1231990000] INFO: Read byte 0x21 ('!')
+[1231990000] TEST SUCCESS: Received expected string "Hello World!"
+$finish called at time : 1231990 ns : File "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje/dtr_demo/teknotest/tb/teknotest_tb.sv" Line 163
