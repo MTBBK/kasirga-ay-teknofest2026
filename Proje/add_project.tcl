@@ -1,5 +1,5 @@
 # Temel Proje Dizini (Tek Değişken)
-set PROJE_DIR "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje"
+set PROJE_DIR "/mnt/disk2/Gtihub_Projects/kasirga-ay-teknofest2026/Proje"
 
 # Include yollarını PROJE_DIR üzerinden dinamik olarak ayarlıyoruz
 set INCLUDE_PATHS [list \
@@ -8,7 +8,7 @@ set INCLUDE_PATHS [list \
     "${PROJE_DIR}/Core/bhv/include" \
     "${PROJE_DIR}/Core/sva" \
     "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_common_cells/include" \
-    "${PROJE_DIR}/top_module_test/Flash_Verilog_Sim_Model/include" \
+    "${PROJE_DIR}/top_module_test/Flash_Verilog_Sim_Model" \
 ]
 
 # Include yollarını tanımlıyoruz
@@ -19,6 +19,8 @@ set_property include_dirs $INCLUDE_PATHS [get_filesets sim_1]
 set my_files [list \
     "${PROJE_DIR}/top.sv" \
     "${PROJE_DIR}/PeripheralModules/GPIO/gpio.v" \
+    "${PROJE_DIR}/PeripheralModules/I2C/sources/new/I2C_master.sv" \
+    "${PROJE_DIR}/PeripheralModules/I2C/sources/new/i2c_axi_wrapper.sv" \
     "${PROJE_DIR}/PeripheralModules/xbar.sv" \
     "${PROJE_DIR}/PeripheralModules/xbar_readonly.sv" \
     "${PROJE_DIR}/PeripheralModules/obi_to_axi.sv" \
@@ -78,6 +80,9 @@ set my_files [list \
     "${PROJE_DIR}/Core/rtl/cv32e40p_core.sv" \
     "${PROJE_DIR}/Core/rtl/cv32e40p_fp_wrapper.sv" \
     "${PROJE_DIR}/Core/rtl/cv32e40p_top.sv" \
+    "${PROJE_DIR}/top_module_test/boot.mem" \
+    "${PROJE_DIR}/top_module_test/mem_Q512.mem" \
+    "${PROJE_DIR}/top_module_test/sfdp.mem" \
 ]
 
 # 2. Dinamik olarak toplanacak klasörler
@@ -85,7 +90,7 @@ lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/MemoryFiles/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/QSPI/rtl/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/Timer/rtl/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/UART/rtl/*"]
-lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/I2C/sources/new/*"]
+
 
 # Tasarım dosyalarını içe aktar
 import_files -force $my_files

@@ -731,6 +731,8 @@ module top(
     
     
     obi_to_axi obi_to_axi_data(
+    .clk(clk_i),
+    .rst_n(rst_n_i),
     .obi_req_i(obi_req_data),
     .obi_gnt_o(obi_gnt_data),
     .obi_rvalid_o(obi_rvalid_data),
@@ -785,7 +787,7 @@ module top(
     
    memory_axi_readonly #(
         .SIZE(1024),
-        .MEMFILE("system.mem"),
+        .MEMFILE("boot.mem"),
         .BASE_ADDRESS(32'h0000_0000)
     ) ROM (
         .clk(clk_i),

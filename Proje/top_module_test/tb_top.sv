@@ -87,7 +87,6 @@ module tb_top();
         #200;
         rst_n_i = 1;
         fetch_enable = 1; // İşlemci çalışmaya başlasın
-        
         // Simülasyon süresi
         #500000000;
         $display("Simulasyon bitti.");

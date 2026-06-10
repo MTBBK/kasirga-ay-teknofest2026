@@ -1,58 +1,48 @@
 RISCVTYPE = riscv64-unknown-elf
 CC = $(RISCVTYPE)-gcc
-# Add OBJCOPY and OBJDUMP variables for clarity
 OBJCOPY = $(RISCVTYPE)-objcopy
 OBJDUMP = $(RISCVTYPE)-objdump
 
-LINKER_SCRIPT ?= link.ld
+# --- 1. AKILLI LINKER SEÇİMİ ---
+# CFILE parametresine göre doğru linker dosyasını otomatik seçer
+ifeq ($(CFILE),main)
+    LINKER_SCRIPT = main.ld
+else ifeq ($(CFILE),bootloader)
+    LINKER_SCRIPT = bootloader.ld
+else
+    # Eğer parametre girilmezse varsayılan hata vermesin diye:
+    LINKER_SCRIPT = link.ld
+endif
 
-# Keep CFLAGS mostly as is, ensure linker script flag is present
-CFLAGS ?= -Os -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -nostartfiles -fno-builtin -ffunction-sections -lgcc -T $(LINKER_SCRIPT) -march=rv32im -mabi=ilp32
+# Sadece derlemeye özel bayraklar
+CFLAGS = -Os -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -ffunction-sections -march=rv32imc -mabi=ilp32
 
-CFILE ?= bootloader
-# Add startup file name
+# Sadece linklemeye özel bayraklar
+LDFLAGS = -T $(LINKER_SCRIPT) -nostartfiles -Wl,--gc-sections -lgcc
+
 STARTUP_FILE = startup
+OBJS = $(CFILE).o $(STARTUP_FILE).o qspi.o uart.o
+OUTNAME = $(CFILE).riscv
 
-# Define sources
-SRCS_C = ${CFILE}.c
-SRCS_S = ${STARTUP_FILE}.s
-# Define object files needed for linking
-OBJS = ${CFILE}.o ${STARTUP_FILE}.o 
-OUTNAME ?= ${CFILE}.riscv
+compile: clean hex
 
-# --- Modified Compile Target ---
-# This target now just ensures the final executable and hex files are made
-compile: hex
-
-# --- Rule to link the final executable ---
+# Linkleme aşaması
 $(OUTNAME): $(OBJS) $(LINKER_SCRIPT)
-	$(CC) $(CFLAGS) $(OBJS) -o $(OUTNAME) # Linking uses CFLAGS which includes -T etc. Add -lm -lgcc if needed at link time too.
+	$(CC) $(CFLAGS) $(OBJS) -o $(OUTNAME) $(LDFLAGS)
 
-# --- Rule to compile C files ---
-# $(CC) -c $(CFLAGS) $(SRCS) # This old rule is too broad, replace with pattern rule:
+# Derleme kuralları
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# --- Rule to assemble .s files ---
-%.o: %.s
-	$(CC) $(CFLAGS) -c $< -o $@ # Use GCC to assemble, CFLAGS often work or use specific ASFLAGS
+%.o: %.S
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# --- Post-processing steps (depend on the executable) ---
-disasm: $(OUTNAME)
+hex: $(OUTNAME)
+	$(OBJCOPY) -O binary $(OUTNAME) $(CFILE).bin
+	$(OBJCOPY) -O verilog $(OUTNAME) $(CFILE).vh
 	$(OBJDUMP) -D -M numeric,no-aliases $(OUTNAME) > $(CFILE)_disassembled.txt
-
-$(CFILE).bin: $(OUTNAME)
-	$(OBJCOPY) -O binary $(OUTNAME) $@
-
-$(CFILE).vh: $(OUTNAME)
-	$(OBJCOPY) -O verilog $(OUTNAME) $@
-
-# Target to generate all hex/intermediate formats
-hex: $(CFILE).bin $(CFILE).vh disasm
 	python3 get_static_hex.py --binfile=$(CFILE).bin
 
-
-
-.PHONY: clean compile hex disasm
+.PHONY: clean compile hex
 clean:
-	#rm -f *.o $(OUTNAME) $(CFILE).bin $(CFILE).hex $(CFILE).vh $(CFILE).coe $(CFILE)_disassembled.txt progmem.v *.log *.info index.html
+	rm -f *.o *.riscv *.bin *.vh *.txt
