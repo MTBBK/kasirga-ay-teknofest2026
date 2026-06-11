@@ -1,0 +1,9 @@
+{
+    "DESIGN_NAME": "uart_top",
+    "VERILOG_FILES": "dir::src/*.sv",
+    "CLOCK_PORT": "clock_frequency",
+    "CLOCK_PERIOD": 20.0,
+    "FP_SIZING": "absolute",
+    "DIE_AREA": "0 0 180 180",
+    "PL_TARGET_DENSITY": 0.90
+}
