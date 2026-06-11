@@ -4,7 +4,7 @@
 .global _start                     # Make _start visible to the linker
 
 _start:
-    la sp, 0x12800
+    la sp, 0x5000
 
     # Call the C entry point (main)
     call main

@@ -10,9 +10,9 @@ with open(binFile, "rb") as f:
     binData = f.read()
     
     # --- Eklenen Padding (4'un katina tamamlama) Kismi ---
-    remainder = len(binData) % 4
-    if remainder != 0:
-        binData += b'\x00' * (4 - remainder)
+    #remainder = len(binData) % 4
+    #if remainder != 0:
+     #   binData += b'\x00' * (4 - remainder)
     # ----------------------------------------------------
 
     word_count = len(binData) // 4

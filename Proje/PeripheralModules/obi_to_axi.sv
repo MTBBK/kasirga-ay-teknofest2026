@@ -1,4 +1,6 @@
 module obi_to_axi(
+    input  clk,
+    input  rst_n,
     input  obi_req_i,
     output obi_gnt_o,
     output obi_rvalid_o,
@@ -34,18 +36,36 @@ module obi_to_axi(
     assign axi_wstrb_o   = obi_be_i;
     assign obi_rdata_o   = axi_rdata_i;
 
-    //Assert valids immediately when a request is active
-    assign axi_arvalid_o = obi_req_i & ~obi_we_i;
-    assign axi_awvalid_o = obi_req_i & obi_we_i;
-    assign axi_wvalid_o  = obi_req_i & obi_we_i;
+    //Track outstanding transactions to avoid AXI out-of-order responses breaking OBI
+    reg outstanding;
+    reg outstanding_we;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            outstanding <= 1'b0;
+            outstanding_we <= 1'b0;
+        end else if (obi_req_i && obi_gnt_o && !obi_rvalid_o) begin
+            outstanding <= 1'b1;
+            outstanding_we <= obi_we_i;
+        end else if (obi_rvalid_o && (!obi_req_i || !obi_gnt_o)) begin
+            outstanding <= 1'b0;
+        end else if (obi_rvalid_o && obi_req_i && obi_gnt_o) begin
+            outstanding <= 1'b1;
+            outstanding_we <= obi_we_i;
+        end
+    end
+
+    //Assert valids immediately
+    assign axi_arvalid_o = obi_req_i & ~obi_we_i & (!outstanding);
+    assign axi_awvalid_o = obi_req_i & obi_we_i & (!outstanding);
+    assign axi_wvalid_o  = obi_req_i & obi_we_i & (!outstanding);
 
     assign axi_rready_o  = 1'b1;
     assign axi_bready_o  = 1'b1;
 
     //Grant the OBI bus as soon as the AXI slave accepts the transaction
-    assign obi_gnt_o     = (!obi_we_i) ? axi_arready_i : (axi_awready_i & axi_wready_i);
+    assign obi_gnt_o     = ((!obi_we_i) ? axi_arready_i : (axi_awready_i & axi_wready_i)) & (!outstanding);
     
-    //Return valid back to OBI master
-    assign obi_rvalid_o  = axi_rvalid_i || axi_bvalid_i;
+    //Return valid back to OBI master based on the type of outstanding transaction
+    assign obi_rvalid_o  = outstanding ? (outstanding_we ? axi_bvalid_i : axi_rvalid_i) : (obi_we_i ? axi_bvalid_i : axi_rvalid_i);
 
 endmodule
