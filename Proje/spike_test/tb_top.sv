@@ -66,7 +66,7 @@ module tb_top;
     logic [31:0] final_opcode;
 
     initial begin
-        log_file = $fopen("/home/osmen/cv32e40p/example_tb/core/vivado_trace.log", "w");
+        log_file = $fopen("simulation_trace.log", "w");
     end
 
     always_ff @(posedge clk_i) begin
