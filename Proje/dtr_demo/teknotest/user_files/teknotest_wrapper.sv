@@ -35,16 +35,7 @@ module teknotest_wrapper(
     logic [31:0] axi_rdata_instr_i;
     logic axi_rvalid_instr_i;
     logic axi_rready_instr_;
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+        
     // MASTER(core) INTERFACE
     // WRITE ADDRESS CHANNEL
     wire awvalid_master;

@@ -3,3 +3,5 @@ Vivado 2021.2 sürümünde ana sayfadaki TCL Konsolda bu komutları çalıştır
 cd /*dosyayolu*/Proje/dtr_demo/teknotest
 
 source ./scripts/create_vivado_proj.tcl
+
+Bunun ardından simülasyon tamamen koşturularak test gerçekleştirilebilir.
