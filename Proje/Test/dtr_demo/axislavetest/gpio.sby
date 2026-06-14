@@ -1,0 +1,17 @@
+[options]
+mode prove
+depth 20
+
+[engines]
+abc pdr
+
+[script]
+read -formal gpio.v
+read -formal faxil_slave.v
+read -formal gpio_formal.v
+prep -top gpio_formal
+
+[files]
+gpio.v
+faxil_slave.v
+gpio_formal.v
