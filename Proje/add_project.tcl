@@ -8,7 +8,7 @@ set INCLUDE_PATHS [list \
     "${PROJE_DIR}/Core/bhv/include" \
     "${PROJE_DIR}/Core/sva" \
     "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_common_cells/include" \
-    "${PROJE_DIR}/top_module_test/Flash_Verilog_Sim_Model" \
+    "${PROJE_DIR}/Test/top_module_test/Flash_Verilog_Sim_Model" \
 ]
 
 # Include yollarını tanımlıyoruz
@@ -80,9 +80,9 @@ set my_files [list \
     "${PROJE_DIR}/Core/rtl/cv32e40p_core.sv" \
     "${PROJE_DIR}/Core/rtl/cv32e40p_fp_wrapper.sv" \
     "${PROJE_DIR}/Core/rtl/cv32e40p_top.sv" \
-    "${PROJE_DIR}/top_module_test/boot.mem" \
-    "${PROJE_DIR}/top_module_test/mem_Q512.mem" \
-    "${PROJE_DIR}/top_module_test/sfdp.mem" \
+    "${PROJE_DIR}/Test/top_module_test/boot.mem" \
+    "${PROJE_DIR}/Test/top_module_test/mem_Q512.mem" \
+    "${PROJE_DIR}/Test/top_module_test/sfdp.mem" \
 ]
 
 # 2. Dinamik olarak toplanacak klasörler
@@ -105,13 +105,13 @@ set sim_files [list \
 ]
 
 # top_module_test dizinindeki tüm sv/v dosyalarını al (Testbench vs.)
-lappend sim_files {*}[glob -nocomplain "${PROJE_DIR}/top_module_test/*.sv" "${PROJE_DIR}/top_module_test/Flash_Verilog_Sim_Model/*.v"]
+lappend sim_files {*}[glob -nocomplain "${PROJE_DIR}/Test/top_module_test/*.sv" "${PROJE_DIR}/Test/top_module_test/Flash_Verilog_Sim_Model/*.v"]
 
 # Flash Modeli: include klasörü (.h, .vh, vb.)
-lappend sim_files {*}[glob -nocomplain "${PROJE_DIR}/top_module_test/Flash_Verilog_Sim_Model/include/*"]
+lappend sim_files {*}[glob -nocomplain "${PROJE_DIR}/Test/top_module_test/Flash_Verilog_Sim_Model/include/*"]
 
 # Flash Modeli: sim klasörü (Ekstra test veya .vmf/mem dosyaları olabilir)
-lappend sim_files {*}[glob -nocomplain "${PROJE_DIR}/top_module_test/Flash_Verilog_Sim_Model/sim/*"]
+lappend sim_files {*}[glob -nocomplain "${PROJE_DIR}/Test/top_module_test/Flash_Verilog_Sim_Model/sim/*"]
 
 # Simülasyon dosyalarını sim_1 fileset'ine içe aktar
 import_files -force -fileset sim_1 $sim_files

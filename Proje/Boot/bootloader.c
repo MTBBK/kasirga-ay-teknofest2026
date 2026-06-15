@@ -44,7 +44,7 @@ static void copy_memory_block(uint32_t flash_address, uint32_t ram_address) {
 }
 
 static inline void jump_to_user_code() {
-    ((void (*)(void))INS_MEM_START_RAM+4)();
+((void (*)(void))INS_MEM_START_RAM+4)();
 }
 
 int main() {
