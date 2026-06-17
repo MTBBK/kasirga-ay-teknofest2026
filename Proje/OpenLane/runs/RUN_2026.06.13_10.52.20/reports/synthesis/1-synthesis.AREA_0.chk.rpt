@@ -1,0 +1,46 @@
+
+62. Executing CHECK pass (checking for obvious problems).
+Checking module uart_top...
+Warning: Wire uart_top.\uart_tx_o is used but has no driver.
+Warning: Wire uart_top.\S_AXI_WREADY is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RVALID is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RRESP [1] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RRESP [0] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [31] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [30] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [29] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [28] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [27] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [26] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [25] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [24] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [23] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [22] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [21] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [20] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [19] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [18] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [17] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [16] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [15] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [14] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [13] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [12] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [11] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [10] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [9] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [8] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [7] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [6] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [5] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [4] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [3] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [2] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [1] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_RDATA [0] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_BVALID is used but has no driver.
+Warning: Wire uart_top.\S_AXI_BRESP [1] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_BRESP [0] is used but has no driver.
+Warning: Wire uart_top.\S_AXI_AWREADY is used but has no driver.
+Warning: Wire uart_top.\S_AXI_ARREADY is used but has no driver.
+Found and reported 42 problems.

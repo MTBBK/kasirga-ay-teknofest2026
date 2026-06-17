@@ -1,0 +1,26 @@
+
+55. Printing statistics.
+
+=== uart_top ===
+
+   Number of wires:               3153
+   Number of wire bits:           3651
+   Number of public wires:          45
+   Number of public wire bits:     512
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               3529
+     $_ANDNOT_                    1328
+     $_AND_                         79
+     $_MUX_                        489
+     $_NAND_                       157
+     $_NOR_                         73
+     $_NOT_                        101
+     $_ORNOT_                      116
+     $_OR_                         553
+     $_XNOR_                        51
+     $_XOR_                        300
+     sky130_fd_sc_hd__dfrtp_2      115
+     sky130_fd_sc_hd__dfxtp_2      167
+

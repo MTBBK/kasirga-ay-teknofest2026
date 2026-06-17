@@ -1,0 +1,15 @@
+VPWR power 1.8
+VGND power 0.0
+#define std_input min@VGND max@VPWR
+S_AXI_ACLK input std_input
+S_AXI_ARESETN input std_input
+S_AXI_ARVALID input std_input
+S_AXI_AWVALID input std_input
+S_AXI_BREADY input std_input
+S_AXI_RREADY input std_input
+S_AXI_WVALID input std_input
+uart_rx_i input std_input
+S_AXI_ARADDR[31:0] input std_input
+S_AXI_AWADDR[31:0] input std_input
+S_AXI_WDATA[31:0] input std_input
+S_AXI_WSTRB[3:0] input std_input

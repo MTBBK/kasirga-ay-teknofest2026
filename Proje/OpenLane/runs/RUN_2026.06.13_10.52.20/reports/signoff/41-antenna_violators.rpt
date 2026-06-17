@@ -1,0 +1,6 @@
+Partial/Required:  1.06, Required:    400.0, Partial:    424.0, Net: net46, Pin: _1735_/A, Layer: met3
+Partial/Required:  1.06, Required:    400.0, Partial:   423.65, Net: net163, Pin: fanout156/A, Layer: met3
+Partial/Required:  1.06, Required:    400.0, Partial:   423.65, Net: net163, Pin: fanout162/A, Layer: met3
+Partial/Required:  1.05, Required:    400.0, Partial:   418.86, Net: net163, Pin: _3705_/RESET_B, Layer: met3
+Partial/Required:  1.02, Required:    400.0, Partial:   409.14, Net: net1, Pin: _1776_/B, Layer: met4
+Partial/Required:  1.02, Required:    400.0, Partial:   409.14, Net: net1, Pin: _1771_/B_N, Layer: met4
