@@ -20,14 +20,12 @@ output logic feederbasla
     
     logic signed [31:0] collectedoutputs[0:79];
     logic [6:0] linecount;
-    logic [7:0] bufferdata [0:7];
+    logic signed [7:0] bufferdata [0:7];
     logic [8:0] buffaddress;
      
     
     logic signed [31:0] postp_in [0:7];
-    logic [15:0]scale_factor;
-    logic [4:0] shift_amount;
-    logic [7:0] postp_out[0:7];
+    logic signed [7:0] postp_out[0:7];
     logic invalid,outvalid;
     genvar i;
     generate
@@ -36,9 +34,7 @@ output logic feederbasla
                 .clk(clk),                
                 .rst(rst),          
                 .input_valid(invalid),                 
-                .data_in(postp_in[i]),
-                .scale_factor(scale_factor), 
-                .shift_amount(shift_amount),  
+                .data_in(postp_in[i]), 
                 .data_out(postp_out[i]),
                 .output_valid(outvalid)      
             );
@@ -52,8 +48,6 @@ output logic feederbasla
             linecount <= '0;
             bufferdata <= '{default: '0};
             buffaddress <= '0;
-            scale_factor <= 16'd382;
-            shift_amount <= 5'd16;
             invalid <= 1'b0;
             postp_in <= '{default: '0};
         end
