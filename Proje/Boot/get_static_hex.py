@@ -24,7 +24,6 @@ with open(binFile, "rb") as f:
     hexFileName = binFile[:-4] + "_static.hex"
     hexFile = open(hexFileName, 'w')
 
-    hexFile.write("%08x\n" % word_count)
 
     for i in range(word_count):
         w = binData[4*i : 4*i+4]

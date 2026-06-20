@@ -1,0 +1,29 @@
+%Warning-WIDTHEXPAND: /openlane/designs/uart/src/uart_rx.sv:95:36: Bit extraction of var[31:0] requires 5 bit index, not 3 bits.
+                                                                 : ... In instance uart_top.RX
+   95 |                     rx_shifter_next[bit_idx] = rx_in;
+      |                                    ^
+                      ... For warning description see https://verilator.org/warn/WIDTHEXPAND?v=5.009
+                      ... Use "/* verilator lint_off WIDTHEXPAND */" and lint_on around source to disable this message.
+%Warning-UNUSEDSIGNAL: /openlane/designs/uart/src/uart_top.sv:59:29: Signal is not used: 'tx_busy'
+                                                                   : ... In instance uart_top
+   59 |     logic tx_done, rx_done, tx_busy;
+      |                             ^~~~~~~
+%Warning-UNUSEDSIGNAL: /openlane/designs/uart/src/uart_tx.sv:27:25: Bits of signal are not used: 'uart_stp'[31:2]
+                                                                  : ... In instance uart_top.TX
+   27 |     input  logic [31:0] uart_stp,  
+      |                         ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /openlane/designs/uart/src/uart_tx.sv:28:25: Bits of signal are not used: 'uart_tdr'[31:8]
+                                                                  : ... In instance uart_top.TX
+   28 |     input  logic [31:0] uart_tdr,  
+      |                         ^~~~~~~~
+%Warning-UNUSEDSIGNAL: /openlane/designs/uart/src/uart_rx.sv:28:25: Bits of signal are not used: 'uart_stp'[31:2]
+                                                                  : ... In instance uart_top.RX
+   28 |     input  logic [31:0] uart_stp,  
+      |                         ^~~~~~~~
+%Warning-SYNCASYNCNET: /openlane/designs/uart/src/uart_top.sv:14:49: Signal flopped as both synchronous and async: 'S_AXI_ARESETN'
+                       /openlane/designs/uart/src/uart_rx.sv:46:14: ... Location of async usage
+   46 |         if (!reset_i) begin
+      |              ^~~~~~~
+                       /openlane/designs/uart/src/uart_top.sv:80:14: ... Location of sync usage
+   80 |         if (!S_AXI_ARESETN) begin
+      |              ^~~~~~~~~~~~~

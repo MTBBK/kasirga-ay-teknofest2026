@@ -1,0 +1,29 @@
+
+49. Printing statistics.
+
+=== uart_top ===
+
+   Number of wires:               2706
+   Number of wire bits:           3204
+   Number of public wires:          45
+   Number of public wire bits:     512
+   Number of memories:               0
+   Number of memory bits:            0
+   Number of processes:              0
+   Number of cells:               3082
+     $_ANDNOT_                    1328
+     $_AND_                         79
+     $_DFFE_PN0P_                  115
+     $_MUX_                         42
+     $_NAND_                       157
+     $_NOR_                         73
+     $_NOT_                        101
+     $_ORNOT_                      116
+     $_OR_                         553
+     $_SDFFE_PN0P_                 159
+     $_SDFFE_PN1P_                   4
+     $_SDFFE_PP0P_                   2
+     $_SDFF_PN0_                     2
+     $_XNOR_                        51
+     $_XOR_                        300
+
