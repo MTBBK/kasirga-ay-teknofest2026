@@ -179,7 +179,7 @@ module tb_top();
 endmodule
 
 // ----------------------------------------------------------------------------
-// SİMÜLASYON UART TERMİNAL AJANI (921600 Baud'a göre ayarlandı)
+// SİMÜLASYON UART TERMİNAL AJANI (Zaman Damgalı)
 // ----------------------------------------------------------------------------
 module simulated_uart_rx #(
     parameter integer BIT_PERIOD_NS = 1085
@@ -189,6 +189,7 @@ module simulated_uart_rx #(
 
     reg [7:0] rx_data;
     integer i;
+    logic is_new_line = 1'b1; // Zaman damgasını sadece satır başlarında basmak için
 
     initial begin
         $display("[UART AJANI] Terminal dinleniyor... (921600 Baud)");
@@ -202,17 +203,31 @@ module simulated_uart_rx #(
             // 3. 8 DATA BİTİNİ OKU (LSB Önce)
             rx_data = 8'b0;
             for (i=0; i<8; i=i+1) begin
-                #(BIT_PERIOD_NS); // Bir sonraki bitin ortasına git
+                #(BIT_PERIOD_NS);  // Bir sonraki bitin ortasına git
                 rx_data[i] = rx_i; // Biti örnekle
             end
 
             // 4. STOP BİTİNİ BEKLE (Hat tekrar 1 olmalı)
             #(BIT_PERIOD_NS);
             if (rx_i == 1'b1) begin
-                // VERİ BAŞARIYLA ALINDI! ASCII'ye çevir ve Terminale Bas
-                $write("%c", rx_data); // Alt satıra geçmeden yan yana yazdırır
+                // VERİ BAŞARIYLA ALINDI!
+                
+                // Eğer yeni bir satırın ilk karakteriyse ve boşluk/enter değilse zamanı bas
+                if (is_new_line && (rx_data != 8'h0D) && (rx_data != 8'h0A)) begin
+                    $write("[%0t ns] ", $time); // Şimdiki simülasyon zamanını yazdır
+                    is_new_line = 1'b0;         // Bayrağı indir ki harf harf zaman basmasın
+                end
+
+                // Karakteri ekrana bas
+                $write("%c", rx_data); 
+
+                // Eğer gelen karakter '\n' (Line Feed - 0x0A) ise, bir sonraki harf için bayrağı kaldır
+                if (rx_data == 8'h0A) begin 
+                    is_new_line = 1'b1;
+                end
+
             end else begin
-                $display("\n[UART HATA] Frame hatası (Stop biti okunamadı). Gelen bozuk veri: %h", rx_data);
+                $display("\n[%0t ns] [UART HATA] Frame hatasi (Stop biti okunamadi). Gelen: %h", $time, rx_data);
             end
         end
     end

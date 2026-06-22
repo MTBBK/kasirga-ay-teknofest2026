@@ -7,14 +7,9 @@
 int main(void) {
 
     uart_init(921600); 
-    uart_send_string("\r\n[TEST] YENI KOD DEVREDE!!!\r\n");
-    uart_send_string("\r\n========================================\r\n");
-    uart_send_string("    QSPI MASTER IP - DONANIM TESTI      \r\n");
-    uart_send_string("========================================\r\n\n");
 
-    // ---------------------------------------------------------
-    // BÖLÜM 1: KİMLİK (ID) VE DURUM (STATUS) OKUMALARI
-    // ---------------------------------------------------------
+    uart_send_string("QSPI Testi");
+    uart_send_char('\n');
     uart_send_string("[INFO] Flash Bellek Kimlik Sorgulaniyor...\r\n");
     
     uint32_t devID = config_READ_ID();
@@ -27,6 +22,8 @@ int main(void) {
     uart_send_hex32(devID2); 
     uart_send_string("\r\n\n");
 
+    uart_send_string("GPIO Testi");
+    uart_send_char('\n');
     //GPIO test
     for (uint8_t i = 0; i < 8; i++)
     {
@@ -47,10 +44,12 @@ int main(void) {
     }
     uart_send_hex32(gpio_val2);
     uart_send_string("\r\n");
+    uart_send_char('\n');
 
 
 
-
+    uart_send_string("I2C Testi");
+    uart_send_char('\n');
     i2c_WRITE(3,0x01,0x00aaaaaa);
 
     uint32_t i2c_data=0;
@@ -58,20 +57,23 @@ int main(void) {
     uart_send_string("I2C Value:");
     uart_send_hex32(i2c_data);
     uart_send_char('\n');
+    uart_send_char('\n');
 
-
+    uart_send_string("Timer Testi");
+    uart_send_char('\n');
     //Timer test
     timer_init(0,1,100000);
     
     while(1) {
          if (REG_READ(TIM_EVN_ADDR) > 0) {
             
-            // 1 saniye doldu! İşlemi gerçekleştir.
-            uart_send_char('.');
-            uart_send_char('\n');
-            
+            // 1. ÖNCE VAKİT KAYBETMEDEN TIMER'I SIFIRLA (Yeni saniye hemen saymaya başlasın)
             REG_WRITE(TIM_EVC_ADDR, 1);
             REG_WRITE(TIM_EVC_ADDR, 0);
+    
+            // 2. SONRA YAVAŞ İŞLEMLERİ (UART) YAP
+            uart_send_char('.');
+            uart_send_char('\n');
         }
     }
 

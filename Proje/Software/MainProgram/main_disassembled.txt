@@ -14,497 +14,452 @@ Disassembly of section .text.init:
 Disassembly of section .text:
 
 00001008 <main>:
-    1008:	1101                	c.addi	x2,-32 # 4fe0 <_end+0x1eb7>
+    1008:	1101                	c.addi	x2,-32 # 4fe0 <_end+0x1f27>
     100a:	000e1537          	lui	x10,0xe1
     100e:	ce06                	c.swsp	x1,28(x2)
     1010:	cc22                	c.swsp	x8,24(x2)
     1012:	ca26                	c.swsp	x9,20(x2)
     1014:	c84a                	c.swsp	x18,16(x2)
-    1016:	2c35                	c.jal	1252 <uart_init>
+    1016:	2c91                	c.jal	126a <uart_init>
     1018:	00002517          	auipc	x10,0x2
-    101c:	fe850513          	addi	x10,x10,-24 # 3000 <uart_send_hex32+0x1d28>
-    1020:	24b5                	c.jal	128c <uart_send_string>
-    1022:	00002517          	auipc	x10,0x2
-    1026:	00250513          	addi	x10,x10,2 # 3024 <uart_send_hex32+0x1d4c>
-    102a:	248d                	c.jal	128c <uart_send_string>
-    102c:	00002517          	auipc	x10,0x2
-    1030:	02850513          	addi	x10,x10,40 # 3054 <uart_send_hex32+0x1d7c>
-    1034:	2ca1                	c.jal	128c <uart_send_string>
-    1036:	00002517          	auipc	x10,0x2
-    103a:	04a50513          	addi	x10,x10,74 # 3080 <uart_send_hex32+0x1da8>
-    103e:	24b9                	c.jal	128c <uart_send_string>
-    1040:	00002517          	auipc	x10,0x2
-    1044:	06c50513          	addi	x10,x10,108 # 30ac <uart_send_hex32+0x1dd4>
-    1048:	2491                	c.jal	128c <uart_send_string>
-    104a:	227d                	c.jal	11f8 <config_READ_ID>
-    104c:	842a                	c.mv	x8,x10
-    104e:	00002517          	auipc	x10,0x2
-    1052:	08e50513          	addi	x10,x10,142 # 30dc <uart_send_hex32+0x1e04>
-    1056:	2c1d                	c.jal	128c <uart_send_string>
-    1058:	8522                	c.mv	x10,x8
-    105a:	2cbd                	c.jal	12d8 <uart_send_hex32>
-    105c:	00002517          	auipc	x10,0x2
-    1060:	02050513          	addi	x10,x10,32 # 307c <uart_send_hex32+0x1da4>
-    1064:	2425                	c.jal	128c <uart_send_string>
-    1066:	2275                	c.jal	1212 <config_RDID>
-    1068:	842a                	c.mv	x8,x10
-    106a:	00002517          	auipc	x10,0x2
-    106e:	08a50513          	addi	x10,x10,138 # 30f4 <uart_send_hex32+0x1e1c>
-    1072:	2c29                	c.jal	128c <uart_send_string>
-    1074:	8522                	c.mv	x10,x8
-    1076:	248d                	c.jal	12d8 <uart_send_hex32>
-    1078:	00002517          	auipc	x10,0x2
-    107c:	03050513          	addi	x10,x10,48 # 30a8 <uart_send_hex32+0x1dd0>
-    1080:	2431                	c.jal	128c <uart_send_string>
-    1082:	4401                	c.li	x8,0
-    1084:	44c1                	c.li	x9,16
-    1086:	8522                	c.mv	x10,x8
-    1088:	4585                	c.li	x11,1
-    108a:	2865                	c.jal	1142 <gpio_write_pin>
-    108c:	00140513          	addi	x10,x8,1
-    1090:	0409                	c.addi	x8,2
-    1092:	4581                	c.li	x11,0
-    1094:	0ff57513          	andi	x10,x10,255
-    1098:	0ff47413          	andi	x8,x8,255
-    109c:	205d                	c.jal	1142 <gpio_write_pin>
-    109e:	fe9414e3          	bne	x8,x9,1086 <main+0x7e>
-    10a2:	20f1                	c.jal	116e <gpio_read_all>
-    10a4:	2c15                	c.jal	12d8 <uart_send_hex32>
-    10a6:	00002517          	auipc	x10,0x2
-    10aa:	fd650513          	addi	x10,x10,-42 # 307c <uart_send_hex32+0x1da4>
-    10ae:	2af9                	c.jal	128c <uart_send_string>
-    10b0:	6531                	c.lui	x10,0xc
-    10b2:	acd50513          	addi	x10,x10,-1331 # bacd <_end+0x89a4>
-    10b6:	206d                	c.jal	1160 <gpio_write_all>
-    10b8:	4401                	c.li	x8,0
-    10ba:	4481                	c.li	x9,0
-    10bc:	4941                	c.li	x18,16
-    10be:	0ff47513          	andi	x10,x8,255
-    10c2:	2895                	c.jal	1136 <gpio_read_pin>
-    10c4:	00851533          	sll	x10,x10,x8
-    10c8:	0405                	c.addi	x8,1
-    10ca:	8cc9                	c.or	x9,x10
-    10cc:	ff2419e3          	bne	x8,x18,10be <main+0xb6>
-    10d0:	8526                	c.mv	x10,x9
-    10d2:	2419                	c.jal	12d8 <uart_send_hex32>
-    10d4:	00002517          	auipc	x10,0x2
-    10d8:	fa850513          	addi	x10,x10,-88 # 307c <uart_send_hex32+0x1da4>
-    10dc:	2a45                	c.jal	128c <uart_send_string>
-    10de:	00aab637          	lui	x12,0xaab
-    10e2:	aaa60613          	addi	x12,x12,-1366 # aaaaaa <_end+0xaa7981>
-    10e6:	4585                	c.li	x11,1
-    10e8:	450d                	c.li	x10,3
-    10ea:	28c9                	c.jal	11bc <i2c_WRITE>
-    10ec:	0070                	c.addi4spn	x12,x2,12
-    10ee:	4585                	c.li	x11,1
-    10f0:	450d                	c.li	x10,3
-    10f2:	c602                	c.swsp	x0,12(x2)
-    10f4:	28e9                	c.jal	11ce <i2c_READ>
-    10f6:	00002517          	auipc	x10,0x2
-    10fa:	01650513          	addi	x10,x10,22 # 310c <uart_send_hex32+0x1e34>
-    10fe:	2279                	c.jal	128c <uart_send_string>
-    1100:	4532                	c.lwsp	x10,12(x2)
-    1102:	64c5                	c.lui	x9,0x11
-    1104:	6445                	c.lui	x8,0x11
-    1106:	2ac9                	c.jal	12d8 <uart_send_hex32>
-    1108:	4529                	c.li	x10,10
-    110a:	2285                	c.jal	126a <uart_send_char>
-    110c:	6661                	c.lui	x12,0x18
-    110e:	6a060613          	addi	x12,x12,1696 # 186a0 <_end+0x15577>
-    1112:	4585                	c.li	x11,1
-    1114:	4501                	c.li	x10,0
-    1116:	2a19                	c.jal	122c <timer_init>
-    1118:	04e1                	c.addi	x9,24 # 11018 <_end+0xdeef>
-    111a:	0471                	c.addi	x8,28 # 1101c <_end+0xdef3>
-    111c:	4905                	c.li	x18,1
-    111e:	409c                	c.lw	x15,0(x9)
-    1120:	dffd                	c.beqz	x15,111e <main+0x116>
-    1122:	02e00513          	addi	x10,x0,46
-    1126:	2291                	c.jal	126a <uart_send_char>
-    1128:	4529                	c.li	x10,10
-    112a:	2281                	c.jal	126a <uart_send_char>
-    112c:	01242023          	sw	x18,0(x8)
-    1130:	00042023          	sw	x0,0(x8)
-    1134:	b7ed                	c.j	111e <main+0x116>
+    101c:	fe850513          	addi	x10,x10,-24 # 3000 <uart_send_hex32+0x1d10>
+    1020:	2451                	c.jal	12a4 <uart_send_string>
+    1022:	4529                	c.li	x10,10
+    1024:	2cb9                	c.jal	1282 <uart_send_char>
+    1026:	00002517          	auipc	x10,0x2
+    102a:	fea50513          	addi	x10,x10,-22 # 3010 <uart_send_hex32+0x1d20>
+    102e:	2c9d                	c.jal	12a4 <uart_send_string>
+    1030:	22c5                	c.jal	1210 <config_READ_ID>
+    1032:	842a                	c.mv	x8,x10
+    1034:	00002517          	auipc	x10,0x2
+    1038:	00c50513          	addi	x10,x10,12 # 3040 <uart_send_hex32+0x1d50>
+    103c:	24a5                	c.jal	12a4 <uart_send_string>
+    103e:	8522                	c.mv	x10,x8
+    1040:	2c45                	c.jal	12f0 <uart_send_hex32>
+    1042:	00002517          	auipc	x10,0x2
+    1046:	01650513          	addi	x10,x10,22 # 3058 <uart_send_hex32+0x1d68>
+    104a:	2ca9                	c.jal	12a4 <uart_send_string>
+    104c:	2af9                	c.jal	122a <config_RDID>
+    104e:	842a                	c.mv	x8,x10
+    1050:	00002517          	auipc	x10,0x2
+    1054:	00c50513          	addi	x10,x10,12 # 305c <uart_send_hex32+0x1d6c>
+    1058:	24b1                	c.jal	12a4 <uart_send_string>
+    105a:	8522                	c.mv	x10,x8
+    105c:	2c51                	c.jal	12f0 <uart_send_hex32>
+    105e:	00002517          	auipc	x10,0x2
+    1062:	01650513          	addi	x10,x10,22 # 3074 <uart_send_hex32+0x1d84>
+    1066:	2c3d                	c.jal	12a4 <uart_send_string>
+    1068:	00002517          	auipc	x10,0x2
+    106c:	01050513          	addi	x10,x10,16 # 3078 <uart_send_hex32+0x1d88>
+    1070:	2c15                	c.jal	12a4 <uart_send_string>
+    1072:	4529                	c.li	x10,10
+    1074:	2439                	c.jal	1282 <uart_send_char>
+    1076:	4401                	c.li	x8,0
+    1078:	44c1                	c.li	x9,16
+    107a:	8522                	c.mv	x10,x8
+    107c:	4585                	c.li	x11,1
+    107e:	28f1                	c.jal	115a <gpio_write_pin>
+    1080:	00140513          	addi	x10,x8,1
+    1084:	0409                	c.addi	x8,2
+    1086:	4581                	c.li	x11,0
+    1088:	0ff57513          	andi	x10,x10,255
+    108c:	0ff47413          	andi	x8,x8,255
+    1090:	20e9                	c.jal	115a <gpio_write_pin>
+    1092:	fe9414e3          	bne	x8,x9,107a <main+0x72>
+    1096:	28c5                	c.jal	1186 <gpio_read_all>
+    1098:	2ca1                	c.jal	12f0 <uart_send_hex32>
+    109a:	00002517          	auipc	x10,0x2
+    109e:	fbe50513          	addi	x10,x10,-66 # 3058 <uart_send_hex32+0x1d68>
+    10a2:	2409                	c.jal	12a4 <uart_send_string>
+    10a4:	6531                	c.lui	x10,0xc
+    10a6:	acd50513          	addi	x10,x10,-1331 # bacd <_end+0x8a14>
+    10aa:	20f9                	c.jal	1178 <gpio_write_all>
+    10ac:	4401                	c.li	x8,0
+    10ae:	4481                	c.li	x9,0
+    10b0:	4941                	c.li	x18,16
+    10b2:	0ff47513          	andi	x10,x8,255
+    10b6:	2861                	c.jal	114e <gpio_read_pin>
+    10b8:	00851533          	sll	x10,x10,x8
+    10bc:	0405                	c.addi	x8,1
+    10be:	8cc9                	c.or	x9,x10
+    10c0:	ff2419e3          	bne	x8,x18,10b2 <main+0xaa>
+    10c4:	8526                	c.mv	x10,x9
+    10c6:	242d                	c.jal	12f0 <uart_send_hex32>
+    10c8:	00002517          	auipc	x10,0x2
+    10cc:	f9050513          	addi	x10,x10,-112 # 3058 <uart_send_hex32+0x1d68>
+    10d0:	2ad1                	c.jal	12a4 <uart_send_string>
+    10d2:	4529                	c.li	x10,10
+    10d4:	227d                	c.jal	1282 <uart_send_char>
+    10d6:	00002517          	auipc	x10,0x2
+    10da:	fae50513          	addi	x10,x10,-82 # 3084 <uart_send_hex32+0x1d94>
+    10de:	22d9                	c.jal	12a4 <uart_send_string>
+    10e0:	4529                	c.li	x10,10
+    10e2:	2245                	c.jal	1282 <uart_send_char>
+    10e4:	00aab637          	lui	x12,0xaab
+    10e8:	aaa60613          	addi	x12,x12,-1366 # aaaaaa <_end+0xaa79f1>
+    10ec:	4585                	c.li	x11,1
+    10ee:	450d                	c.li	x10,3
+    10f0:	20d5                	c.jal	11d4 <i2c_WRITE>
+    10f2:	0070                	c.addi4spn	x12,x2,12
+    10f4:	4585                	c.li	x11,1
+    10f6:	450d                	c.li	x10,3
+    10f8:	c602                	c.swsp	x0,12(x2)
+    10fa:	20f5                	c.jal	11e6 <i2c_READ>
+    10fc:	00002517          	auipc	x10,0x2
+    1100:	f9450513          	addi	x10,x10,-108 # 3090 <uart_send_hex32+0x1da0>
+    1104:	2245                	c.jal	12a4 <uart_send_string>
+    1106:	4532                	c.lwsp	x10,12(x2)
+    1108:	64c5                	c.lui	x9,0x11
+    110a:	6445                	c.lui	x8,0x11
+    110c:	22d5                	c.jal	12f0 <uart_send_hex32>
+    110e:	4529                	c.li	x10,10
+    1110:	2a8d                	c.jal	1282 <uart_send_char>
+    1112:	4529                	c.li	x10,10
+    1114:	22bd                	c.jal	1282 <uart_send_char>
+    1116:	00002517          	auipc	x10,0x2
+    111a:	f8650513          	addi	x10,x10,-122 # 309c <uart_send_hex32+0x1dac>
+    111e:	2259                	c.jal	12a4 <uart_send_string>
+    1120:	4529                	c.li	x10,10
+    1122:	2285                	c.jal	1282 <uart_send_char>
+    1124:	6661                	c.lui	x12,0x18
+    1126:	6a060613          	addi	x12,x12,1696 # 186a0 <_end+0x155e7>
+    112a:	4585                	c.li	x11,1
+    112c:	4501                	c.li	x10,0
+    112e:	2a19                	c.jal	1244 <timer_init>
+    1130:	04e1                	c.addi	x9,24 # 11018 <_end+0xdf5f>
+    1132:	0471                	c.addi	x8,28 # 1101c <_end+0xdf63>
+    1134:	4905                	c.li	x18,1
+    1136:	409c                	c.lw	x15,0(x9)
+    1138:	dffd                	c.beqz	x15,1136 <main+0x12e>
+    113a:	01242023          	sw	x18,0(x8)
+    113e:	00042023          	sw	x0,0(x8)
+    1142:	02e00513          	addi	x10,x0,46
+    1146:	2a35                	c.jal	1282 <uart_send_char>
+    1148:	4529                	c.li	x10,10
+    114a:	2a25                	c.jal	1282 <uart_send_char>
+    114c:	b7ed                	c.j	1136 <main+0x12e>
 
-00001136 <gpio_read_pin>:
-    1136:	679d                	c.lui	x15,0x7
-    1138:	439c                	c.lw	x15,0(x15)
-    113a:	00a7d533          	srl	x10,x15,x10
-    113e:	8905                	c.andi	x10,1
-    1140:	8082                	c.jr	x1
+0000114e <gpio_read_pin>:
+    114e:	679d                	c.lui	x15,0x7
+    1150:	439c                	c.lw	x15,0(x15)
+    1152:	00a7d533          	srl	x10,x15,x10
+    1156:	8905                	c.andi	x10,1
+    1158:	8082                	c.jr	x1
 
-00001142 <gpio_write_pin>:
-    1142:	671d                	c.lui	x14,0x7
-    1144:	4354                	c.lw	x13,4(x14)
-    1146:	4785                	c.li	x15,1
-    1148:	0711                	c.addi	x14,4 # 7004 <_end+0x3edb>
-    114a:	00a79533          	sll	x10,x15,x10
-    114e:	c581                	c.beqz	x11,1156 <gpio_write_pin+0x14>
-    1150:	8ec9                	c.or	x13,x10
-    1152:	c314                	c.sw	x13,0(x14)
-    1154:	8082                	c.jr	x1
-    1156:	fff54513          	xori	x10,x10,-1
-    115a:	8d75                	c.and	x10,x13
-    115c:	c308                	c.sw	x10,0(x14)
-    115e:	8082                	c.jr	x1
-
-00001160 <gpio_write_all>:
-    1160:	671d                	c.lui	x14,0x7
-    1162:	435c                	c.lw	x15,4(x14)
-    1164:	76c1                	c.lui	x13,0xffff0
-    1166:	8ff5                	c.and	x15,x13
-    1168:	8fc9                	c.or	x15,x10
-    116a:	c35c                	c.sw	x15,4(x14)
+0000115a <gpio_write_pin>:
+    115a:	671d                	c.lui	x14,0x7
+    115c:	4354                	c.lw	x13,4(x14)
+    115e:	4785                	c.li	x15,1
+    1160:	0711                	c.addi	x14,4 # 7004 <_end+0x3f4b>
+    1162:	00a79533          	sll	x10,x15,x10
+    1166:	c581                	c.beqz	x11,116e <gpio_write_pin+0x14>
+    1168:	8ec9                	c.or	x13,x10
+    116a:	c314                	c.sw	x13,0(x14)
     116c:	8082                	c.jr	x1
-
-0000116e <gpio_read_all>:
-    116e:	679d                	c.lui	x15,0x7
-    1170:	4388                	c.lw	x10,0(x15)
-    1172:	0542                	c.slli	x10,0x10
-    1174:	8141                	c.srli	x10,0x10
+    116e:	fff54513          	xori	x10,x10,-1
+    1172:	8d75                	c.and	x10,x13
+    1174:	c308                	c.sw	x10,0(x14)
     1176:	8082                	c.jr	x1
 
-00001178 <i2c_is_transmitted>:
-    1178:	6721                	c.lui	x14,0x8
-    117a:	0741                	c.addi	x14,16 # 8010 <_end+0x4ee7>
-    117c:	431c                	c.lw	x15,0(x14)
-    117e:	0027f693          	andi	x13,x15,2
-    1182:	c689                	c.beqz	x13,118c <i2c_is_transmitted+0x14>
-    1184:	9bf5                	c.andi	x15,-3
-    1186:	c31c                	c.sw	x15,0(x14)
-    1188:	4505                	c.li	x10,1
-    118a:	8082                	c.jr	x1
-    118c:	0107f693          	andi	x13,x15,16
-    1190:	d6f5                	c.beqz	x13,117c <i2c_is_transmitted+0x4>
-    1192:	9bbd                	c.andi	x15,-17
-    1194:	c31c                	c.sw	x15,0(x14)
-    1196:	4501                	c.li	x10,0
-    1198:	8082                	c.jr	x1
+00001178 <gpio_write_all>:
+    1178:	671d                	c.lui	x14,0x7
+    117a:	435c                	c.lw	x15,4(x14)
+    117c:	76c1                	c.lui	x13,0xffff0
+    117e:	8ff5                	c.and	x15,x13
+    1180:	8fc9                	c.or	x15,x10
+    1182:	c35c                	c.sw	x15,4(x14)
+    1184:	8082                	c.jr	x1
 
-0000119a <i2c_is_received>:
-    119a:	6721                	c.lui	x14,0x8
-    119c:	0741                	c.addi	x14,16 # 8010 <_end+0x4ee7>
-    119e:	431c                	c.lw	x15,0(x14)
-    11a0:	0087f693          	andi	x13,x15,8
-    11a4:	c689                	c.beqz	x13,11ae <i2c_is_received+0x14>
-    11a6:	9bdd                	c.andi	x15,-9
-    11a8:	c31c                	c.sw	x15,0(x14)
-    11aa:	4505                	c.li	x10,1
-    11ac:	8082                	c.jr	x1
-    11ae:	0107f693          	andi	x13,x15,16
-    11b2:	d6f5                	c.beqz	x13,119e <i2c_is_received+0x4>
-    11b4:	9bbd                	c.andi	x15,-17
-    11b6:	c31c                	c.sw	x15,0(x14)
-    11b8:	4501                	c.li	x10,0
-    11ba:	8082                	c.jr	x1
+00001186 <gpio_read_all>:
+    1186:	679d                	c.lui	x15,0x7
+    1188:	4388                	c.lw	x10,0(x15)
+    118a:	0542                	c.slli	x10,0x10
+    118c:	8141                	c.srli	x10,0x10
+    118e:	8082                	c.jr	x1
 
-000011bc <i2c_WRITE>:
-    11bc:	67a1                	c.lui	x15,0x8
-    11be:	c388                	c.sw	x10,0(x15)
-    11c0:	c3cc                	c.sw	x11,4(x15)
-    11c2:	67a1                	c.lui	x15,0x8
-    11c4:	c7d0                	c.sw	x12,12(x15)
-    11c6:	4705                	c.li	x14,1
-    11c8:	67a1                	c.lui	x15,0x8
-    11ca:	cb98                	c.sw	x14,16(x15)
-    11cc:	b775                	c.j	1178 <i2c_is_transmitted>
+00001190 <i2c_is_transmitted>:
+    1190:	6721                	c.lui	x14,0x8
+    1192:	0741                	c.addi	x14,16 # 8010 <_end+0x4f57>
+    1194:	431c                	c.lw	x15,0(x14)
+    1196:	0027f693          	andi	x13,x15,2
+    119a:	c689                	c.beqz	x13,11a4 <i2c_is_transmitted+0x14>
+    119c:	9bf5                	c.andi	x15,-3
+    119e:	c31c                	c.sw	x15,0(x14)
+    11a0:	4505                	c.li	x10,1
+    11a2:	8082                	c.jr	x1
+    11a4:	0107f693          	andi	x13,x15,16
+    11a8:	d6f5                	c.beqz	x13,1194 <i2c_is_transmitted+0x4>
+    11aa:	9bbd                	c.andi	x15,-17
+    11ac:	c31c                	c.sw	x15,0(x14)
+    11ae:	4501                	c.li	x10,0
+    11b0:	8082                	c.jr	x1
 
-000011ce <i2c_READ>:
-    11ce:	1141                	c.addi	x2,-16
-    11d0:	c422                	c.swsp	x8,8(x2)
-    11d2:	c606                	c.swsp	x1,12(x2)
+000011b2 <i2c_is_received>:
+    11b2:	6721                	c.lui	x14,0x8
+    11b4:	0741                	c.addi	x14,16 # 8010 <_end+0x4f57>
+    11b6:	431c                	c.lw	x15,0(x14)
+    11b8:	0087f693          	andi	x13,x15,8
+    11bc:	c689                	c.beqz	x13,11c6 <i2c_is_received+0x14>
+    11be:	9bdd                	c.andi	x15,-9
+    11c0:	c31c                	c.sw	x15,0(x14)
+    11c2:	4505                	c.li	x10,1
+    11c4:	8082                	c.jr	x1
+    11c6:	0107f693          	andi	x13,x15,16
+    11ca:	d6f5                	c.beqz	x13,11b6 <i2c_is_received+0x4>
+    11cc:	9bbd                	c.andi	x15,-17
+    11ce:	c31c                	c.sw	x15,0(x14)
+    11d0:	4501                	c.li	x10,0
+    11d2:	8082                	c.jr	x1
+
+000011d4 <i2c_WRITE>:
     11d4:	67a1                	c.lui	x15,0x8
     11d6:	c388                	c.sw	x10,0(x15)
     11d8:	c3cc                	c.sw	x11,4(x15)
-    11da:	4711                	c.li	x14,4
-    11dc:	67a1                	c.lui	x15,0x8
-    11de:	cb98                	c.sw	x14,16(x15)
-    11e0:	8432                	c.mv	x8,x12
-    11e2:	3f65                	c.jal	119a <i2c_is_received>
-    11e4:	c511                	c.beqz	x10,11f0 <i2c_READ+0x22>
-    11e6:	67a1                	c.lui	x15,0x8
-    11e8:	07a1                	c.addi	x15,8 # 8008 <_end+0x4edf>
-    11ea:	439c                	c.lw	x15,0(x15)
-    11ec:	4505                	c.li	x10,1
-    11ee:	c01c                	c.sw	x15,0(x8)
-    11f0:	40b2                	c.lwsp	x1,12(x2)
-    11f2:	4422                	c.lwsp	x8,8(x2)
-    11f4:	0141                	c.addi	x2,16
-    11f6:	8082                	c.jr	x1
+    11da:	67a1                	c.lui	x15,0x8
+    11dc:	c7d0                	c.sw	x12,12(x15)
+    11de:	4705                	c.li	x14,1
+    11e0:	67a1                	c.lui	x15,0x8
+    11e2:	cb98                	c.sw	x14,16(x15)
+    11e4:	b775                	c.j	1190 <i2c_is_transmitted>
 
-000011f8 <config_READ_ID>:
-    11f8:	800207b7          	lui	x15,0x80020
-    11fc:	6725                	c.lui	x14,0x9
-    11fe:	19e78793          	addi	x15,x15,414 # 8002019e <_end+0x8001d075>
-    1202:	c31c                	c.sw	x15,0(x14)
-    1204:	0731                	c.addi	x14,12 # 900c <_end+0x5ee3>
-    1206:	431c                	c.lw	x15,0(x14)
-    1208:	8b89                	c.andi	x15,2
-    120a:	fff5                	c.bnez	x15,1206 <config_READ_ID+0xe>
-    120c:	67a5                	c.lui	x15,0x9
-    120e:	4788                	c.lw	x10,8(x15)
-    1210:	8082                	c.jr	x1
+000011e6 <i2c_READ>:
+    11e6:	1141                	c.addi	x2,-16
+    11e8:	c422                	c.swsp	x8,8(x2)
+    11ea:	c606                	c.swsp	x1,12(x2)
+    11ec:	67a1                	c.lui	x15,0x8
+    11ee:	c388                	c.sw	x10,0(x15)
+    11f0:	c3cc                	c.sw	x11,4(x15)
+    11f2:	4711                	c.li	x14,4
+    11f4:	67a1                	c.lui	x15,0x8
+    11f6:	cb98                	c.sw	x14,16(x15)
+    11f8:	8432                	c.mv	x8,x12
+    11fa:	3f65                	c.jal	11b2 <i2c_is_received>
+    11fc:	c511                	c.beqz	x10,1208 <i2c_READ+0x22>
+    11fe:	67a1                	c.lui	x15,0x8
+    1200:	07a1                	c.addi	x15,8 # 8008 <_end+0x4f4f>
+    1202:	439c                	c.lw	x15,0(x15)
+    1204:	4505                	c.li	x10,1
+    1206:	c01c                	c.sw	x15,0(x8)
+    1208:	40b2                	c.lwsp	x1,12(x2)
+    120a:	4422                	c.lwsp	x8,8(x2)
+    120c:	0141                	c.addi	x2,16
+    120e:	8082                	c.jr	x1
 
-00001212 <config_RDID>:
-    1212:	800207b7          	lui	x15,0x80020
-    1216:	6725                	c.lui	x14,0x9
-    1218:	19f78793          	addi	x15,x15,415 # 8002019f <_end+0x8001d076>
-    121c:	c31c                	c.sw	x15,0(x14)
-    121e:	0731                	c.addi	x14,12 # 900c <_end+0x5ee3>
-    1220:	431c                	c.lw	x15,0(x14)
-    1222:	8b89                	c.andi	x15,2
-    1224:	fff5                	c.bnez	x15,1220 <config_RDID+0xe>
-    1226:	67a5                	c.lui	x15,0x9
-    1228:	4788                	c.lw	x10,8(x15)
-    122a:	8082                	c.jr	x1
+00001210 <config_READ_ID>:
+    1210:	800207b7          	lui	x15,0x80020
+    1214:	6725                	c.lui	x14,0x9
+    1216:	19e78793          	addi	x15,x15,414 # 8002019e <_end+0x8001d0e5>
+    121a:	c31c                	c.sw	x15,0(x14)
+    121c:	0731                	c.addi	x14,12 # 900c <_end+0x5f53>
+    121e:	431c                	c.lw	x15,0(x14)
+    1220:	8b89                	c.andi	x15,2
+    1222:	fff5                	c.bnez	x15,121e <config_READ_ID+0xe>
+    1224:	67a5                	c.lui	x15,0x9
+    1226:	4788                	c.lw	x10,8(x15)
+    1228:	8082                	c.jr	x1
 
-0000122c <timer_init>:
-    122c:	67c5                	c.lui	x15,0x11
-    122e:	0007a623          	sw	x0,12(x15) # 1100c <_end+0xdee3>
-    1232:	6745                	c.lui	x14,0x11
-    1234:	cb0c                	c.sw	x11,16(x14)
-    1236:	6745                	c.lui	x14,0x11
-    1238:	c308                	c.sw	x10,0(x14)
-    123a:	c350                	c.sw	x12,4(x14)
-    123c:	66c5                	c.lui	x13,0x11
-    123e:	4605                	c.li	x12,1
-    1240:	ced0                	c.sw	x12,28(x13)
-    1242:	6745                	c.lui	x14,0x11
-    1244:	c710                	c.sw	x12,8(x14)
-    1246:	0006ae23          	sw	x0,28(x13) # 1101c <_end+0xdef3>
-    124a:	00072423          	sw	x0,8(x14) # 11008 <_end+0xdedf>
-    124e:	c7d0                	c.sw	x12,12(x15)
-    1250:	8082                	c.jr	x1
+0000122a <config_RDID>:
+    122a:	800207b7          	lui	x15,0x80020
+    122e:	6725                	c.lui	x14,0x9
+    1230:	19f78793          	addi	x15,x15,415 # 8002019f <_end+0x8001d0e6>
+    1234:	c31c                	c.sw	x15,0(x14)
+    1236:	0731                	c.addi	x14,12 # 900c <_end+0x5f53>
+    1238:	431c                	c.lw	x15,0(x14)
+    123a:	8b89                	c.andi	x15,2
+    123c:	fff5                	c.bnez	x15,1238 <config_RDID+0xe>
+    123e:	67a5                	c.lui	x15,0x9
+    1240:	4788                	c.lw	x10,8(x15)
+    1242:	8082                	c.jr	x1
 
-00001252 <uart_init>:
-    1252:	05f5e7b7          	lui	x15,0x5f5e
-    1256:	10078793          	addi	x15,x15,256 # 5f5e100 <_end+0x5f5afd7>
-    125a:	02a7d7b3          	divu	x15,x15,x10
-    125e:	6715                	c.lui	x14,0x5
-    1260:	c31c                	c.sw	x15,0(x14)
-    1262:	6795                	c.lui	x15,0x5
-    1264:	0007a223          	sw	x0,4(x15) # 5004 <_end+0x1edb>
+00001244 <timer_init>:
+    1244:	67c5                	c.lui	x15,0x11
+    1246:	0007a623          	sw	x0,12(x15) # 1100c <_end+0xdf53>
+    124a:	6745                	c.lui	x14,0x11
+    124c:	cb0c                	c.sw	x11,16(x14)
+    124e:	6745                	c.lui	x14,0x11
+    1250:	c308                	c.sw	x10,0(x14)
+    1252:	c350                	c.sw	x12,4(x14)
+    1254:	66c5                	c.lui	x13,0x11
+    1256:	4605                	c.li	x12,1
+    1258:	ced0                	c.sw	x12,28(x13)
+    125a:	6745                	c.lui	x14,0x11
+    125c:	c710                	c.sw	x12,8(x14)
+    125e:	0006ae23          	sw	x0,28(x13) # 1101c <_end+0xdf63>
+    1262:	00072423          	sw	x0,8(x14) # 11008 <_end+0xdf4f>
+    1266:	c7d0                	c.sw	x12,12(x15)
     1268:	8082                	c.jr	x1
 
-0000126a <uart_send_char>:
-    126a:	6795                	c.lui	x15,0x5
-    126c:	07c1                	c.addi	x15,16 # 5010 <_end+0x1ee7>
-    126e:	4398                	c.lw	x14,0(x15)
-    1270:	8b05                	c.andi	x14,1
-    1272:	ff75                	c.bnez	x14,126e <uart_send_char+0x4>
-    1274:	6715                	c.lui	x14,0x5
-    1276:	c748                	c.sw	x10,12(x14)
-    1278:	4705                	c.li	x14,1
-    127a:	c398                	c.sw	x14,0(x15)
-    127c:	6795                	c.lui	x15,0x5
-    127e:	07c1                	c.addi	x15,16 # 5010 <_end+0x1ee7>
-    1280:	4398                	c.lw	x14,0(x15)
-    1282:	8b11                	c.andi	x14,4
-    1284:	df75                	c.beqz	x14,1280 <uart_send_char+0x16>
-    1286:	0007a023          	sw	x0,0(x15)
-    128a:	8082                	c.jr	x1
+0000126a <uart_init>:
+    126a:	05f5e7b7          	lui	x15,0x5f5e
+    126e:	10078793          	addi	x15,x15,256 # 5f5e100 <_end+0x5f5b047>
+    1272:	02a7d7b3          	divu	x15,x15,x10
+    1276:	6715                	c.lui	x14,0x5
+    1278:	c31c                	c.sw	x15,0(x14)
+    127a:	6795                	c.lui	x15,0x5
+    127c:	0007a223          	sw	x0,4(x15) # 5004 <_end+0x1f4b>
+    1280:	8082                	c.jr	x1
 
-0000128c <uart_send_string>:
-    128c:	1141                	c.addi	x2,-16
-    128e:	c422                	c.swsp	x8,8(x2)
-    1290:	c606                	c.swsp	x1,12(x2)
-    1292:	842a                	c.mv	x8,x10
-    1294:	00044503          	lbu	x10,0(x8)
-    1298:	e509                	c.bnez	x10,12a2 <uart_send_string+0x16>
-    129a:	40b2                	c.lwsp	x1,12(x2)
-    129c:	4422                	c.lwsp	x8,8(x2)
-    129e:	0141                	c.addi	x2,16
-    12a0:	8082                	c.jr	x1
-    12a2:	37e1                	c.jal	126a <uart_send_char>
-    12a4:	0405                	c.addi	x8,1
-    12a6:	b7fd                	c.j	1294 <uart_send_string+0x8>
+00001282 <uart_send_char>:
+    1282:	6795                	c.lui	x15,0x5
+    1284:	07c1                	c.addi	x15,16 # 5010 <_end+0x1f57>
+    1286:	4398                	c.lw	x14,0(x15)
+    1288:	8b05                	c.andi	x14,1
+    128a:	ff75                	c.bnez	x14,1286 <uart_send_char+0x4>
+    128c:	6715                	c.lui	x14,0x5
+    128e:	c748                	c.sw	x10,12(x14)
+    1290:	4705                	c.li	x14,1
+    1292:	c398                	c.sw	x14,0(x15)
+    1294:	6795                	c.lui	x15,0x5
+    1296:	07c1                	c.addi	x15,16 # 5010 <_end+0x1f57>
+    1298:	4398                	c.lw	x14,0(x15)
+    129a:	8b11                	c.andi	x14,4
+    129c:	df75                	c.beqz	x14,1298 <uart_send_char+0x16>
+    129e:	0007a023          	sw	x0,0(x15)
+    12a2:	8082                	c.jr	x1
 
-000012a8 <uart_send_hex8>:
-    12a8:	1141                	c.addi	x2,-16
-    12aa:	c226                	c.swsp	x9,4(x2)
-    12ac:	00455793          	srli	x15,x10,0x4
-    12b0:	00002497          	auipc	x9,0x2
-    12b4:	e6848493          	addi	x9,x9,-408 # 3118 <hex_chars.0>
-    12b8:	97a6                	c.add	x15,x9
-    12ba:	c422                	c.swsp	x8,8(x2)
-    12bc:	842a                	c.mv	x8,x10
-    12be:	0007c503          	lbu	x10,0(x15)
-    12c2:	883d                	c.andi	x8,15
-    12c4:	c606                	c.swsp	x1,12(x2)
-    12c6:	94a2                	c.add	x9,x8
-    12c8:	374d                	c.jal	126a <uart_send_char>
-    12ca:	4422                	c.lwsp	x8,8(x2)
-    12cc:	0004c503          	lbu	x10,0(x9)
-    12d0:	40b2                	c.lwsp	x1,12(x2)
-    12d2:	4492                	c.lwsp	x9,4(x2)
-    12d4:	0141                	c.addi	x2,16
-    12d6:	bf51                	c.j	126a <uart_send_char>
+000012a4 <uart_send_string>:
+    12a4:	1141                	c.addi	x2,-16
+    12a6:	c422                	c.swsp	x8,8(x2)
+    12a8:	c606                	c.swsp	x1,12(x2)
+    12aa:	842a                	c.mv	x8,x10
+    12ac:	00044503          	lbu	x10,0(x8)
+    12b0:	e509                	c.bnez	x10,12ba <uart_send_string+0x16>
+    12b2:	40b2                	c.lwsp	x1,12(x2)
+    12b4:	4422                	c.lwsp	x8,8(x2)
+    12b6:	0141                	c.addi	x2,16
+    12b8:	8082                	c.jr	x1
+    12ba:	37e1                	c.jal	1282 <uart_send_char>
+    12bc:	0405                	c.addi	x8,1
+    12be:	b7fd                	c.j	12ac <uart_send_string+0x8>
 
-000012d8 <uart_send_hex32>:
-    12d8:	1141                	c.addi	x2,-16
-    12da:	c422                	c.swsp	x8,8(x2)
-    12dc:	842a                	c.mv	x8,x10
-    12de:	03000513          	addi	x10,x0,48
-    12e2:	c606                	c.swsp	x1,12(x2)
-    12e4:	3759                	c.jal	126a <uart_send_char>
-    12e6:	07800513          	addi	x10,x0,120
-    12ea:	3741                	c.jal	126a <uart_send_char>
-    12ec:	01845513          	srli	x10,x8,0x18
-    12f0:	3f65                	c.jal	12a8 <uart_send_hex8>
-    12f2:	01045513          	srli	x10,x8,0x10
-    12f6:	0ff57513          	andi	x10,x10,255
-    12fa:	377d                	c.jal	12a8 <uart_send_hex8>
-    12fc:	00845513          	srli	x10,x8,0x8
-    1300:	0ff57513          	andi	x10,x10,255
-    1304:	3755                	c.jal	12a8 <uart_send_hex8>
-    1306:	0ff47513          	andi	x10,x8,255
-    130a:	4422                	c.lwsp	x8,8(x2)
-    130c:	40b2                	c.lwsp	x1,12(x2)
-    130e:	0141                	c.addi	x2,16
-    1310:	bf61                	c.j	12a8 <uart_send_hex8>
+000012c0 <uart_send_hex8>:
+    12c0:	1141                	c.addi	x2,-16
+    12c2:	c226                	c.swsp	x9,4(x2)
+    12c4:	00455793          	srli	x15,x10,0x4
+    12c8:	00002497          	auipc	x9,0x2
+    12cc:	de048493          	addi	x9,x9,-544 # 30a8 <hex_chars.0>
+    12d0:	97a6                	c.add	x15,x9
+    12d2:	c422                	c.swsp	x8,8(x2)
+    12d4:	842a                	c.mv	x8,x10
+    12d6:	0007c503          	lbu	x10,0(x15)
+    12da:	883d                	c.andi	x8,15
+    12dc:	c606                	c.swsp	x1,12(x2)
+    12de:	94a2                	c.add	x9,x8
+    12e0:	374d                	c.jal	1282 <uart_send_char>
+    12e2:	4422                	c.lwsp	x8,8(x2)
+    12e4:	0004c503          	lbu	x10,0(x9)
+    12e8:	40b2                	c.lwsp	x1,12(x2)
+    12ea:	4492                	c.lwsp	x9,4(x2)
+    12ec:	0141                	c.addi	x2,16
+    12ee:	bf51                	c.j	1282 <uart_send_char>
+
+000012f0 <uart_send_hex32>:
+    12f0:	1141                	c.addi	x2,-16
+    12f2:	c422                	c.swsp	x8,8(x2)
+    12f4:	842a                	c.mv	x8,x10
+    12f6:	03000513          	addi	x10,x0,48
+    12fa:	c606                	c.swsp	x1,12(x2)
+    12fc:	3759                	c.jal	1282 <uart_send_char>
+    12fe:	07800513          	addi	x10,x0,120
+    1302:	3741                	c.jal	1282 <uart_send_char>
+    1304:	01845513          	srli	x10,x8,0x18
+    1308:	3f65                	c.jal	12c0 <uart_send_hex8>
+    130a:	01045513          	srli	x10,x8,0x10
+    130e:	0ff57513          	andi	x10,x10,255
+    1312:	377d                	c.jal	12c0 <uart_send_hex8>
+    1314:	00845513          	srli	x10,x8,0x8
+    1318:	0ff57513          	andi	x10,x10,255
+    131c:	3755                	c.jal	12c0 <uart_send_hex8>
+    131e:	0ff47513          	andi	x10,x8,255
+    1322:	4422                	c.lwsp	x8,8(x2)
+    1324:	40b2                	c.lwsp	x1,12(x2)
+    1326:	0141                	c.addi	x2,16
+    1328:	bf61                	c.j	12c0 <uart_send_hex8>
 
 Disassembly of section .rodata:
 
-00003000 <hex_chars.0-0x118>:
-    3000:	0a0d                	c.addi	x20,3
-    3002:	5345545b          	.insn	4, 0x5345545b
-    3006:	5d54                	c.lw	x13,60(x10)
-    3008:	5920                	c.lw	x8,112(x10)
-    300a:	4e45                	c.li	x28,17
-    300c:	2049                	c.jal	308e <uart_send_hex32+0x1db6>
-    300e:	20444f4b          	.insn	4, 0x20444f4b
-    3012:	4544                	c.lw	x9,12(x10)
-    3014:	5256                	c.lwsp	x4,116(x2)
-    3016:	4445                	c.li	x8,17
-    3018:	2145                	c.jal	34b8 <_end+0x38f>
-    301a:	2121                	c.jal	3422 <_end+0x2f9>
-    301c:	0a0d                	c.addi	x20,3
-    301e:	0000                	c.unimp
-    3020:	0000                	c.unimp
-    3022:	0000                	c.unimp
-    3024:	0a0d                	c.addi	x20,3
-    3026:	3d3d                	c.jal	2e64 <uart_send_hex32+0x1b8c>
-    3028:	3d3d                	c.jal	2e66 <uart_send_hex32+0x1b8e>
-    302a:	3d3d                	c.jal	2e68 <uart_send_hex32+0x1b90>
-    302c:	3d3d                	c.jal	2e6a <uart_send_hex32+0x1b92>
-    302e:	3d3d                	c.jal	2e6c <uart_send_hex32+0x1b94>
-    3030:	3d3d                	c.jal	2e6e <uart_send_hex32+0x1b96>
-    3032:	3d3d                	c.jal	2e70 <uart_send_hex32+0x1b98>
-    3034:	3d3d                	c.jal	2e72 <uart_send_hex32+0x1b9a>
-    3036:	3d3d                	c.jal	2e74 <uart_send_hex32+0x1b9c>
-    3038:	3d3d                	c.jal	2e76 <uart_send_hex32+0x1b9e>
-    303a:	3d3d                	c.jal	2e78 <uart_send_hex32+0x1ba0>
-    303c:	3d3d                	c.jal	2e7a <uart_send_hex32+0x1ba2>
-    303e:	3d3d                	c.jal	2e7c <uart_send_hex32+0x1ba4>
-    3040:	3d3d                	c.jal	2e7e <uart_send_hex32+0x1ba6>
-    3042:	3d3d                	c.jal	2e80 <uart_send_hex32+0x1ba8>
-    3044:	3d3d                	c.jal	2e82 <uart_send_hex32+0x1baa>
-    3046:	3d3d                	c.jal	2e84 <uart_send_hex32+0x1bac>
-    3048:	3d3d                	c.jal	2e86 <uart_send_hex32+0x1bae>
-    304a:	3d3d                	c.jal	2e88 <uart_send_hex32+0x1bb0>
-    304c:	3d3d                	c.jal	2e8a <uart_send_hex32+0x1bb2>
-    304e:	0a0d                	c.addi	x20,3
-    3050:	0000                	c.unimp
-    3052:	0000                	c.unimp
-    3054:	2020                	.insn	2, 0x2020
-    3056:	2020                	.insn	2, 0x2020
-    3058:	5351                	c.li	x6,-12
-    305a:	4950                	c.lw	x12,20(x10)
-    305c:	4d20                	c.lw	x8,88(x10)
-    305e:	5341                	c.li	x6,-16
-    3060:	4554                	c.lw	x13,12(x10)
-    3062:	2052                	.insn	2, 0x2052
-    3064:	5049                	c.li	x0,-14
-    3066:	2d20                	.insn	2, 0x2d20
-    3068:	4420                	c.lw	x8,72(x8)
-    306a:	4e414e4f          	.insn	4, 0x4e414e4f
-    306e:	4d49                	c.li	x26,18
-    3070:	5420                	c.lw	x8,104(x8)
-    3072:	5345                	c.li	x6,-15
-    3074:	4954                	c.lw	x13,20(x10)
-    3076:	2020                	.insn	2, 0x2020
-    3078:	2020                	.insn	2, 0x2020
-    307a:	2020                	.insn	2, 0x2020
-    307c:	0a0d                	c.addi	x20,3
-    307e:	0000                	c.unimp
-    3080:	3d3d                	c.jal	2ebe <uart_send_hex32+0x1be6>
-    3082:	3d3d                	c.jal	2ec0 <uart_send_hex32+0x1be8>
-    3084:	3d3d                	c.jal	2ec2 <uart_send_hex32+0x1bea>
-    3086:	3d3d                	c.jal	2ec4 <uart_send_hex32+0x1bec>
-    3088:	3d3d                	c.jal	2ec6 <uart_send_hex32+0x1bee>
-    308a:	3d3d                	c.jal	2ec8 <uart_send_hex32+0x1bf0>
-    308c:	3d3d                	c.jal	2eca <uart_send_hex32+0x1bf2>
-    308e:	3d3d                	c.jal	2ecc <uart_send_hex32+0x1bf4>
-    3090:	3d3d                	c.jal	2ece <uart_send_hex32+0x1bf6>
-    3092:	3d3d                	c.jal	2ed0 <uart_send_hex32+0x1bf8>
-    3094:	3d3d                	c.jal	2ed2 <uart_send_hex32+0x1bfa>
-    3096:	3d3d                	c.jal	2ed4 <uart_send_hex32+0x1bfc>
-    3098:	3d3d                	c.jal	2ed6 <uart_send_hex32+0x1bfe>
-    309a:	3d3d                	c.jal	2ed8 <uart_send_hex32+0x1c00>
-    309c:	3d3d                	c.jal	2eda <uart_send_hex32+0x1c02>
-    309e:	3d3d                	c.jal	2edc <uart_send_hex32+0x1c04>
-    30a0:	3d3d                	c.jal	2ede <uart_send_hex32+0x1c06>
-    30a2:	3d3d                	c.jal	2ee0 <uart_send_hex32+0x1c08>
-    30a4:	3d3d                	c.jal	2ee2 <uart_send_hex32+0x1c0a>
-    30a6:	3d3d                	c.jal	2ee4 <uart_send_hex32+0x1c0c>
-    30a8:	0a0d                	c.addi	x20,3
-    30aa:	000a                	c.slli	x0,0x2
-    30ac:	464e495b          	.insn	4, 0x464e495b
-    30b0:	46205d4f          	.insn	4, 0x46205d4f
-    30b4:	616c                	.insn	2, 0x616c
-    30b6:	42206873          	.insn	4, 0x42206873
-    30ba:	6c65                	c.lui	x24,0x19
-    30bc:	656c                	.insn	2, 0x656c
-    30be:	694b206b          	.insn	4, 0x694b206b
-    30c2:	6c6d                	c.lui	x24,0x1b
-    30c4:	6b69                	c.lui	x22,0x1a
-    30c6:	5320                	c.lw	x8,96(x14)
-    30c8:	7567726f          	jal	x4,7a81e <_end+0x776f5>
-    30cc:	616c                	.insn	2, 0x616c
-    30ce:	696e                	.insn	2, 0x696e
-    30d0:	6f79                	c.lui	x30,0x1e
-    30d2:	2e72                	.insn	2, 0x2e72
-    30d4:	2e2e                	.insn	2, 0x2e2e
-    30d6:	0a0d                	c.addi	x20,3
-    30d8:	0000                	c.unimp
-    30da:	0000                	c.unimp
-    30dc:	2d20                	.insn	2, 0x2d20
-    30de:	203e                	.insn	2, 0x203e
-    30e0:	4552                	c.lwsp	x10,20(x2)
-    30e2:	4441                	c.li	x8,16
-    30e4:	495f 2044 3028      	.insn	6, 0x30282044495f
-    30ea:	3978                	.insn	2, 0x3978
-    30ec:	2930                	.insn	2, 0x2930
-    30ee:	3a20                	.insn	2, 0x3a20
-    30f0:	3020                	.insn	2, 0x3020
-    30f2:	0078                	c.addi4spn	x14,x2,12
-    30f4:	2d20                	.insn	2, 0x2d20
-    30f6:	203e                	.insn	2, 0x203e
-    30f8:	4452                	c.lwsp	x8,20(x2)
-    30fa:	4449                	c.li	x8,18
-    30fc:	2020                	.insn	2, 0x2020
-    30fe:	2020                	.insn	2, 0x2020
-    3100:	3028                	.insn	2, 0x3028
-    3102:	3978                	.insn	2, 0x3978
-    3104:	2946                	.insn	2, 0x2946
-    3106:	3a20                	.insn	2, 0x3a20
-    3108:	3020                	.insn	2, 0x3020
-    310a:	0078                	c.addi4spn	x14,x2,12
-    310c:	3249                	c.jal	2a8e <uart_send_hex32+0x17b6>
-    310e:	61562043          	.insn	4, 0x61562043
-    3112:	756c                	.insn	2, 0x756c
-    3114:	3a65                	c.jal	2acc <uart_send_hex32+0x17f4>
-	...
+00003000 <hex_chars.0-0xa8>:
+    3000:	5351                	c.li	x6,-12
+    3002:	4950                	c.lw	x12,20(x10)
+    3004:	5420                	c.lw	x8,104(x8)
+    3006:	7365                	c.lui	x6,0xffff9
+    3008:	6974                	.insn	2, 0x6974
+    300a:	0000                	c.unimp
+    300c:	0000                	c.unimp
+    300e:	0000                	c.unimp
+    3010:	464e495b          	.insn	4, 0x464e495b
+    3014:	46205d4f          	.insn	4, 0x46205d4f
+    3018:	616c                	.insn	2, 0x616c
+    301a:	42206873          	.insn	4, 0x42206873
+    301e:	6c65                	c.lui	x24,0x19
+    3020:	656c                	.insn	2, 0x656c
+    3022:	694b206b          	.insn	4, 0x694b206b
+    3026:	6c6d                	c.lui	x24,0x1b
+    3028:	6b69                	c.lui	x22,0x1a
+    302a:	5320                	c.lw	x8,96(x14)
+    302c:	7567726f          	jal	x4,7a782 <_end+0x776c9>
+    3030:	616c                	.insn	2, 0x616c
+    3032:	696e                	.insn	2, 0x696e
+    3034:	6f79                	c.lui	x30,0x1e
+    3036:	2e72                	.insn	2, 0x2e72
+    3038:	2e2e                	.insn	2, 0x2e2e
+    303a:	0a0d                	c.addi	x20,3
+    303c:	0000                	c.unimp
+    303e:	0000                	c.unimp
+    3040:	2d20                	.insn	2, 0x2d20
+    3042:	203e                	.insn	2, 0x203e
+    3044:	4552                	c.lwsp	x10,20(x2)
+    3046:	4441                	c.li	x8,16
+    3048:	495f 2044 3028      	.insn	6, 0x30282044495f
+    304e:	3978                	.insn	2, 0x3978
+    3050:	2930                	.insn	2, 0x2930
+    3052:	3a20                	.insn	2, 0x3a20
+    3054:	3020                	.insn	2, 0x3020
+    3056:	0078                	c.addi4spn	x14,x2,12
+    3058:	0a0d                	c.addi	x20,3
+    305a:	0000                	c.unimp
+    305c:	2d20                	.insn	2, 0x2d20
+    305e:	203e                	.insn	2, 0x203e
+    3060:	4452                	c.lwsp	x8,20(x2)
+    3062:	4449                	c.li	x8,18
+    3064:	2020                	.insn	2, 0x2020
+    3066:	2020                	.insn	2, 0x2020
+    3068:	3028                	.insn	2, 0x3028
+    306a:	3978                	.insn	2, 0x3978
+    306c:	2946                	.insn	2, 0x2946
+    306e:	3a20                	.insn	2, 0x3a20
+    3070:	3020                	.insn	2, 0x3020
+    3072:	0078                	c.addi4spn	x14,x2,12
+    3074:	0a0d                	c.addi	x20,3
+    3076:	000a                	c.slli	x0,0x2
+    3078:	4f495047          	.insn	4, 0x4f495047
+    307c:	5420                	c.lw	x8,104(x8)
+    307e:	7365                	c.lui	x6,0xffff9
+    3080:	6974                	.insn	2, 0x6974
+    3082:	0000                	c.unimp
+    3084:	3249                	c.jal	2a06 <uart_send_hex32+0x1716>
+    3086:	65542043          	.insn	4, 0x65542043
+    308a:	00697473          	.insn	4, 0x00697473
+    308e:	0000                	c.unimp
+    3090:	3249                	c.jal	2a12 <uart_send_hex32+0x1722>
+    3092:	61562043          	.insn	4, 0x61562043
+    3096:	756c                	.insn	2, 0x756c
+    3098:	3a65                	c.jal	2a50 <uart_send_hex32+0x1760>
+    309a:	0000                	c.unimp
+    309c:	6954                	.insn	2, 0x6954
+    309e:	656d                	c.lui	x10,0x1b
+    30a0:	2072                	.insn	2, 0x2072
+    30a2:	6554                	.insn	2, 0x6554
+    30a4:	00697473          	.insn	4, 0x00697473
 
-00003118 <hex_chars.0>:
-    3118:	3130                	.insn	2, 0x3130
-    311a:	3332                	.insn	2, 0x3332
-    311c:	3534                	.insn	2, 0x3534
-    311e:	3736                	.insn	2, 0x3736
-    3120:	3938                	.insn	2, 0x3938
-    3122:	4241                	c.li	x4,16
-    3124:	46454443          	.insn	4, 0x46454443
+000030a8 <hex_chars.0>:
+    30a8:	3130                	.insn	2, 0x3130
+    30aa:	3332                	.insn	2, 0x3332
+    30ac:	3534                	.insn	2, 0x3534
+    30ae:	3736                	.insn	2, 0x3736
+    30b0:	3938                	.insn	2, 0x3938
+    30b2:	4241                	c.li	x4,16
+    30b4:	46454443          	.insn	4, 0x46454443
 	...
 
 Disassembly of section .comment:
@@ -512,14 +467,14 @@ Disassembly of section .comment:
 00000000 <.comment>:
    0:	3a434347          	.insn	4, 0x3a434347
    4:	2820                	.insn	2, 0x2820
-   6:	3331                	c.jal	fffffd12 <_end+0xffffcbe9>
+   6:	3331                	c.jal	fffffd12 <_end+0xffffcc59>
    8:	322e                	.insn	2, 0x322e
    a:	302e                	.insn	2, 0x302e
-   c:	312d                	c.jal	fffffc36 <_end+0xffffcb0d>
+   c:	312d                	c.jal	fffffc36 <_end+0xffffcb7d>
    e:	7531                	c.lui	x10,0xfffec
   10:	7562                	.insn	2, 0x7562
   12:	746e                	.insn	2, 0x746e
-  14:	3175                	c.jal	fffffcc0 <_end+0xffffcb97>
+  14:	3175                	c.jal	fffffcc0 <_end+0xffffcc07>
   16:	2932312b          	.insn	4, 0x2932312b
   1a:	3120                	.insn	2, 0x3120
   1c:	2e322e33          	.insn	4, 0x2e322e33
@@ -541,7 +496,7 @@ Disassembly of section .riscv.attributes:
   16:	6932                	.insn	2, 0x6932
   18:	7032                	.insn	2, 0x7032
   1a:	5f31                	c.li	x30,-20
-  1c:	326d                	c.jal	fffff9c6 <_end+0xffffc89d>
+  1c:	326d                	c.jal	fffff9c6 <_end+0xffffc90d>
   1e:	3070                	.insn	2, 0x3070
   20:	635f 7032 5f30      	.insn	6, 0x5f307032635f
   26:	6d7a                	.insn	2, 0x6d7a
