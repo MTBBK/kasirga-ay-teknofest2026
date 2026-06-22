@@ -1,0 +1,6 @@
+Derleme yapabilmek için riscv-gnu-toolchain gerekmektedir.
+
+
+Bootloader kodunu derlemek için boot.sh scriptini çalıştırınız.
+Ana program kodunu derlemek için main.sh scriptini çalıştırınız.
+

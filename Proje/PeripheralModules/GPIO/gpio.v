@@ -34,6 +34,7 @@ module gpio(
     assign BRESP = 2'b00;
     assign RRESP = 2'b00;
 
+
     reg axi_arready;
     reg axi_awready;
     reg [31:0] axi_rdata;
@@ -47,81 +48,74 @@ module gpio(
 
     assign ARREADY = axi_arready;
     
-    wire axi_write_ready, axi_read_ready;
-    
-    assign axi_write_ready = axi_awready && AWVALID && WVALID;
-    assign axi_read_ready = (ARVALID && ARREADY);
 
-    localparam ADDR_GPIO_IDR = 32'h00000000, // Giriş veri yazmacı (Offset 0x00)
-               ADDR_GPIO_ODR = 32'h00000004; // Çıkış veri yazmacı (Offset 0x04)
+    localparam ADDR_GPIO_IDR = 32'h00007000, // Giriş veri yazmacı (Offset 0x00)
+               ADDR_GPIO_ODR = 32'h00007004; // Çıkış veri yazmacı (Offset 0x04)
 
     assign output_pins = GPIO_ODR[15:0];
 
     always@(posedge clk) begin
-        if(!rst_i) begin
+        if (!rst_i) begin
             GPIO_ODR <= 32'b0;
-        end
-        else if (axi_write_ready) begin
-            // Sadece ODR yazmacına yazma yapılabilir 
-            if(AWADDR == ADDR_GPIO_ODR) begin
-                if(WSTRB[0]) GPIO_ODR[7:0]   <= WDATA[7:0];
-                if(WSTRB[1]) GPIO_ODR[15:8]  <= WDATA[15:8];
-                // Üst bitlere yazılan değer etkisizdir 
-                if(WSTRB[2]) GPIO_ODR[23:16] <= WDATA[23:16];
-                if(WSTRB[3]) GPIO_ODR[31:24] <= WDATA[31:24];
+        end else begin
+            // Software Write Operations (AXI)
+            if (axi_awready) begin
+                case (AWADDR)
+					ADDR_GPIO_ODR:begin // 0x00
+				        if(WSTRB[0]) GPIO_ODR[7:0]   <= WDATA[7:0];
+                        if(WSTRB[1]) GPIO_ODR[15:8]  <= WDATA[15:8];
+                        // Üst bitlere yazılan değer etkisizdir 
+                        if(WSTRB[2]) GPIO_ODR[23:16] <= WDATA[23:16];
+                        if(WSTRB[3]) GPIO_ODR[31:24] <= WDATA[31:24];
+				    end
+					
+                endcase
             end
-       end
+        end
     end
 
-    // Read
-    always @(posedge clk) begin
-        if(!rst_i)
-            axi_rdata <= 32'b0;
-        else if(axi_read_ready) begin
-            case(ARADDR)
+    // 3. Software Read Logic
+    always@(posedge clk) begin
+        if (!rst_i) begin
+            axi_rdata <= 32'd0;
+        end else if (axi_arready) begin
+            case (ARADDR)
                 ADDR_GPIO_IDR: axi_rdata <= {16'b0, input_pins}; // Üst 16-bit her zaman 0 
                 ADDR_GPIO_ODR: axi_rdata <= GPIO_ODR;
-                default:       axi_rdata <= 32'h0;
+                default: axi_rdata <= 32'd0;
             endcase
         end
     end
 
-    initial axi_bvalid = 1'b0;
+    // Handshake logic (simplified standard AXI template)
     always@(posedge clk) begin
-        if(!rst_i)
-            axi_bvalid <= 1'b0;
-        else if(axi_write_ready)
-            axi_bvalid <= 1'b1;
-        else if(BREADY && axi_bvalid)
-            axi_bvalid <= 1'b0;
-    end
-
-    initial axi_rvalid = 1'b0;
-    always@(posedge clk) begin
-        if(!rst_i)
-            axi_rvalid <= 1'b0;
-        else if(axi_read_ready)
-            axi_rvalid <= 1'b1;
-        else if(RREADY && axi_rvalid)
-            axi_rvalid <= 1'b0;
-    end
-
-    initial axi_awready = 1'b0;
-    always@(posedge clk) begin
-        if(!rst_i)
+        if (!rst_i) begin
             axi_awready <= 1'b0;
-        else 
-            axi_awready <= !axi_awready && (AWVALID && WVALID) && !BVALID;
-    end
+            axi_bvalid  <= 1'b0;
+            axi_arready <= 1'b0;
+            axi_rvalid  <= 1'b0;
+        end else begin
+            // Write handshaking
+            axi_awready <= (~axi_awready && AWVALID && WVALID);
+            if (axi_awready && ~axi_bvalid)
+                axi_bvalid <= 1'b1;
+            else if (BREADY && axi_bvalid)
+                axi_bvalid <= 1'b0;
 
-    initial axi_arready = 1'b0;
-    always @(posedge clk) begin
-        if (!rst_i)
-            axi_arready <= 1'b0;
-        else if (ARVALID && !axi_rvalid && !axi_arready)
-            axi_arready <= 1'b1;
-        else
-            axi_arready <= 1'b0;
+            // Read handshaking
+            axi_arready <= (~axi_arready && ARVALID);
+            if (axi_arready && ~axi_rvalid)
+                axi_rvalid <= 1'b1;
+            else if (axi_rvalid && RREADY)
+                axi_rvalid <= 1'b0;
+        end
     end
+    
 
 endmodule
+
+
+    
+
+    
+

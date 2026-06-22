@@ -19,7 +19,6 @@ void uart_send_char(char c) {
     // TX başlat (bit 0 = 1), aynı zamanda eski tx_done'ı temizler
     REG_WRITE(UART_CFG_ADDR, 0x01);
 
-    for(volatile int nop = 0; nop < 15; nop++);
 
     // tx_done (bit 2) set olana kadar bekle
     while ((REG_READ(UART_CFG_ADDR) & 0x4) == 0);
@@ -28,7 +27,6 @@ void uart_send_char(char c) {
     // Doğrudan 0x00 yazıyoruz, RMW kullanmıyoruz ki rx_ready (bit 1) bozulmasın.
     // Not: HW tarafında bit 1 zaten rx_done/rx_clear ile yönetiliyor.
     REG_WRITE(UART_CFG_ADDR, 0x00);
-    for(volatile int nop = 0; nop < 15; nop++);
 }
 
 void uart_send_string(const char *str) {
@@ -59,6 +57,8 @@ void uart_send_hex8(uint8_t val) {
 
 // 32-bit (Word) veriyi Hex olarak yazdırır
 void uart_send_hex32(uint32_t val) {
+    uart_send_char('0');
+    uart_send_char('x');
     uart_send_hex8((val >> 24) & 0xFF);
     uart_send_hex8((val >> 16) & 0xFF);
     uart_send_hex8((val >> 8) & 0xFF);

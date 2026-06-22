@@ -7,11 +7,18 @@ module tb_top();
     logic rst_n_i;
     logic fetch_enable;
     
-    // Top modül G/Ç'ları
+    // Uart sinyalleri
     logic uart_rx_i;
     logic uart_tx_o;
+    
+    //gpio sinyalleri
     wire [15:0] gpio_o;
     wire [15:0] gpio_i;
+    assign gpio_i=16'hadef;
+    
+    //I2C sinyalleri
+    wire scl_o;
+    wire sda_io;
     
     // QSPI Sinyalleri
     wire sclk_o;
@@ -34,6 +41,8 @@ module tb_top();
         .uart_tx_o(uart_tx_o),
         .gpio_o(gpio_o),
         .gpio_i(gpio_i),
+        .scl_o(scl_o),
+        .sda_io(sda_io),
         .sclk_o(sclk_o),
         .cs_o(cs_n),
         .qspi_io_0(qspi_io_0),
@@ -93,6 +102,80 @@ module tb_top();
         $finish;
     end
 
+
+    pullup(sda_io);
+   
+    
+    // =====================================================================
+    // 2. GOLDEN SLAVE AXI-STREAM KONTROL SİNYALLERİ
+    // =====================================================================
+    logic [7:0] slave_tx_data  = 8'hAA; // Master okuma yaparsa (READ), slave bu veriyi göndersin
+    logic       slave_tx_valid = 1'b1;  // Slave göndermeye her zaman hazır
+    logic       slave_tx_ready;
+    
+    logic [7:0] slave_rx_data;          // Master'dan gelen veri buraya düşecek
+    logic       slave_rx_valid;
+    logic       slave_rx_ready = 1'b1;  // Slave veri almaya her zaman hazır
+    
+    wire slave_sda_o;
+    wire slave_sda_t;
+    
+    // Slave'in kendi inout SDA pinini tristate mantığıyla sda_net'e bağlıyoruz
+    assign sda_io = slave_sda_t ? 1'bz : slave_sda_o;
+    
+    // =====================================================================
+    // 3. GOLDEN SLAVE INSTANTIATION
+    // =====================================================================
+    i2c_slave #(
+        .FILTER_LEN(4)
+    ) golden_slave_inst (
+        .clk(clk_i),
+        .rst(!rst_n_i), // Slave modülü active-high reset kullanır, invert ediyoruz
+    
+        // --- Konfigürasyon ---
+        .enable(1'b1),
+        .device_address(7'h01),      // C kodunda (i2c_WRITE(3, 0x01..)) kullandığın adres!
+        .device_address_mask(7'h7F), // Tam eşleşme istiyoruz
+    
+        // --- I2C Arayüzü ---
+        .scl_i(scl_o), // Master'ın ürettiği SCL'yi dinliyor
+        .scl_o(),        // BOŞ BIRAK: Senin master'da clock stretching yok (scl_o sadece output)
+        .scl_t(),        // BOŞ BIRAK: Çakışmayı önlüyoruz
+        .sda_i(sda_io), // Hattan veriyi okur
+        .sda_o(slave_sda_o), // Hatta veri (veya ACK) basmak istediğinde
+        .sda_t(slave_sda_t), // Tri-state kontrolü
+    
+        // --- AXI Stream TX (Slave'den -> Master'a) ---
+        // Eğer C kodunda i2c_READ yaparsan, bu veri gidecek
+        .s_axis_data_tdata(slave_tx_data),
+        .s_axis_data_tvalid(slave_tx_valid),
+        .s_axis_data_tready(slave_tx_ready),
+        .s_axis_data_tlast(1'b0),
+    
+        // --- AXI Stream RX (Master'dan -> Slave'e) ---
+        // Eğer C kodunda i2c_WRITE yaparsan, Master'ın gönderdiği baytlar buraya dökülür
+        .m_axis_data_tdata(slave_rx_data),
+        .m_axis_data_tvalid(slave_rx_valid),
+        .m_axis_data_tready(slave_rx_ready),
+        .m_axis_data_tlast(),
+    
+        // --- Durum Sinyalleri (İsteğe bağlı) ---
+        .busy(),
+        .bus_address(),
+        .bus_addressed(),
+        .bus_active(),
+        .release_bus(1'b0)
+    );
+    
+    // =====================================================================
+    // 4. TESTBENCH EKRAN MONİTÖRÜ (DEBUG)
+    // =====================================================================
+    // Master'ın gönderdiği her veri baytını terminalde gösterir:
+    always @(posedge clk_i) begin
+        if (slave_rx_valid && slave_rx_ready) begin
+            $display("[I2C GOLDEN SLAVE] Master'dan Veri Geldi! Deger: 0x%02X", slave_rx_data);
+        end
+    end
 endmodule
 
 // ----------------------------------------------------------------------------
@@ -134,3 +217,4 @@ module simulated_uart_rx #(
         end
     end
 endmodule
+

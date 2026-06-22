@@ -21,6 +21,7 @@ set my_files [list \
     "${PROJE_DIR}/PeripheralModules/GPIO/gpio.v" \
     "${PROJE_DIR}/PeripheralModules/I2C/sources/new/I2C_master.sv" \
     "${PROJE_DIR}/PeripheralModules/I2C/sources/new/i2c_axi_wrapper.sv" \
+    "${PROJE_DIR}/PeripheralModules/I2C/sources/new/i2c_slave.v" \
     "${PROJE_DIR}/PeripheralModules/xbar.sv" \
     "${PROJE_DIR}/PeripheralModules/xbar_readonly.sv" \
     "${PROJE_DIR}/PeripheralModules/obi_to_axi.sv" \

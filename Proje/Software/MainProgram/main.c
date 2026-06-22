@@ -27,9 +27,6 @@ int main(void) {
     uart_send_hex32(devID2); 
     uart_send_string("\r\n\n");
 
-    uint32_t sahte_deger = 0x5555;
-    uart_send_hex32(sahte_deger);
-    uart_send_string("\r\n");
     //GPIO test
     for (uint8_t i = 0; i < 8; i++)
     {
@@ -54,12 +51,13 @@ int main(void) {
 
 
 
-    //i2c_WRITE(3,0x01,0x00DEABCD);
+    i2c_WRITE(3,0x01,0x00aaaaaa);
 
-    //uint32_t i2c_data=0;
-    //i2c_READ(3,0x01,&i2c_data);
-    //uart_send_string("I2C Value:");
-    //uart_send_hex32(i2c_data);
+    uint32_t i2c_data=0;
+    i2c_READ(3,0x01,&i2c_data);
+    uart_send_string("I2C Value:");
+    uart_send_hex32(i2c_data);
+    uart_send_char('\n');
 
 
     //Timer test

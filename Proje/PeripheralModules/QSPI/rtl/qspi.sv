@@ -348,6 +348,7 @@ module qspi(
                     if(start_req) begin
                         current_state <= CMD;
                         done_reg      <= 1'b0;
+                        rx_shift_reg  <= 32'b0;
                     end
                     cmd_counter <= 0; addr_counter <= 0; dummy_counter <= 0;
                     data_tx_counter <= 0; data_rx_counter <= 0;
@@ -432,5 +433,6 @@ module qspi(
     
     
 endmodule
+
 
 
