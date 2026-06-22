@@ -28,11 +28,8 @@ module top(
     input  logic uart_rx_i,
     output logic uart_tx_o,
     
-    //i2c inout'a çevrilmeli ???
-    //output logic scl_o,
-    //output logic sda_out_o,
-    //output logic sda_oe_o,
-    //input  logic sda_in_i,
+    output logic scl_o,
+    inout logic sda_io,
     
     output logic [15:0] gpio_o,
     input  logic [15:0] gpio_i,
@@ -51,7 +48,7 @@ module top(
     parameter clk_freq_Hz=50_000_000;
     
     
-    //DATA MEMORY obi-axi
+    //Data Memory obi-axi
     logic obi_req_data;        
     logic obi_gnt_data;         
     logic obi_rvalid_data;       
@@ -62,6 +59,7 @@ module top(
     logic [31:0] obi_rdata_data;
                        
     
+    //Instruction Memory obi-axi
     logic obi_req_instr_i;
     logic obi_gnt_instr_o;
     logic obi_rvalid_instr_o;
@@ -82,7 +80,8 @@ module top(
     
     
     
-    
+    //XBAR Sıgnals
+
     // MASTER(core) INTERFACE
     // WRITE ADDRESS CHANNEL
     wire awvalid_master;
@@ -354,92 +353,10 @@ module top(
     
     
     
-    xbar_readonly ro_xbar(
-            .arvalid_master(axi_arvalid_instr_o),    
-            .arready_master(axi_arready_instr_i),    
-            .araddr_master(axi_araddr_instr_o),     
-                                                   
-            .rvalid_master(axi_rvalid_instr_i),     
-            .rready_master(axi_rready_instr_o),     
-            .rdata_master(axi_rdata_instr_i),      
-                                                                 
-            .arvalid_slv0(r_arvalid_slv0),      
-            .arready_slv0(r_arready_slv0),      
-            .araddr_slv0(r_araddr_slv0),       
-                                                  
-            .rvalid_slv0(r_rvalid_slv0),       
-            .rready_slv0(r_rready_slv0),       
-            .rdata_slv0(r_rdata_slv0),        
-                                         
-            .arvalid_slv1(r_arvalid_slv1),      
-            .arready_slv1(r_arready_slv1),      
-            .araddr_slv1(r_araddr_slv1),       
-                                                    
-            .rvalid_slv1(r_rvalid_slv1),       
-            .rready_slv1(r_rready_slv1),       
-            .rdata_slv1(r_rdata_slv1)         
     
     
-    );
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-        
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-   
+
+    //Core   
     cv32e40p_top #(
     .FPU                      ( 0 ),
     .FPU_ADDMUL_LAT           ( 0 ),
@@ -495,8 +412,23 @@ module top(
     .debug_halted_o           ()
 );
 
-    
-    i2c_axi_wrapper i2c_top_inst();
+    //Peripheral Modules
+
+    //I2C 
+    i2c_axi_wrapper i2c_top_inst(
+        .clk(clk_i),
+        .rst_n(rst_n_i),
+        .o_scl(scl_o),
+        .sda(sda_io),
+        .o_intr(interrupt),
+        .AWVALID(awvalid_slv6), .AWREADY(awready_slv6), .AWADDR(awaddr_slv6),
+        .WDATA(wdata_slv6),     .WSTRB(wstrb_slv6),     .WVALID(wvalid_slv6), .WREADY(wready_slv6) ,
+        .BVALID(bvalid_slv6),   .BREADY(bready_slv6),   .BRESP(bresp_slv6),
+        .ARVALID(arvalid_slv6), .ARREADY(arready_slv6), .ARADDR(araddr_slv6),
+        .RVALID(rvalid_slv6),   .RREADY(rready_slv6),   .RDATA(rdata_slv6), .RRESP(rresp_slv6)
+    );
+
+    //QSPI
     qspi_top qspi_top_inst( .S_AXI_ACLK(clk_i),
                             .S_AXI_ARESETN(rst_n_i),
                             .sclk(sclk_o),
@@ -512,6 +444,8 @@ module top(
                             .S_AXI_ARVALID(arvalid_slv7), .S_AXI_ARREADY(arready_slv7), .S_AXI_ARADDR(araddr_slv7),
                             .S_AXI_RVALID(rvalid_slv7),   .S_AXI_RREADY(rready_slv7),   .S_AXI_RDATA(rdata_slv7), .S_AXI_RRESP(rresp_slv7)
     );
+
+    //Timer
     timer_top #(.CLK_FREQ(clk_freq_Hz)) timer_top_inst(.clk(clk_i),
                              .rst_i(rst_n_i),
                              .AWVALID(awvalid_slv3), .AWREADY(awready_slv3), .AWADDR(awaddr_slv3),
@@ -522,6 +456,8 @@ module top(
     
     
     );
+
+    //GPIO
     gpio gpio_top_inst(.clk(clk_i),
                        .rst_i(rst_n_i),
                        .output_pins(gpio_o),
@@ -533,6 +469,8 @@ module top(
                        .RVALID(rvalid_slv2),   .RREADY(rready_slv2),   .RDATA(rdata_slv2), .RRESP(rresp_slv2)
     
     );
+
+    //UART
     uart_top #(.baud_rate(uart_baud_rate),.clock_frequency(clk_freq_Mhz)) uart_top_inst(   
               .S_AXI_ACLK(clk_i),     
               .S_AXI_ARESETN(rst_n_i), 
@@ -547,6 +485,11 @@ module top(
                                                                                          
     
     );
+
+
+
+
+    //XBAR R/W
     xbar xbar_inst(
 
             
@@ -714,6 +657,36 @@ module top(
             .rresp_slv7(rresp_slv7),
             .rdata_slv7(rdata_slv7)
     );
+    
+    //XBAR R/O
+    xbar_readonly ro_xbar(
+            .arvalid_master(axi_arvalid_instr_o),    
+            .arready_master(axi_arready_instr_i),    
+            .araddr_master(axi_araddr_instr_o),     
+                                                   
+            .rvalid_master(axi_rvalid_instr_i),     
+            .rready_master(axi_rready_instr_o),     
+            .rdata_master(axi_rdata_instr_i),      
+                                                                 
+            .arvalid_slv0(r_arvalid_slv0),      
+            .arready_slv0(r_arready_slv0),      
+            .araddr_slv0(r_araddr_slv0),       
+                                                  
+            .rvalid_slv0(r_rvalid_slv0),       
+            .rready_slv0(r_rready_slv0),       
+            .rdata_slv0(r_rdata_slv0),        
+                                         
+            .arvalid_slv1(r_arvalid_slv1),      
+            .arready_slv1(r_arready_slv1),      
+            .araddr_slv1(r_araddr_slv1),       
+                                                    
+            .rvalid_slv1(r_rvalid_slv1),       
+            .rready_slv1(r_rready_slv1),       
+            .rdata_slv1(r_rdata_slv1)         
+    );
+
+    
+    //R/O obi-to-axi
     obi_to_axi_readonly obi_to_axi_instr(
        .obi_req_i(obi_req_instr_i),          
        .obi_gnt_o(obi_gnt_instr_o),          
@@ -729,7 +702,7 @@ module top(
     
     );
     
-    
+    //R/W obi-to-axi
     obi_to_axi obi_to_axi_data(
     .clk(clk_i),
     .rst_n(rst_n_i),
@@ -760,6 +733,8 @@ module top(
     
     );
     
+
+    //Instruction Memory
     instruction_memory_axi  #(
          .BASE_ADDRESS(32'h0000_1000),
          .SIZE(8192)
@@ -785,6 +760,7 @@ module top(
         .boot_ended(boot_ended_o)
     );
     
+   //ROM
    memory_axi_readonly #(
         .SIZE(1024),
         .MEMFILE("boot.mem"),
@@ -800,7 +776,8 @@ module top(
         .RDATA(r_rdata_slv0)
     );
     
-     memory_axi#(
+    //Data Memory
+    memory_axi#(
         .BASE_ADDRESS(32'h0000_3000)
         ) data_memory(
         .clk(clk_i),
