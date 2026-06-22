@@ -40,11 +40,11 @@ module i2c_axi_wrapper #(
 );
 
     // Bellek Haritasý Offset Tanýmlarý
-    localparam [15:0] OFFSET_I2C_NBY = 16'h7000,
-                      OFFSET_I2C_ADR = 16'h7004,
-                      OFFSET_I2C_RDR = 16'h7008,
-                      OFFSET_I2C_TDR = 16'h700C,
-                      OFFSET_I2C_CFG = 16'h7010;
+    localparam [15:0] OFFSET_I2C_NBY = 16'h8000,
+                      OFFSET_I2C_ADR = 16'h8004,
+                      OFFSET_I2C_RDR = 16'h8008,
+                      OFFSET_I2C_TDR = 16'h800C,
+                      OFFSET_I2C_CFG = 16'h8010;
     assign RRESP = 2'b00;
 
     // Yazmaçlar 

@@ -30,14 +30,14 @@ module timer_top #(
     output wire RRESP
 );
 
-    localparam ADDR_TIM_PRE = 32'h0011_0000,
-               ADDR_TIM_ARE = 32'h0011_0004,
-               ADDR_TIM_CLR = 32'h0011_0008,
-               ADDR_TIM_ENA = 32'h0011_000C,
-               ADDR_TIM_MOD = 32'h0011_0010,
-               ADDR_TIM_CNT = 32'h0011_0014,
-               ADDR_TIM_EVN = 32'h0011_0018,
-               ADDR_TIM_EVC = 32'h0011_001C;
+    localparam ADDR_TIM_PRE = 32'h0001_1000,
+               ADDR_TIM_ARE = 32'h0001_1004,
+               ADDR_TIM_CLR = 32'h0001_1008,
+               ADDR_TIM_ENA = 32'h0001_100C,
+               ADDR_TIM_MOD = 32'h0001_1010,
+               ADDR_TIM_CNT = 32'h0001_1014,
+               ADDR_TIM_EVN = 32'h0001_1018,
+               ADDR_TIM_EVC = 32'h0001_101C;
 
     reg [31:0] TIM_PRE, TIM_ARE, TIM_CLR, TIM_ENA, TIM_MOD, TIM_EVC;
     wire [31:0] tim_cnt_wire, tim_evn_wire;

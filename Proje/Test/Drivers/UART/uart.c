@@ -19,6 +19,8 @@ void uart_send_char(char c) {
     // TX başlat (bit 0 = 1), aynı zamanda eski tx_done'ı temizler
     REG_WRITE(UART_CFG_ADDR, 0x01);
 
+    for(volatile int nop = 0; nop < 15; nop++);
+
     // tx_done (bit 2) set olana kadar bekle
     while ((REG_READ(UART_CFG_ADDR) & 0x4) == 0);
     
@@ -26,6 +28,7 @@ void uart_send_char(char c) {
     // Doğrudan 0x00 yazıyoruz, RMW kullanmıyoruz ki rx_ready (bit 1) bozulmasın.
     // Not: HW tarafında bit 1 zaten rx_done/rx_clear ile yönetiliyor.
     REG_WRITE(UART_CFG_ADDR, 0x00);
+    for(volatile int nop = 0; nop < 15; nop++);
 }
 
 void uart_send_string(const char *str) {
@@ -46,3 +49,36 @@ char uart_get_char(){
     return (char)REG_READ(UART_RDR_ADDR);
 }
 
+
+// 1 Byte'lık veriyi "A5", "0F" şeklinde Hex olarak yazdırır
+void uart_send_hex8(uint8_t val) {
+    static const char hex_chars[] = "0123456789ABCDEF";
+    uart_send_char(hex_chars[val >> 4]);   // Üst 4 bit
+    uart_send_char(hex_chars[val & 0x0F]); // Alt 4 bit
+}
+
+// 32-bit (Word) veriyi Hex olarak yazdırır
+void uart_send_hex32(uint32_t val) {
+    uart_send_hex8((val >> 24) & 0xFF);
+    uart_send_hex8((val >> 16) & 0xFF);
+    uart_send_hex8((val >> 8) & 0xFF);
+    uart_send_hex8(val & 0xFF);
+}
+
+// Okunan tüm buffer'ı başlık ile birlikte ekrana şıkça basar
+void uart_print_buffer(const char* label, uint8_t *buffer, uint32_t length) {
+    uart_send_string("\r\n[");
+    uart_send_string(label);
+    uart_send_string("] Verisi:\r\n");
+    
+    for (uint32_t i = 0; i < length; i++) {
+        uart_send_hex8(buffer[i]);
+        uart_send_char(' '); // Aralarına boşluk koy
+        
+        // Her 16 baytta bir alt satıra geç (Okunabilirliği artırır)
+        if ((i + 1) % 16 == 0) {
+            uart_send_string("\r\n");
+        }
+    }
+    uart_send_string("\r\n-----------------------\r\n");
+}

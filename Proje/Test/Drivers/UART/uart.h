@@ -20,3 +20,6 @@ void uart_send_string(const char*);
 char uart_get_char(void);
 uint8_t char_received(void);
 
+void uart_send_hex8(uint8_t val);
+void uart_send_hex32(uint32_t val);
+void uart_print_buffer(const char* label, uint8_t *buffer, uint32_t length);
