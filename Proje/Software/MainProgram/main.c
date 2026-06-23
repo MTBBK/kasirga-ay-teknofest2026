@@ -13,12 +13,12 @@ int main(void) {
     uart_send_string("[INFO] Flash Bellek Kimlik Sorgulaniyor...\r\n");
     
     uint32_t devID = config_READ_ID();
-    uart_send_string(" -> READ_ID (0x90) : 0x"); 
+    uart_send_string(" -> READ_ID (0x90) : "); 
     uart_send_hex32(devID); 
     uart_send_string("\r\n");
 
     uint32_t devID2 = config_RDID();
-    uart_send_string(" -> RDID    (0x9F) : 0x"); 
+    uart_send_string(" -> RDID    (0x9F) : "); 
     uart_send_hex32(devID2); 
     uart_send_string("\r\n\n");
 
