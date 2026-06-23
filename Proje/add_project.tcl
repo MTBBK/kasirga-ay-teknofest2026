@@ -87,6 +87,7 @@ set my_files [list \
 ]
 
 # 2. Dinamik olarak toplanacak klasörler
+lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/Accelerator/*.sv"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/MemoryFiles/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/QSPI/rtl/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/Timer/rtl/*"]
@@ -117,4 +118,4 @@ lappend sim_files {*}[glob -nocomplain "${PROJE_DIR}/Test/top_module_test/Flash_
 # Simülasyon dosyalarını sim_1 fileset'ine içe aktar
 import_files -force -fileset sim_1 $sim_files
 
-puts "Tüm Modül, CV32E40P kaynak dosyaları ve Flash Simülasyon Modeli başarıyla projeye import edildi!"
+puts "Tüm Modül, Yz Hızlandırıcı, CV32E40P kaynak dosyaları ve Flash Simülasyon Modeli başarıyla projeye import edildi!"
