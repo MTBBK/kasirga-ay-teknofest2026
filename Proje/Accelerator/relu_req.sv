@@ -1,5 +1,5 @@
 `timescale 1ns / 1ps
-module relu_req #(parameter scale= 1653229999 ,parameter shift=41)(//32 13 yaparsak çok az doğruluk kaybıyla devam edebiliyor büyük çarpma yerine tercih edilebilir belki
+module relu_req #(parameter scale= 1653229999 ,parameter shift=41, parameter zero_point= -128)(//32 13 yaparsak çok az doğruluk kaybıyla devam edebiliyor büyük çarpma yerine tercih edilebilir belki
 input logic clk,
 input logic rst,
 
@@ -31,7 +31,7 @@ output logic output_valid
 
     always_comb begin
         shifted = (scaled_val >>> shift);
-        shifted_zeropoint = shifted - 32'd128;
+        shifted_zeropoint = shifted + zero_point;//shifted - 32'd128;
         if (shifted_zeropoint > 32'sd127)begin
             final_out = 8'd127;
         end

@@ -22,20 +22,21 @@ module buffer_weight(
     logic [7:0] conv_weights [0:7][0:79];//8 kernel var her kernel flatten olunca 80 verisi var(10x8) her veri 8 bit?? 
     logic [6:0] count;
     
-    initial begin //TB İÇİN
-        for(int i = 0;i<8;i=i+1)begin 
-            for(int j= 0;j<80;j=j+1)begin 
-                if(i>4)begin 
-                    conv_weights[i][j] = 15*i-j;
-                end
-                else if(j>40)begin 
-                    conv_weights[i][j] = j-3*i;
-                end
-                else begin 
-                    conv_weights[i][j] = i+j;                
-                end
-            end
-        end
+    initial begin
+        $readmemh("conv_weights.mem", conv_weights);
+        //for(int i = 0;i<8;i=i+1)begin 
+        //    for(int j= 0;j<80;j=j+1)begin 
+        //        if(i>4)begin 
+        //            conv_weights[i][j] = 15*i-j;
+        //        end
+        //        else if(j>40)begin 
+        //            conv_weights[i][j] = j-3*i;
+        //        end
+        //        else begin 
+        //            conv_weights[i][j] = i+j;                
+        //        end
+        //    end
+        //end
     end
     
     always_ff @(posedge clk)begin

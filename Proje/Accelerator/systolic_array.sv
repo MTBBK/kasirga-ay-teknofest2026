@@ -58,7 +58,7 @@ output logic alloutputsready
     generate //parametrize edilebilir ama gereksiz yere karmaşık gösteredebilir
         for (i = 0;i<10;i=i+1) begin : chains
             for (j=0;j<8;j=j+1) begin : pe_ss
-                processing_element processyapanelement
+                processing_element #(.bias(i+1'b1)) processyapanelement //#(.bias(i+1'b1))bunu ekleyince biaslar oturmalı
                 (.clk(clk),
                 .rst(rst),
                 .bati_in(yataykablo[i][j]),

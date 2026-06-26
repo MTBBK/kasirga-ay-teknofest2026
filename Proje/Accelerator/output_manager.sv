@@ -27,10 +27,13 @@ output logic feederbasla
     logic signed [31:0] postp_in [0:7];
     logic signed [7:0] postp_out[0:7];
     logic invalid,outvalid;
+    
+    localparam int scalevals[0:7] = '{1653229999,1516545207,2000799311,1159928266,1498403863,1285645282,2146175029,1756589032};
+    localparam int shiftvals[0:7] = '{41,43,41,41,41,41,41,41};
     genvar i;
     generate
         for(i=0;i<8;i=i+1)begin: post_p
-            relu_req postprocess(
+            relu_req #(.scale(scalevals[i]),.shift(shiftvals[i]))postprocess(
                 .clk(clk),                
                 .rst(rst),          
                 .input_valid(invalid),                 

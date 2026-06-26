@@ -13,13 +13,15 @@ output logic [9:0]buff_read_addr
     logic [9:0]readaddres_counter;
     
     logic bitti;
+    logic [3:0] outputready;
     logic [7:0] yataykablo[0:4];
     logic [7:0] dikeykablo[0:1][0:3];
-    logic [31:0] outputs[0:3];
+    logic signed [31:0] outputs[0:3];
     
     logic [7:0] stagger1;
     logic [7:0] stagger2[0:1];
     logic [7:0] stagger3[0:2];
+    
     always_ff @(posedge clk)begin
         dikeykablo[0][1] <= stagger1;
         
@@ -37,13 +39,13 @@ output logic [9:0]buff_read_addr
     genvar i;
     generate
         for(i =0;i<4;i=i+1)begin:pe
-            processing_element processyapanelement
+            processing_element #(.bias(i+4'd9))processyapanelement
                 (.clk(clk),
                 .rst(rst),
                 .bati_in(yataykablo[i]),
                 .kuzey_in(dikeykablo[0][i]),
                 .interestregionfinished_i(bitti), 
-                .interestregionfinished_o(),
+                .interestregionfinished_o(outputready[i]),
                 .dogu_out(yataykablo[i+1'b1]),
                 .guney_out(dikeykablo[1][i]),
                 .outputs(outputs[i])
@@ -66,7 +68,8 @@ output logic [9:0]buff_read_addr
     always_ff @(posedge clk)begin//datayı al
         if(rst)begin
             readaddres_counter <= '0;
-            yataykablo[0] <= '0;              
+            yataykablo[0] <= '0;       
+            dikeykablo[0][0] <='0;
             stagger1 <= '0;     
             stagger2 <= '{default: '0};
             stagger3 <= '{default: '0};
@@ -75,7 +78,7 @@ output logic [9:0]buff_read_addr
             count <= '0;
             start_send <= 1'b0;
             current_state <= idle;
-            bitti <= 1'b0;
+            //bitti <= 1'b0;
         end
         else begin
             case(current_state)
@@ -137,11 +140,14 @@ output logic [9:0]buff_read_addr
     
     logic we;
     logic [31:0]din;
+    logic [3:0] bitti_stagger;
+    assign bitti = bitti_stagger[3];
     
     always_ff @(posedge clk)begin//ağırlıkları ver
         if(rst)begin
             we <= 0;
             din <= '0;
+            bitti_stagger <= '0;
         end
         else begin
             dikeykablo[0][0] <= '0;
@@ -154,15 +160,56 @@ output logic [9:0]buff_read_addr
                 stagger2[0] <= weight_buffer_data[23:16];
                 stagger3[0] <= weight_buffer_data[31:24];
                 if(sendcount != 7'd79)begin
-                                weight_buffer_addr <= weight_buffer_addr + 1'b1;
+                    weight_buffer_addr <= weight_buffer_addr + 1'b1;
                 end
+                
+            end
+            
+            if(weight_buffer_addr == 12'd4000)begin
+                bitti_stagger[0] <= 1'b1;
+                weight_buffer_addr <= '0;
+            end
+            else begin 
+                bitti_stagger <= bitti_stagger << 1;
+            end
+        end
+    end
+    
+    logic signed [7:0]resultvals[0:3];
+    logic signed [7:0]requantization_outputs[0:3];
+    logic [3:0]req_output_valid;
+    genvar j;
+    generate
+        for(j = 0; j< 4 ;j = j+1)begin: req_unit
+            relu_req #(.scale(32'sd1932201080),.shift(6'd42),.zero_point(4'd14)) fc_requantization(
+                .clk(clk),
+                .rst(rst),
+               
+                .input_valid(&outputready),
+                
+                .data_in(outputs[j]),
+                .data_out(requantization_outputs[j]),
+                .output_valid(req_output_valid[j])
+            );        
+        end
+    endgenerate
+    
+    always_ff @(posedge clk) begin 
+        if(rst)begin 
+            resultvals <= '{default:'0};   
+        end
+        else begin
+            //
+            if(&req_output_valid)begin
+                resultvals <= requantization_outputs;
             end
         end
     end
     
     bufferv3  #(
     .DATA_WIDTH(32),
-    .ADDR_WIDTH(12)) fcweights
+    .ADDR_WIDTH(12),
+    .FCWEIGHTS(1)) fcweights
     (
         .clk(clk),
         .write_enable(we),
