@@ -8,7 +8,8 @@ input logic clk,
 input logic rst,
 input logic basla,//writeenable,
 input logic [63:0]buff_read_data,
-output logic [9:0]buff_read_addr
+output logic [9:0]buff_read_addr,
+output logic signed [7:0]resultvals[0:3]
     );
     logic [9:0]readaddres_counter;
     
@@ -175,7 +176,7 @@ output logic [9:0]buff_read_addr
         end
     end
     
-    logic signed [7:0]resultvals[0:3];
+    //logic signed [7:0]resultvals[0:3];
     logic signed [7:0]requantization_outputs[0:3];
     logic [3:0]req_output_valid;
     genvar j;
