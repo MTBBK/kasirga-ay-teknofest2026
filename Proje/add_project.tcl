@@ -88,6 +88,8 @@ set my_files [list \
 
 # 2. Dinamik olarak toplanacak klasörler
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/Accelerator/*.sv"]
+lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/Accelerator/Softmax/rtl/*.sv"]
+lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/Accelerator/Softmax/memoryfiles/*.mem"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/MemoryFiles/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/QSPI/rtl/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/Timer/rtl/*"]
@@ -107,6 +109,9 @@ set sim_files [list \
 ]
 
 # top_module_test dizinindeki tüm sv/v dosyalarını al (Testbench vs.)
+lappend sim_files {*}[glob -nocomplain "${PROJE_DIR}/Accelerator/testbenches/*"]
+lappend sim_files {*}[glob -nocomplain "${PROJE_DIR}/Accelerator/Softmax/test/*.sv"]
+
 lappend sim_files {*}[glob -nocomplain "${PROJE_DIR}/Test/top_module_test/*.sv" "${PROJE_DIR}/Test/top_module_test/Flash_Verilog_Sim_Model/*.v"]
 
 # Flash Modeli: include klasörü (.h, .vh, vb.)

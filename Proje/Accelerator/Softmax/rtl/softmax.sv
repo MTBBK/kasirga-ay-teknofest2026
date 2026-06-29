@@ -9,11 +9,11 @@ module softmax(
     input logic signed [7:0] in_1,
     input logic signed [7:0] in_2,
     input logic signed [7:0] in_3,
-    output logic [7:0] out_0,
-    output logic [7:0] out_1,
-    output logic [7:0] out_2,
-    output logic [7:0] out_3,
-    output logic done_o
+    output logic signed [7:0] out_0,
+    output logic signed [7:0] out_1,
+    output logic signed [7:0] out_2,
+    output logic signed [7:0] out_3,
+    output logic  done_o
     );
     logic [8:0] ds_0;
     logic [8:0] ds_1;
@@ -105,6 +105,7 @@ module softmax(
     );
     logic mult_start;
     assign mult_start=exp_done_buf&rec_done;
+    logic [7:0] mult_out_0,mult_out_1,mult_out_2,mult_out_3;
     multiplier mult(
         .clk_i(clk_i),     
         .rst_n_i(rst_n_i),   
@@ -115,13 +116,19 @@ module softmax(
         .in_exp_2(exp_buf_2),
         .in_exp_3(exp_buf_3),
         .in_rec(reciprocal_val),  
-        .out_0(out_0),   
-        .out_1(out_1),   
-        .out_2(out_2),   
-        .out_3(out_3)    
+        .out_0(mult_out_0),   
+        .out_1(mult_out_1),   
+        .out_2(mult_out_2),   
+        .out_3(mult_out_3)    
     );
-    
+   
+    // TFLite INT8 Format Dönüşümü: 128 Çıkarmak yerine SADECE 7. Biti Ters Çeviriyoruz (0 Donanım Maliyeti)
+    assign out_0 = { ~mult_out_0[7], mult_out_0[6:0] };
+    assign out_1 = { ~mult_out_1[7], mult_out_1[6:0] };
+    assign out_2 = { ~mult_out_2[7], mult_out_2[6:0] };
+    assign out_3 = { ~mult_out_3[7], mult_out_3[6:0] };
 endmodule
+
 
 
 
