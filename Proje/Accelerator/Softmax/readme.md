@@ -1,22 +1,20 @@
 # Softmax İşlemi Verilog İmplementasyonu
 
-
-
 ---
 
 ## Modül Tasarımları ve Fonksiyonları
 
 ### 1. Downscale
 Verilen 4 adet giriş değeri arasından en büyüğünü ($X_{max}$) bulur ve taşmayı (overflow) önlemek için tüm değerlerden çıkarır. 
-* **Matematiksel İşlem:** $X'_i = X_i - \max(X_i) $
+* **Matematiksel İşlem:** $X'_i = X_i - \max(X_i)$
 * **Tasarım Amacı:** Bu işlem sonucunda en büyük girdi $0$ değerini alırken, diğer tüm girdiler negatif ($0$ ile $-255$ arasında) hale gelir. Sayıların üstel olarak devasa boyutlara ulaşıp donanımı taşırması engellenmiş olur. Sonuçlar güvenli işlem için `signed 9-bit` olarak aktarılır.
 
 ### 2. Exponential
 $e^x$ fonksiyonunu donanım üzerinde hesaplamak yüksek maliyetlidir. Ardışık bölme ve çarpma işlemleri içeren **Taylor Serisi** yöntemi, hem yüksek donanım alanı kapladığı hem de yüksek doğruluk için çok fazla terim (çevrim) gerektirdiği için tercih edilmemiştir. 
 
 Giriş değerleri sınırlı (8-bit) olduğundan, bu katmanda **LUT (Look-Up Table / Arama Tablosu)** yöntemi kullanılmıştır.
-* **Matematiksel İşlem:** $E_i = e^{-|X'_i|} \times 255$
-* **Tasarım Amacı:** Giriş değerleri negatif aralıkta olduğundan, mutlak değer alındığında üstel fonksiyon negatif bir üsse ($e^{-|x|}$) sahip olur. Böylece sonuç her zaman $0$ ile $1$ arasında kalır. Formüldeki $255$ katsayısı, $0.0 - 1.0$ arasındaki olasılık tabanını donanımın anlayacağı $0 - 255$ tam sayı aralığına (Q0.8 formatı) ölçeklemek için kullanılır. ROM tablosu 256 satırdan oluşur ve değerler Python betiği ile üretilmiştir.
+* **Matematiksel İşlem:** $E_i = e^{-|X'_i| \times Scale} \times 255$
+* **Tasarım Amacı:** Mutlak değer alındığında üstel fonksiyon negatif bir üsse sahip olur ve sonuç her zaman $0$ ile $1$ arasında kalır. Formüle eklenen **$Scale$** katsayısı, TensorFlow Lite modelinden çekilen nicemleme (quantization) katsayısıdır. Bu değer doğrudan ROM üretim betiğine (Python) gömülmüş, böylece donanımda ekstra bir çarpıcı (DSP bloğu) kullanılmadan yazılımsal TFLite modeli ile yüksek doğruluklu olasılıkların üretilmesi sağlanmıştır. Çıkıştaki $255$ çarpanı sonucu Q0.8 formatına getirir.
 
 ### 3. Accumulator
 Aynı veri paketine ait tüm üstel sonuçları toplayarak Softmax formülünün payda (olasılık tabanı) kısmını oluşturur.
@@ -32,17 +30,24 @@ Accumulator modülünden gelen toplam değerini ($S$), bölme işleminin donanı
 Boru hattının (pipeline) senkronizasyonunu sağlayan zamanlama modülüdür. 
 * **Tasarım Amacı:** Exponential modülünden çıkan $E_i$ değerlerini ve buna bağlı geçerlilik (valid/done) sinyalini **2 saat çevrimi (cycle)** boyunca bekletir. Bu 2 çevrimlik süre zarfında paralel kolda çalışan Accumulator ve Reciprocal modülleri işlemlerini tamamlar. Böylece ilgili veriler Multiplier modülünün girişine tam olarak aynı anda ulaşmış olur.
 
-### 6. Multiplier
-Boru hattından gelen dengelenmiş üstel değerler ($E_i$) ile Reciprocal modülünden çıkan ters katsayıyı ($R$) çarpar.
-* **Matematiksel İşlem:** $\text{out}_i = (E_i \times R) \gg 16$
-* **Tasarım Amacı:** 8-bit ve 16-bit iki değer çarpılarak 24-bitlik bir ara sonuç elde edilir. Çıkan sonucun en üst 8 biti (`[23:16]`) alınarak sağa doğru 16 bit kaydırma (Shift Right) yapılır. Bu kaydırma işlemi, Reciprocal modülünde hassasiyeti korumak için yapılan $65536$ ile çarpma işlemini donanımsal olarak sıfır maliyetle tersine çevirir (normalizasyon).
+### 6. Multiplier ve Çıkış Katmanı (INT8 TFLite Dönüşümü)
+Boru hattından gelen dengelenmiş üstel değerler ($E_i$) ile Reciprocal modülünden çıkan ters katsayıyı ($R$) çarpar ve sonucu TFLite uyumlu formata dönüştürür.
+* **Matematiksel Çarpım:** $AraSonuc_i = (E_i \times R) \gg 16$
+* **INT8 Çıkış Formatı:** $out_i = AraSonuc_i - 128$
+* **Tasarım Amacı (Sıfır Maliyet Optimizasyonu):** Çarpım sonucunda elde edilen verinin alt 16 biti atılarak (Shift Right) $65536$ hassasiyet çarpanı tersine çevrilir ve veri $0-255$ (UINT8) formatına oturur. TensorFlow Lite standartlarında Softmax çıkışları $-128$ ile $+127$ (INT8) aralığındadır. Sayıyı bu aralığa çekmek için donanımda çıkarıcı (subtractor) devresi kurmak yerine, sadece **En Anlamlı Bit (MSB - 7. bit) ters çevrilmiştir (Invert)**. Bu işlem, donanımda hiçbir mantık kapısı (0 LUT) harcamadan sıfır maliyetle TFLite INT8 formatına geçiş sağlar.
 
 ---
 
 ## Yazılım (C/C++) Entegrasyonu
 
-Hızlandırıcı donanımdan çıkan nihai değerler, orijinal Softmax fonksiyonunun **255 ile çarpılmış** halidir (`unsigned 8-bit`). Bu değerlerin yazılım (MCU/CPU) tarafında gerçek birer olasılık yüzdesine ($0.0 - 1.0$) dönüştürülmesi için **255.0** değerine bölünmesi gerekir:
+Donanım modülünden çıkan değerler artık TFLite uyumlu `int8_t` (işaretli tam sayı) formatındadır ($-128$ ile $+127$ arası). Bu çıkışların işlemci (MCU/CPU) tarafında gerçek birer olasılık yüzdesine ($0.0 - 1.0$) dönüştürülmesi için standart TFLite `Dequantize` formülü uygulanmalıdır:
 
 ```c
-uint8_t hw_result = read_softmax_output(REG_OUT_0);
-float probability = (float)hw_result / 255.0f;
+// Donanımdan gelen 8-bit işaretli değeri oku
+int8_t hw_result = read_softmax_output(REG_OUT_0);
+
+// Değeri 0.0 ile 1.0 arasında bir Float'a çevir (TFLite Dequantize işlemi)
+float probability = (hw_result + 128.0f) / 256.0f;
+
+// Artık olasılığı yüzdelik olarak kullanabilirsiniz
+printf("Sınıf Olasılığı: %%%.2f\n", probability * 100);
