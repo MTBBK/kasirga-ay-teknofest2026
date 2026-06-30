@@ -63,7 +63,7 @@ module axi4_dma_loader #(
     logic [5:0] col_idx; 
 
     //combinational straddle math
-    //tracks where the current 4-byte AXI word belongs in the padded 2D grid
+    //tracks where the current 4-byte axi word belongs in the padded 2D grid
     logic [12:0] current_byte_idx;
     assign current_byte_idx=(row_idx + PAD_TOP)* PADDED_W+PAD_LEFT+col_idx;
 
@@ -78,10 +78,10 @@ module axi4_dma_loader #(
     logic [63:0] din_0, din_1;
     
     //slices the 32-bit axi data into the correct byte lanes of the 64-bit bram
-    assign we_0=8'(8'h0F << offset);
-    assign din_0=64'(M_AXI_RDATA) << (offset * 8);
-    assign we_1=8'(8'h0F >> (8 - offset));
-    assign din_1=64'(M_AXI_RDATA) >> ((8 - offset) * 8);
+    assign we_0=8'(8'h0F<<offset);
+    assign din_0=64'(M_AXI_RDATA)<<(offset * 8);
+    assign we_1=8'(8'h0F>>(8 - offset));
+    assign din_1=64'(M_AXI_RDATA)>>((8 - offset) * 8);
 
     //save registers for straddling boundaries
     logic [7:0] saved_we_1;
@@ -157,7 +157,7 @@ module axi4_dma_loader #(
                                 else state<=PASS2_REQ;
                             end
                         end else begin
-                            //data straddles a bram word boundary  save spillover.
+                            //data straddles a bram word boundary save spillover.
                             saved_we_1<=we_1;
                             saved_din_1<=din_1;
                             saved_addr_1<=bram_addr_1;
@@ -176,11 +176,11 @@ module axi4_dma_loader #(
                     loader_addr<=saved_addr_1;
 
                     col_idx<=col_idx+4;
-                    M_AXI_RREADY <= 1'b1; //resume axi bus
+                    M_AXI_RREADY<=1'b1; //resume axi bus
 
                     if (saved_rlast) begin
                         M_AXI_RREADY<=1'b0;
-                        row_idx<=row_idx + 1;
+                        row_idx<=row_idx+1;
                         col_idx<='0;
                         if (row_idx==REAL_H-1) state<=DONE;
                         else state<=PASS2_REQ;
