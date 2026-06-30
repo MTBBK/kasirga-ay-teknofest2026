@@ -106,7 +106,7 @@ int setup_uart(const char *device) {
     return fd;
 }
 int main() {
-    int fd = setup_uart("/dev/ttyUSB0");
+    int fd = setup_uart("/dev/ttyUSB1");
     char input[32];
 
     printf("AAAAAAAAAAAAAAAAAAAA: ");
