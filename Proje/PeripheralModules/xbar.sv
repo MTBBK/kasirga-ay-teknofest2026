@@ -219,7 +219,55 @@ module xbar(
     input wire rvalid_slv7,
     output wire rready_slv7,
     input wire [1:0] rresp_slv7,
-    input wire [31:0] rdata_slv7
+    input wire [31:0] rdata_slv7,
+    
+     // SLAVE9 (Hizlandirici)
+    // WRITE ADDRESS CHANNEL
+    output wire         awvalid_slv8,
+    input wire          awready_slv8,
+    output wire [31:0]  awaddr_slv8,
+    // WRITE DATA CHANNEL
+    output wire         wvalid_slv8,
+    input wire          wready_slv8,
+    output wire [31:0]  wdata_slv8,
+    output wire [3:0]   wstrb_slv8,
+    // WRITE RESPONSE CHANNEL
+    input wire          bvalid_slv8,
+    output wire         bready_slv8,
+    input wire [1:0]    bresp_slv8,
+    // READ ADDRESS CHANNEL
+    output wire         arvalid_slv8,
+    input wire          arready_slv8,
+    output wire [31:0]  araddr_slv8,
+    // READ DATA CHANNEL
+    input wire          rvalid_slv8,
+    output wire         rready_slv8,
+    input wire [1:0]    rresp_slv8,
+    input wire [31:0]   rdata_slv8,
+    
+     // SLAVE9 (Hizlandirici)
+    // WRITE ADDRESS CHANNEL
+    output wire         awvalid_slv9,
+    input wire          awready_slv9,
+    output wire [31:0]  awaddr_slv9,
+    // WRITE DATA CHANNEL
+    output wire         wvalid_slv9,
+    input wire          wready_slv9,
+    output wire [31:0]  wdata_slv9,
+    output wire [3:0]   wstrb_slv9,
+    // WRITE RESPONSE CHANNEL
+    input wire          bvalid_slv9,
+    output wire         bready_slv9,
+    input wire [1:0]    bresp_slv9,
+    // READ ADDRESS CHANNEL
+    output wire         arvalid_slv9,
+    input wire          arready_slv9,
+    output wire [31:0]  araddr_slv9,
+    // READ DATA CHANNEL
+    input wire          rvalid_slv9,
+    output wire         rready_slv9,
+    input wire [1:0]    rresp_slv9,
+    input wire [31:0]   rdata_slv9
 );
     reg [8:0] select_slv;
     always @(*) begin
@@ -229,11 +277,13 @@ module xbar(
             if ((awaddr_master[19:12] >= 8'h01) && (awaddr_master[19:12] < 8'h03))select_slv = 10'b0000000001; //SLAVE 0 (Instructıon Mem)
             else if ((awaddr_master[15:12] >= 4'h3)&&(awaddr_master[15:12] <= 4'h4))  select_slv = 10'b0000000010; // SLAVE 1 (Data Mem)
             else if (awaddr_master[15:12] == 4'h7)   select_slv = 10'b0000000100; // SLAVE 2 (GPIO)
-            else if (awaddr_master[19:12] == 8'h11)   select_slv = 10'b0000001000; // SLAVE 3 (Timer)
+            else if (awaddr_master[19:12] == 8'h11)  select_slv = 10'b0000001000; // SLAVE 3 (Timer)
             else if (awaddr_master[15:12] == 4'h5)   select_slv = 10'b0000010000; // SLAVE 4 (UART)
             else if (awaddr_master[15:12] == 4'h6)   select_slv = 10'b0000100000; // SLAVE 5 (UART Stream)
             else if (awaddr_master[15:12] == 4'h8)   select_slv = 10'b0001000000; // SLAVE 6 (I2C)
             else if (awaddr_master[15:12] == 4'h9)   select_slv = 10'b0010000000; // SLAVE 7 (QSPI)
+            else if (awaddr_master[19:12] == 8'h10)  select_slv = 10'b0100000000; // SLAVE 8 (JTAG)
+            else if (awaddr_master[19:12] == 8'h12)  select_slv = 10'b1000000000; // SLAVE 9 (Hizlandirici)
             else select_slv = 10'b0;
         end
         else if (arvalid_master) begin
@@ -245,6 +295,8 @@ module xbar(
             else if (araddr_master[15:12] == 4'h6)   select_slv = 10'b0000100000; // SLAVE 5 (UART Stream)
             else if (araddr_master[15:12] == 4'h8)   select_slv = 10'b0001000000; // SLAVE 6 (I2C)
             else if (araddr_master[15:12] == 4'h9)   select_slv = 10'b0010000000; // SLAVE 7 (QSPI)
+            else if (araddr_master[19:12] == 8'h10)  select_slv = 10'b0100000000; // SLAVE 8 (JTAG)
+            else if (araddr_master[19:12] == 8'h12)  select_slv = 10'b1000000000; // SLAVE 9 (Hizlandirici)
             else select_slv = 10'b0;
         end
         else if (bvalid_slv0 || rvalid_slv0) select_slv = 10'b0000000001;
@@ -255,6 +307,8 @@ module xbar(
         else if (bvalid_slv5 || rvalid_slv5) select_slv = 10'b0000100000;
         else if (bvalid_slv6 || rvalid_slv6) select_slv = 10'b0001000000;
         else if (bvalid_slv7 || rvalid_slv7) select_slv = 10'b0010000000;
+        else if (bvalid_slv8 || rvalid_slv8) select_slv = 10'b0100000000;
+        else if (bvalid_slv9 || rvalid_slv9) select_slv = 10'b1000000000;
     end
 
     //Master to Slave Muxing
@@ -304,47 +358,60 @@ module xbar(
     assign awvalid_slv6 = select_slv[6] & awvalid_master; assign awaddr_slv6 = awaddr_master; assign wvalid_slv6 = select_slv[6] & wvalid_master; assign wdata_slv6 = wdata_master; assign wstrb_slv6 = wstrb_master; assign bready_slv6 = select_slv[6] & bready_master; assign arvalid_slv6 = select_slv[6] & arvalid_master; assign araddr_slv6 = araddr_master; assign rready_slv6 = select_slv[6] & rready_master;
     // SLV7
     assign awvalid_slv7 = select_slv[7] & awvalid_master; assign awaddr_slv7 = awaddr_master; assign wvalid_slv7 = select_slv[7] & wvalid_master; assign wdata_slv7 = wdata_master; assign wstrb_slv7 = wstrb_master; assign bready_slv7 = select_slv[7] & bready_master; assign arvalid_slv7 = select_slv[7] & arvalid_master; assign araddr_slv7 = araddr_master; assign rready_slv7 = select_slv[7] & rready_master;
+    //SLV8
+    assign awvalid_slv8 = select_slv[8] & awvalid_master; assign awaddr_slv8 = awaddr_master; assign wvalid_slv8 = select_slv[8] & wvalid_master; assign wdata_slv8 = wdata_master; assign wstrb_slv8 = wstrb_master; assign bready_slv8 = select_slv[8] & bready_master; assign arvalid_slv8 = select_slv[8] & arvalid_master; assign araddr_slv8 = araddr_master; assign rready_slv8 = select_slv[8] & rready_master;
+    //SLV9
+    assign awvalid_slv9 = select_slv[9] & awvalid_master; assign awaddr_slv9 = awaddr_master; assign wvalid_slv9 = select_slv[9] & wvalid_master; assign wdata_slv9 = wdata_master; assign wstrb_slv9 = wstrb_master; assign bready_slv9 = select_slv[9] & bready_master; assign arvalid_slv9 = select_slv[9] & arvalid_master; assign araddr_slv9 = araddr_master; assign rready_slv9 = select_slv[9] & rready_master;    
 
     //Signals from the selected slave are routed back to the master.
 
     assign awready_master = (select_slv[0] & awready_slv0) | (select_slv[1] & awready_slv1) |
                             (select_slv[2] & awready_slv2) | (select_slv[3] & awready_slv3) |
                             (select_slv[4] & awready_slv4) | (select_slv[5] & awready_slv5) |
-                            (select_slv[6] & awready_slv6) | (select_slv[7] & awready_slv7);
+                            (select_slv[6] & awready_slv6) | (select_slv[7] & awready_slv7) |
+                            (select_slv[8] & awready_slv8) | (select_slv[9] & awready_slv9);
 
     assign wready_master  = (select_slv[0] & wready_slv0)  | (select_slv[1] & wready_slv1)  |
                             (select_slv[2] & wready_slv2)  | (select_slv[3] & wready_slv3)  |
                             (select_slv[4] & wready_slv4)  | (select_slv[5] & wready_slv5)  |
-                            (select_slv[6] & wready_slv6)  | (select_slv[7] & wready_slv7);
+                            (select_slv[6] & wready_slv6)  | (select_slv[7] & wready_slv7)  |
+                            (select_slv[8] & wready_slv8)  | (select_slv[9] & wready_slv9);
 
     assign bvalid_master  = (select_slv[0] & bvalid_slv0)  | (select_slv[1] & bvalid_slv1)  |
                             (select_slv[2] & bvalid_slv2)  | (select_slv[3] & bvalid_slv3)  |
                             (select_slv[4] & bvalid_slv4)  | (select_slv[5] & bvalid_slv5)  |
-                            (select_slv[6] & bvalid_slv6)  | (select_slv[7] & bvalid_slv7);
+                            (select_slv[6] & bvalid_slv6)  | (select_slv[7] & bvalid_slv7)  |
+                            (select_slv[8] & bvalid_slv8)  | (select_slv[9] & bvalid_slv9);
 
     assign bresp_master   = (select_slv[0] ? bresp_slv0 : 2'b0)   | (select_slv[1] ? bresp_slv1 : 2'b0)   |
                             (select_slv[2] ? bresp_slv2 : 2'b0)   | (select_slv[3] ? bresp_slv3 : 2'b0)   |
                             (select_slv[4] ? bresp_slv4 : 2'b0)   | (select_slv[5] ? bresp_slv5 : 2'b0)   |
-                            (select_slv[6] ? bresp_slv6 : 2'b0)   | (select_slv[7] ? bresp_slv7 : 2'b0);
+                            (select_slv[6] ? bresp_slv6 : 2'b0)   | (select_slv[7] ? bresp_slv7 : 2'b0)   |
+                            (select_slv[8] ? bresp_slv8 : 2'b0)   | (select_slv[9] ? bresp_slv9 : 2'b0);
 
     assign arready_master = (select_slv[0] & arready_slv0) | (select_slv[1] & arready_slv1) |
                             (select_slv[2] & arready_slv2) | (select_slv[3] & arready_slv3) |
                             (select_slv[4] & arready_slv4) | (select_slv[5] & arready_slv5) |
-                            (select_slv[6] & arready_slv6) | (select_slv[7] & arready_slv7);
+                            (select_slv[6] & arready_slv6) | (select_slv[7] & arready_slv7) |
+                            (select_slv[8] & arready_slv8) | (select_slv[9] & arready_slv9);
 
     assign rvalid_master  = (select_slv[0] & rvalid_slv0)  | (select_slv[1] & rvalid_slv1)  |
                             (select_slv[2] & rvalid_slv2)  | (select_slv[3] & rvalid_slv3)  |
                             (select_slv[4] & rvalid_slv4)  | (select_slv[5] & rvalid_slv5)  |
-                            (select_slv[6] & rvalid_slv6)  | (select_slv[7] & rvalid_slv7);
+                            (select_slv[6] & rvalid_slv6)  | (select_slv[7] & rvalid_slv7)  |
+                            (select_slv[8] & rvalid_slv8)  | (select_slv[9] & rvalid_slv9);
 
     assign rresp_master   = (select_slv[0] ? rresp_slv0 : 2'b0)   | (select_slv[1] ? rresp_slv1 : 2'b0)   |
                             (select_slv[2] ? rresp_slv2 : 2'b0)   | (select_slv[3] ? rresp_slv3 : 2'b0)   |
                             (select_slv[4] ? rresp_slv4 : 2'b0)   | (select_slv[5] ? rresp_slv5 : 2'b0)   |
-                            (select_slv[6] ? rresp_slv6 : 2'b0)   | (select_slv[7] ? rresp_slv7 : 2'b0);
+                            (select_slv[6] ? rresp_slv6 : 2'b0)   | (select_slv[7] ? rresp_slv7 : 2'b0)   |
+                            (select_slv[8] ? rresp_slv8 : 2'b0)   | (select_slv[9] ? rresp_slv9 : 2'b0);
 
     assign rdata_master   = (select_slv[0] ? rdata_slv0 : 32'b0)  | (select_slv[1] ? rdata_slv1 : 32'b0)  |
                             (select_slv[2] ? rdata_slv2 : 32'b0)  | (select_slv[3] ? rdata_slv3 : 32'b0)  |
                             (select_slv[4] ? rdata_slv4 : 32'b0)  | (select_slv[5] ? rdata_slv5 : 32'b0)  |
-                            (select_slv[6] ? rdata_slv6 : 32'b0)  | (select_slv[7] ? rdata_slv7 : 32'b0);
+                            (select_slv[6] ? rdata_slv6 : 32'b0)  | (select_slv[7] ? rdata_slv7 : 32'b0)  |
+                            (select_slv[8] ? rdata_slv8 : 32'b0)  | (select_slv[9] ? rdata_slv9 : 32'b0);
 
 endmodule
+

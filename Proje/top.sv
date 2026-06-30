@@ -303,6 +303,54 @@ module top(
     wire [1:0] rresp_slv7;
     wire [31:0] rdata_slv7;
     
+    // SLAVE8 (JTAG)
+    // WRITE ADDRESS CHANNEL
+     wire awvalid_slv8;
+    wire awready_slv8;
+     wire [31:0] awaddr_slv8;
+    // WRITE DATA CHANNEL
+     wire wvalid_slv8;
+    wire wready_slv8;
+     wire [31:0] wdata_slv8;
+     wire [3:0] wstrb_slv8;
+    // WRITE RESPONSE CHANNEL
+    wire bvalid_slv8;
+     wire bready_slv8;
+    wire [1:0] bresp_slv8;
+    // READ ADDRESS CHANNEL
+    wire arvalid_slv8;
+    wire arready_slv8;
+    wire [31:0] araddr_slv8;
+    // READ DATA CHANNEL
+    wire rvalid_slv8;
+     wire rready_slv8;
+    wire [1:0] rresp_slv8;
+    wire [31:0] rdata_slv8;
+    
+    // SLAVE9 (Hizlandirici)
+    // WRITE ADDRESS CHANNEL
+     wire awvalid_slv9;
+    wire awready_slv9;
+     wire [31:0] awaddr_slv9;
+    // WRITE DATA CHANNEL
+     wire wvalid_slv9;
+    wire wready_slv9;
+     wire [31:0] wdata_slv9;
+     wire [3:0] wstrb_slv9;
+    // WRITE RESPONSE CHANNEL
+    wire bvalid_slv9;
+     wire bready_slv9;
+    wire [1:0] bresp_slv9;
+    // READ ADDRESS CHANNEL
+    wire arvalid_slv9;
+    wire arready_slv9;
+    wire [31:0] araddr_slv9;
+    // READ DATA CHANNEL
+    wire rvalid_slv9;
+     wire rready_slv9;
+    wire [1:0] rresp_slv9;
+    wire [31:0] rdata_slv9;
+    
     
     //AI Accelerator Axi Signals
     // WRITE ADDRESS CHANNEL
@@ -485,6 +533,24 @@ module top(
                                                                                          
     
     );
+    logic uart_stream_rx;
+    logic uart_stream_tx;
+    uart_top #(.baud_rate(uart_baud_rate),.clock_frequency(clk_freq_Mhz)) uart_stream_inst(   
+              .S_AXI_ACLK(clk_i),     
+              .S_AXI_ARESETN(rst_n_i), 
+              .uart_rx_i(uart_stream_rx),
+              .uart_tx_o(uart_stream_tx),
+              .S_AXI_AWVALID(awvalid_slv5), .S_AXI_AWREADY(awready_slv5), .S_AXI_AWADDR(awaddr_slv5),
+              .S_AXI_WDATA(wdata_slv5),     .S_AXI_WSTRB(wstrb_slv5), .S_AXI_WVALID(wvalid_slv5), .S_AXI_WREADY(wready_slv5) ,
+              .S_AXI_BVALID(bvalid_slv5),   .S_AXI_BREADY(bready_slv5), .S_AXI_BRESP(bresp_slv5),
+              
+              .S_AXI_ARVALID(arvalid_slv5), .S_AXI_ARREADY(arready_slv5), .S_AXI_ARADDR(araddr_slv5),
+              .S_AXI_RVALID(rvalid_slv5),   .S_AXI_RREADY(rready_slv5),   .S_AXI_RDATA(rdata_slv5), .S_AXI_RRESP(rresp_slv5)
+    );
+    
+    accelerator_top accelerator_top_inst (
+    
+    );
 
 
 
@@ -655,7 +721,43 @@ module top(
             .rvalid_slv7(rvalid_slv7),
             .rready_slv7(rready_slv7),
             .rresp_slv7(rresp_slv7),
-            .rdata_slv7(rdata_slv7)
+            .rdata_slv7(rdata_slv7),
+            
+            .awvalid_slv8(awvalid_slv8),
+            .awready_slv8(awready_slv8),
+            .awaddr_slv8(awaddr_slv8),
+            .wvalid_slv8(wvalid_slv8),
+            .wready_slv8(wready_slv8),
+            .wdata_slv8(wdata_slv8),
+            .wstrb_slv8(wstrb_slv8),
+            .bvalid_slv8(bvalid_slv8),
+            .bready_slv8(bready_slv8),
+            .bresp_slv8(bresp_slv8),
+            .arvalid_slv8(arvalid_slv8),
+            .arready_slv8(arready_slv8),
+            .araddr_slv8(araddr_slv8),
+            .rvalid_slv8(rvalid_slv8),
+            .rready_slv8(rready_slv8),
+            .rresp_slv8(rresp_slv8),
+            .rdata_slv8(rdata_slv8),
+            
+            .awvalid_slv9(awvalid_slv9),
+            .awready_slv9(awready_slv9),
+            .awaddr_slv9(awaddr_slv9),
+            .wvalid_slv9(wvalid_slv9),
+            .wready_slv9(wready_slv9),
+            .wdata_slv9(wdata_slv9),
+            .wstrb_slv9(wstrb_slv9),
+            .bvalid_slv9(bvalid_slv9),
+            .bready_slv9(bready_slv9),
+            .bresp_slv9(bresp_slv9),
+            .arvalid_slv9(arvalid_slv9),
+            .arready_slv9(arready_slv9),
+            .araddr_slv9(araddr_slv9),
+            .rvalid_slv9(rvalid_slv9),
+            .rready_slv9(rready_slv9),
+            .rresp_slv9(rresp_slv9),
+            .rdata_slv9(rdata_slv9)
     );
     
     //XBAR R/O
@@ -798,30 +900,74 @@ module top(
         .BREADY(bready_slv1),
         .WVALID(wvalid_slv1),
         
-        .AWVALID_DMA(awvalid_ac),
-        .ARREADY_DMA(arready_ac),
-        .AWREADY_DMA(awready_ac),
-        .AWADDR_DMA(awaddr_ac),
-        .WVALID_DMA(wvalid_ac),
-        .WREADY_DMA(wready_ac),
-        .WDATA_DMA(wdata_ac),
-        .WSTRB_DMA(wstrb_ac),
-        .BVALID_DMA(bvalid_ac),
-        .BREADY_DMA(bready_ac),
-        .ARVALID_DMA(arvalid_ac),
-        .ARADDR_DMA(araddr_ac),
-        .RVALID_DMA(rvalid_ac),
-        .RREADY_DMA(rready_ac),
-        .RDATA_DMA(rdata_ac),
+        .AWVALID_DMA(),
+        .ARREADY_DMA(),
+        .AWREADY_DMA(),
+        .AWADDR_DMA(),
+        .WVALID_DMA(),
+        .WREADY_DMA(),
+        .WDATA_DMA(),
+        .WSTRB_DMA(),
+        .BVALID_DMA(),
+        .BREADY_DMA(),
+        .ARVALID_DMA(),
+        .ARADDR_DMA(),
+        .RVALID_DMA(),
+        .RREADY_DMA(),
+        .RDATA_DMA(),
         
-        .ARLEN_DMA(arlen_ac),
-        .RLAST_DMA(rlast_ac),
+        .ARLEN_DMA(),
+        .RLAST_DMA(),
         
-        .AWLEN_DMA(awlen_ac),
-        .WLAST_DMA(wlast_ac)
-       
+        .AWLEN_DMA(),
+        .WLAST_DMA()
         );
-
+        
+        //Accelerator Memory
+        memory_axi#(
+        .BASE_ADDRESS(32'h0000_3000)
+        ) accelerator_memory(
+        .clk(clk_i),
+        .rst_i(rst_n_i),
+        .ARADDR(),
+        .ARVALID(),
+        .ARREADY(),
+        .RDATA(),
+        .RVALID(),
+        .RREADY(),
+        .AWADDR(),
+        .AWVALID(),
+        .AWREADY(),
+        .WREADY(),
+        .WSTRB(),
+        .WDATA(),
+        .BVALID(),
+        .BREADY(),
+        .WVALID(),
+        
+        .AWVALID_DMA(),
+        .ARREADY_DMA(),
+        .AWREADY_DMA(),
+        .AWADDR_DMA(),
+        .WVALID_DMA(),
+        .WREADY_DMA(),
+        .WDATA_DMA(),
+        .WSTRB_DMA(),
+        .BVALID_DMA(),
+        .BREADY_DMA(),
+        .ARVALID_DMA(),
+        .ARADDR_DMA(),
+        .RVALID_DMA(),
+        .RREADY_DMA(),
+        .RDATA_DMA(),
+        
+        .ARLEN_DMA(),
+        .RLAST_DMA(),
+        
+        .AWLEN_DMA(),
+        .WLAST_DMA()
+        );
     
     
 endmodule
+
