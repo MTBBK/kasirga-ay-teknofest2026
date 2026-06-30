@@ -352,34 +352,6 @@ module top(
     wire [31:0] rdata_slv9;
     
     
-    //AI Accelerator Axi Signals
-    // WRITE ADDRESS CHANNEL
-     wire awvalid_ac;
-    wire awready_ac;
-     wire [31:0] awaddr_ac;
-    // WRITE DATA CHANNEL
-     wire wvalid_ac;
-    wire wready_ac;
-     wire [31:0] wdata_ac;
-     wire [3:0] wstrb_ac;
-    // WRITE RESPONSE CHANNEL
-    wire bvalid_ac;
-     wire bready_ac;
-    wire [1:0] bresp_ac;
-    // READ ADDRESS CHANNEL
-     wire arvalid_ac;
-    wire arready_ac;
-     wire [31:0] araddr_ac;
-    // READ DATA CHANNEL
-    wire rvalid_ac;
-     wire rready_ac;
-    wire [1:0] rresp_ac;
-    wire [31:0] rdata_ac;
-    logic arlen_ac;
-    logic rlast_ac;
-    logic awlen_ac;
-    logic wlast_ac;
-    
     logic sleep_en;
     
     logic [31:0] interrupt;
@@ -548,8 +520,50 @@ module top(
               .S_AXI_RVALID(rvalid_slv5),   .S_AXI_RREADY(rready_slv5),   .S_AXI_RDATA(rdata_slv5), .S_AXI_RRESP(rresp_slv5)
     );
     
-    accelerator_top accelerator_top_inst (
     
+    logic [31:0] dma_araddr;
+    logic [7:0]  dma_arlen;  
+    logic [2:0]  dma_arsize; 
+    logic [1:0]  dma_arburst;
+    logic        dma_arvalid;            
+    logic        dma_arready;            
+                                         
+    logic [31:0] dma_rdata; 
+    logic [1:0]  dma_rresp;  
+    logic        dma_rlast;              
+    logic        dma_rvalid;             
+    logic        dma_rready;  
+           
+    accelerator_top accelerator_top_inst (
+       .S_AXI_AWADDR    (awaddr_slv9), 
+       .S_AXI_AWVALID   (awvalid_slv9),
+       .S_AXI_AWREADY   (awready_slv9),             
+       .S_AXI_WDATA     (wdata_slv9),  
+       .S_AXI_WSTRB     (wstrb_slv9),  
+       .S_AXI_WVALID    (wvalid_slv9), 
+       .S_AXI_WREADY    (wready_slv9),          
+       .S_AXI_BRESP     (bresp_slv9),  
+       .S_AXI_BVALID    (bvalid_slv9), 
+       .S_AXI_BREADY    (bready_slv9),             
+       .S_AXI_ARADDR    (araddr_slv9), 
+       .S_AXI_ARVALID   (arvalid_slv9),
+       .S_AXI_ARREADY   (arready_slv9),             
+       .S_AXI_RDATA     (rdata_slv9),  
+       .S_AXI_RVALID    (rvalid_slv9), 
+       .S_AXI_RRESP     (rresp_slv9),  
+       .S_AXI_RREADY    (rready_slv9),           
+       .M_AXI_ARADDR    (dma_araddr ), 
+       .M_AXI_ARLEN     (dma_arlen  ),  
+       .M_AXI_ARSIZE    (dma_arsize ), 
+       .M_AXI_ARBURST   (dma_arburst),
+       .M_AXI_ARVALID   (dma_arvalid),
+       .M_AXI_ARREADY   (dma_arready),             
+       .M_AXI_RDATA     (dma_rdata  ),  
+       .M_AXI_RRESP     (dma_rresp  ),  
+       .M_AXI_RLAST     (dma_rlast  ),  
+       .M_AXI_RVALID    (dma_rvalid ), 
+       .M_AXI_RREADY    (dma_rready ), 
+       .interrupt       ()
     );
 
 
@@ -923,50 +937,6 @@ module top(
         .WLAST_DMA()
         );
         
-        //Accelerator Memory
-        memory_axi#(
-        .BASE_ADDRESS(32'h0000_3000)
-        ) accelerator_memory(
-        .clk(clk_i),
-        .rst_i(rst_n_i),
-        .ARADDR(),
-        .ARVALID(),
-        .ARREADY(),
-        .RDATA(),
-        .RVALID(),
-        .RREADY(),
-        .AWADDR(),
-        .AWVALID(),
-        .AWREADY(),
-        .WREADY(),
-        .WSTRB(),
-        .WDATA(),
-        .BVALID(),
-        .BREADY(),
-        .WVALID(),
-        
-        .AWVALID_DMA(),
-        .ARREADY_DMA(),
-        .AWREADY_DMA(),
-        .AWADDR_DMA(),
-        .WVALID_DMA(),
-        .WREADY_DMA(),
-        .WDATA_DMA(),
-        .WSTRB_DMA(),
-        .BVALID_DMA(),
-        .BREADY_DMA(),
-        .ARVALID_DMA(),
-        .ARADDR_DMA(),
-        .RVALID_DMA(),
-        .RREADY_DMA(),
-        .RDATA_DMA(),
-        
-        .ARLEN_DMA(),
-        .RLAST_DMA(),
-        
-        .AWLEN_DMA(),
-        .WLAST_DMA()
-        );
     
     
 endmodule
