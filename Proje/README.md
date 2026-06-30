@@ -12,3 +12,5 @@ Proje Dosyaları Yani Kodlar Burada Olacak
 *bazı bağlama işleri cart curt 
 
 *c kodu yazılacak
+
+*birde ben bu accelerator_top modülü anladığım kadarıyla birleştirdim Taha bir daha baksa iyi olur
