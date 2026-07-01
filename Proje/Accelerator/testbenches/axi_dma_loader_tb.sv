@@ -7,13 +7,10 @@ module axi4_dma_loader_tb();
 
     //axi master ports
     logic [31:0] M_AXI_ARADDR;
-    logic [7:0] M_AXI_ARLEN;
-    logic [2:0] M_AXI_ARSIZE;
-    logic [1:0] M_AXI_ARBURST;
+    logic [4:0] M_AXI_ARLEN;
     logic M_AXI_ARVALID;
     logic M_AXI_ARREADY = 0;
     logic [31:0] M_AXI_RDATA = 0;
-    logic [1:0] M_AXI_RRESP = 0;
     logic M_AXI_RLAST = 0;
     logic M_AXI_RVALID = 0;
     logic M_AXI_RREADY;
@@ -32,12 +29,9 @@ module axi4_dma_loader_tb();
         .rst(rst),
         .M_AXI_ARADDR(M_AXI_ARADDR), 
         .M_AXI_ARLEN(M_AXI_ARLEN),
-        .M_AXI_ARSIZE(M_AXI_ARSIZE), 
-        .M_AXI_ARBURST(M_AXI_ARBURST),
         .M_AXI_ARVALID(M_AXI_ARVALID), 
         .M_AXI_ARREADY(M_AXI_ARREADY),
-        .M_AXI_RDATA(M_AXI_RDATA), 
-        .M_AXI_RRESP(M_AXI_RRESP),
+        .M_AXI_RDATA(M_AXI_RDATA),
         .M_AXI_RLAST(M_AXI_RLAST), 
         .M_AXI_RVALID(M_AXI_RVALID),
         .M_AXI_RREADY(M_AXI_RREADY),
@@ -52,8 +46,8 @@ module axi4_dma_loader_tb();
 
     //mock 30kB shared memory
     
-    logic [7:0] burst_count=0;
-    logic [7:0] expected_len=0;
+    logic [4:0] burst_count=0;
+    logic [4:0] expected_len=0;
     logic [7:0] pixel_val=8'h01; //starts at 01, 02, 03...
 
     always_ff @(posedge clk) begin
