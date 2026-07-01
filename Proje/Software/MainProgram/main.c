@@ -3,6 +3,8 @@
 #include "timer.h"
 #include "gpio.h"
 #include "i2c.h"
+#include "interrupt.h"
+
 
 int main(void) {
 
@@ -11,7 +13,8 @@ int main(void) {
     uart_send_string("QSPI Testi");
     uart_send_char('\n');
     uart_send_string("[INFO] Flash Bellek Kimlik Sorgulaniyor...\r\n");
-    
+    setup_interrupt();
+
     uint32_t devID = config_READ_ID();
     uart_send_string(" -> READ_ID (0x90) : "); 
     uart_send_hex32(devID); 
@@ -64,6 +67,8 @@ int main(void) {
     //Timer test
     timer_init(0,1,100000);
     
+    
+
     while(1) {
          if (REG_READ(TIM_EVN_ADDR) > 0) {
             

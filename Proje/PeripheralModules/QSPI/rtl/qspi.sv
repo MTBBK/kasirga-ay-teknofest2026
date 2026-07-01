@@ -139,6 +139,7 @@ module qspi(
     logic [11:0] target_data_cycles;
     logic [3:0] target_cmd_cycles;
     assign total_data_bits=(data_width+1)*8;
+    logic [5:0] target_cycles;
     
     // QPI Modu Hesaplaması
     always_comb begin 
@@ -222,7 +223,7 @@ module qspi(
                 end
             end
             ADDR:begin
-                logic [5:0] target_cycles;
+                target_cycles='d0;
                 // ICARUS COMPILER HATASI ÇÖZÜLDÜ
                 if(data_mode==2'b01)begin
                     qspi_data_oe=4'b0001;
@@ -433,6 +434,7 @@ module qspi(
     
     
 endmodule
+
 
 
 

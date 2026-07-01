@@ -9,6 +9,8 @@
 
 #define CLK_FREQ 100000000
 
+
+
 // Memory-mapped IO erişimi için volatile kullanımı
 #define REG_WRITE(addr, val) (*((volatile uint32_t *)(addr)) = (val))
 #define REG_READ(addr)       (*((volatile uint32_t *)(addr)))
