@@ -227,7 +227,7 @@ axi4_dma_loader axi4_dma_loader_inst (
    .M_AXI_ARVALID      (M_AXI_ARVALID),   
    .M_AXI_RREADY       (M_AXI_RREADY),    
    // Output Ports - Busses
-   .loader_addr        (buff_read_addr),
+    .loader_addr        (loader_addr),
    .loader_din         (loader_din),
    .loader_we          (loader_we),  
    .M_AXI_ARADDR       (M_AXI_ARADDR[31:0]),
@@ -241,7 +241,8 @@ axi4_dma_loader axi4_dma_loader_inst (
 buffer_byte_en buffer(
     .clk(clk),
     .write_enable(loader_we),
-    .addr(buff_read_addr),
+    .waddr(loader_addr),
+    .raddr(buff_read_addr),
     .din(loader_din),
     .dout(buff_read_data)
 );
