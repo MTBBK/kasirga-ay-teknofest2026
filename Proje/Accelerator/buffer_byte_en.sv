@@ -7,7 +7,8 @@ module buffer_byte_en #(
 )(
     input  logic clk,
     input  logic [7:0] write_enable, //8 bit array for byte control
-    input  logic [ADDR_WIDTH-1:0] addr,
+    input  logic [ADDR_WIDTH-1:0] waddr,     //write address
+    input  logic [ADDR_WIDTH-1:0] raddr,     //read address
     input  logic [DATA_WIDTH-1:0] din,
     output logic [DATA_WIDTH-1:0] dout
 );
@@ -18,9 +19,9 @@ module buffer_byte_en #(
         //loop through all 8 bytes and only write the ones enabled
         for (int i=0;i<8;i=i+1) begin
             if (write_enable[i]) begin
-                ram[addr][i*8 +:8]<=din[i*8+:8];
+                ram[waddr][i*8 +:8]<=din[i*8+:8];
             end
         end
-        dout<=ram[addr];
+        dout<=ram[raddr]; 
     end
 endmodule
