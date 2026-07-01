@@ -17,14 +17,11 @@ module axi4_dma_loader #(
     //to memory axi dma port(axi4 master)
    
     output logic [31:0] M_AXI_ARADDR,
-    output logic [7:0] M_AXI_ARLEN,
-    output logic [2:0] M_AXI_ARSIZE,
-    output logic [1:0] M_AXI_ARBURST,
+    output logic [4:0] M_AXI_ARLEN,
     output logic M_AXI_ARVALID,
     input  logic M_AXI_ARREADY,
 
     input  logic [31:0] M_AXI_RDATA,
-    input  logic [1:0] M_AXI_RRESP,
     input  logic M_AXI_RLAST,
     input  logic M_AXI_RVALID,
     output logic M_AXI_RREADY,
@@ -42,8 +39,8 @@ module axi4_dma_loader #(
 );
 
     //constant axi burst parameters
-    assign M_AXI_ARSIZE=3'b010; //4 bytes per beat (matches the 32-bit dma memory port)
-    assign M_AXI_ARBURST=2'b01;  //incrementing burst
+    localparam logic [2:0] M_AXI_ARSIZE=3'b010; //4 bytes per beat (matches the 32-bit dma memory port)
+    localparam logic [1:0] M_AXI_ARBURST=2'b01;  //incrementing burst
 
     logic [63:0] PADDING_BLOCK;
     assign PADDING_BLOCK = {8{PAD_VAL}};
@@ -130,7 +127,7 @@ module axi4_dma_loader #(
 
                 PASS2_REQ: begin
                     M_AXI_ARADDR<=BASE_ADDR+(row_idx * REAL_W);
-                    M_AXI_ARLEN<=8'd9; //10 beats (40 bytes per row)
+                    M_AXI_ARLEN<=5'd9; //10 beats (40 bytes per row)
                     M_AXI_ARVALID<=1'b1;
 
                     if (M_AXI_ARREADY && M_AXI_ARVALID) begin
