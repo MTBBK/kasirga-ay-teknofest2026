@@ -24,7 +24,7 @@ async def reset_dut(dut):
     
     
 async def axi_write(dut, addr, data, strb=0xF):
-    # Adres ve veri kanallarını hazırla [cite: 2]
+    # Adres ve veri kanallarını hazırla
     dut.AWADDR.value = addr
     dut.WDATA.value = data
     dut.WSTRB.value = strb
@@ -32,7 +32,7 @@ async def axi_write(dut, addr, data, strb=0xF):
     dut.WVALID.value = 1
     dut.BREADY.value = 1
 
-    # Handshake bekle: AWREADY ve WREADY senin kodunda aynı sinyal [cite: 11, 13]
+    # Handshake bekle: AWREADY ve WREADY senin kodunda aynı sinyal
     while not dut.AWREADY.value:
         await RisingEdge(dut.clk)
     
@@ -40,7 +40,7 @@ async def axi_write(dut, addr, data, strb=0xF):
     dut.AWVALID.value = 0
     dut.WVALID.value = 0
     
-    # Yazma yanıtı (BVALID) bekle [cite: 2, 35-37]
+    # Yazma yanıtı (BVALID) bekle
     while not dut.BVALID.value:
         await RisingEdge(dut.clk)
     
@@ -68,21 +68,21 @@ async def axi_read(dut, addr):
 
 @cocotb.test()
 async def run_i2c_test(dut):
-    # Saat 50MHz (20ns periyot) [cite: 171]
+    # Saat 50MHz (20ns periyot) 
     cocotb.start_soon(Clock(dut.clk, 20, units="ns").start())
     await reset_dut(dut)
 
-    # 1. Yazmaç Yazma: I2C_ADR (Slave Adres) [cite: 4, 32]
+    # 1. Yazmaç Yazma: I2C_ADR (Slave Adres)
     await axi_write(dut, 0x7004, 0x55) 
 
-    # 2. Yazmaç Yazma: I2C_TDR (Gönderilecek Veri) [cite: 4, 32]
+    # 2. Yazmaç Yazma: I2C_TDR (Gönderilecek Veri)
     await axi_write(dut, 0x700C, 0xDEADBEEF)
 
     # 3. Yazmaç Okuma: Yazdığımız veriyi doğrulayalım
     read_val = await axi_read(dut, 0x7004)
     assert read_val == 0x55, f"Hata: 0x55 beklenen değer, 0x{read_val:X} geldi"
 
-    # 4. İşlemi Başlatma: I2C_CFG üzerinden TX_EN [cite: 5, 26-27]
+    # 4. İşlemi Başlatma: I2C_CFG üzerinden TX_EN 
     await axi_write(dut, 0x7010, 0x1) 
 
     # test_i2c.py (Satır 89 civarı)
