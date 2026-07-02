@@ -30,16 +30,15 @@ module acc_axi_slave (
     input  logic         S_AXI_RREADY,
 
     //control outputs for axi4_dma_loader 
-    output logic start_loader,    
-    output logic soft_reset,      
+    output logic start_loader,     
 
     //status inputs from axi4_dma_loader 
-    input  logic loader_done,     //dma finished
-    input  logic infer_done,      //fc layer finished
+    input  logic loader_done,//dma finished
+    input  logic infer_done,//fc layer finished
     input  logic busy,            
 
     //result
-    input  logic [1:0] result_class,    //0=nothing 1=unknown 2=yes 3=no
+    input  logic [1:0] result_class,//0=nothing 1=unknown 2=yes 3=no
 
     //interrupt, wire to CPU interrupt pin not sure if this should be here if not [INTERRUPT] tag too should be removed from this
     output logic interrupt_o
@@ -97,10 +96,6 @@ module acc_axi_slave (
     
     assign start_loader = axi_awready && (S_AXI_AWADDR == ADDR_ACC_CTRL)
                           && S_AXI_WSTRB[0] && S_AXI_WDATA[0];
-
-    assign soft_reset   = axi_awready && (S_AXI_AWADDR == ADDR_ACC_CTRL)
-                          && S_AXI_WSTRB[0] && S_AXI_WDATA[1];
-
     logic int_clear;
     assign int_clear = axi_awready && (S_AXI_AWADDR == ADDR_ACC_INT)
                        && S_AXI_WSTRB[0] && S_AXI_WDATA[0];
