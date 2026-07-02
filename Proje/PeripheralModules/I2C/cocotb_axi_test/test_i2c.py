@@ -13,11 +13,13 @@ async def reset_dut(dut):
     dut.ARVALID.value = 0
     dut.ARADDR.value = 0
     dut.RREADY.value = 0
-    dut.i_sda_in.value = 1 # I2C hattı default 'çekili' (pull-up) olur
+        
+    # Simülatöre bağlı olarak dut.sda.value = cocotb.binary.BinaryValue("Z") de kullanılabilir.
+    dut.sda.value = 1 
 
     # 2. Reset işlemini gerçekleştir
     dut.rst_n.value = 0
-    await Timer(10, unit="ns") # units -> unit olarak güncellendi
+    await Timer(10, units="ns") # unit -> units olarak güncellendi
     dut.rst_n.value = 1
     await RisingEdge(dut.clk)
     await RisingEdge(dut.clk) # Sinyallerin oturması için bir çevrim daha bekle
@@ -66,26 +68,27 @@ async def axi_read(dut, addr):
     dut._log.info(f"AXI Read: Addr=0x{addr:X}, Data=0x{int(data):X}") 
     return int(data)
 
+
 @cocotb.test()
 async def run_i2c_test(dut):
-    # Saat 50MHz (20ns periyot) 
+    # Saat 50MHz (20ns periyot)
     cocotb.start_soon(Clock(dut.clk, 20, units="ns").start())
     await reset_dut(dut)
+    
+    # 1. Yazmaç Yazma: I2C_ADR (Slave Adres) -> OFFSET_I2C_ADR = 16'h8004
+    await axi_write(dut, 0x8004, 0x55) 
 
-    # 1. Yazmaç Yazma: I2C_ADR (Slave Adres)
-    await axi_write(dut, 0x7004, 0x55) 
-
-    # 2. Yazmaç Yazma: I2C_TDR (Gönderilecek Veri)
-    await axi_write(dut, 0x700C, 0xDEADBEEF)
+    # 2. Yazmaç Yazma: I2C_TDR (Gönderilecek Veri) -> OFFSET_I2C_TDR = 16'h800C
+    await axi_write(dut, 0x800C, 0xDEADBEEF)
 
     # 3. Yazmaç Okuma: Yazdığımız veriyi doğrulayalım
-    read_val = await axi_read(dut, 0x7004)
+    read_val = await axi_read(dut, 0x8004)
     assert read_val == 0x55, f"Hata: 0x55 beklenen değer, 0x{read_val:X} geldi"
 
-    # 4. İşlemi Başlatma: I2C_CFG üzerinden TX_EN 
-    await axi_write(dut, 0x7010, 0x1) 
+    # 4. İşlemi Başlatma: I2C_CFG üzerinden TX_EN -> OFFSET_I2C_CFG = 16'h8010
+    await axi_write(dut, 0x8010, 0x1) 
 
-    # test_i2c.py (Satır 89 civarı)
+    # İşlemin gerçekleşmesini izleme
     while not dut.core_busy.value: # Önce meşgul olmasını bekle
         await RisingEdge(dut.clk)
 
