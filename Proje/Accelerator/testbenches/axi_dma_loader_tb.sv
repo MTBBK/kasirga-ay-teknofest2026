@@ -43,93 +43,138 @@ module axi4_dma_loader_tb();
     );
 
     always #5 clk=~clk;
-
-    //mock 30kB shared memory
     
+    //a temporary 64-bit array to match the format of the memory file
+    logic [63:0] temp_file_mem [0:4095]; 
+    
+    //8-bit byte array for the axi bus
+    logic [7:0] input_file_mem [0:32767]; 
+
+    initial begin
+        //clearing both of the memories 
+        for (int i=0; i<4096; i++) temp_file_mem[i] = 64'h0;
+        for (int i=0; i<32768; i++) input_file_mem[i] = 8'h0;
+        
+        //loading 64-bit hex data into the temporary array
+        $readmemh("input_data.mem", temp_file_mem);
+        
+        //unpack the 64 bit lines in little endian format
+        for (int i=0; i<4096; i++) begin
+            input_file_mem[i*8 + 0] = temp_file_mem[i][7:0]; 
+            input_file_mem[i*8 + 1] = temp_file_mem[i][15:8];
+            input_file_mem[i*8 + 2] = temp_file_mem[i][23:16];
+            input_file_mem[i*8 + 3] = temp_file_mem[i][31:24];
+            input_file_mem[i*8 + 4] = temp_file_mem[i][39:32];
+            input_file_mem[i*8 + 5] = temp_file_mem[i][47:40];
+            input_file_mem[i*8 + 6] = temp_file_mem[i][55:48];
+            input_file_mem[i*8 + 7] = temp_file_mem[i][63:56];
+        end
+        
+        $display("memory got unpacked");
+    end
+    //mock axi slave logic
     logic [4:0] burst_count=0;
     logic [4:0] expected_len=0;
-    logic [7:0] pixel_val=8'h01; //starts at 01, 02, 03...
+    logic [31:0] current_addr=0; 
+    
+    //base address offset for the memory translation
+    logic [31:0] BASE_ADDR = 32'h0001_2000; 
 
     always_ff @(posedge clk) begin
         if (rst) begin
             M_AXI_ARREADY<=1'b0;
             M_AXI_RVALID<=1'b0;
-            pixel_val<=8'h01;
         end else begin
             //1. accept address
             if (M_AXI_ARVALID && !M_AXI_ARREADY && !M_AXI_RVALID) begin
                 M_AXI_ARREADY<=1'b1;
                 expected_len<=M_AXI_ARLEN;
                 burst_count<=0;
+                
+                //subtract BASE_ADDR to index cleanly into our array starting at 0
+                current_addr<=M_AXI_ARADDR - BASE_ADDR; 
             end else begin
                 M_AXI_ARREADY<=1'b0;
             end
 
-            //2. send predictable data (4 bytes at a time)
+            //2. send data from the memory file
             if (M_AXI_ARREADY && M_AXI_ARVALID) begin
                 M_AXI_RVALID<=1'b1;
-                //size the additions to 8 bits to prevent 32-bit expansion
-                M_AXI_RDATA<={pixel_val+8'd3, pixel_val+8'd2, pixel_val+8'd1, pixel_val}; 
-                M_AXI_RLAST<=(expected_len == 0);
+                
+                //fetch first 4 bytes using the offset address
+                M_AXI_RDATA<={input_file_mem[(M_AXI_ARADDR-BASE_ADDR)+3],
+                              input_file_mem[(M_AXI_ARADDR-BASE_ADDR)+2],
+                              input_file_mem[(M_AXI_ARADDR-BASE_ADDR)+1],
+                              input_file_mem[(M_AXI_ARADDR-BASE_ADDR)+0]};
+                M_AXI_RLAST<=(M_AXI_ARLEN==0);
+                
+                //advance pointer by 4 bytes
+                current_addr<=(M_AXI_ARADDR-BASE_ADDR)+4; 
+                
             end else if (M_AXI_RVALID && M_AXI_RREADY) begin
                 if (M_AXI_RLAST) begin
                     M_AXI_RVALID<=1'b0;
                     M_AXI_RLAST<=1'b0;
-                    pixel_val<=pixel_val + 8'd4; //move to next 4 pixels
                 end else begin
-                    burst_count<=burst_count + 1;
-                    pixel_val<=pixel_val + 8'd4; //move to next 4 pixels
-                    //size the additions to 8 bits
-                    M_AXI_RDATA<={pixel_val+8'd7, pixel_val+8'd6, pixel_val+8'd5, pixel_val+8'd4}; 
-                    M_AXI_RLAST<=(burst_count + 1 == expected_len);
+                    burst_count<=burst_count+1;
+                    
+                    //fetch next 4 bytes using the advanced pointer
+                    M_AXI_RDATA<={input_file_mem[current_addr+3],
+                                  input_file_mem[current_addr+2],
+                                  input_file_mem[current_addr+1],
+                                  input_file_mem[current_addr+0]};
+                    M_AXI_RLAST<=(burst_count+1 == expected_len);
+                    
+                    //advance pointer by 4 bytes
+                    current_addr<=current_addr+4; 
                 end
             end
         end
     end
+    
+    //use buffer_byte_en
+    logic [9:0] tb_raddr=0;
+    logic [63:0] tb_dout;
 
-    //mock local buffer_byte_en 
     
-    logic [63:0] mock_ram [0:511];
-    always_ff @(posedge clk) begin
-        for (int i = 0; i < 8; i++) begin
-            if (loader_we[i]) begin
-                mock_ram[loader_addr][i*8 +: 8]<=loader_din[i*8 +: 8];
-            end
-        end
-    end
+    buffer_byte_en DUT_buffer (
+        .clk(clk),
+        .write_enable(loader_we),
+        .waddr(loader_addr),
+        .raddr(tb_raddr),
+        .din(loader_din),
+        .dout(tb_dout)
+    );
     
-    //visualizer task
-  
     task print_padded_memory();
         $display("padded memory");
-        $display("addr | byte7 byte6 byte5 byte4 byte3 byte2 byte1 byte0 ");
-        $display("-------------------------------------------------------");
-        // 333 to (because 46*58=2668 and 2668/8=333.5) display the entire buffer
+        
         for (int i = 0; i < 334; i++) begin
-            $display(" %3d |   %h    %h    %h    %h    %h    %h    %h    %h", 
-                i,
-                mock_ram[i][63:56], mock_ram[i][55:48], mock_ram[i][47:40], mock_ram[i][39:32],
-                mock_ram[i][31:24], mock_ram[i][23:16], mock_ram[i][15:8],  mock_ram[i][7:0]
-            );
+            //give the buffer the address we want to read
+            tb_raddr = i;      
+            
+            //wait for the clock edge so the buffer can process the read
+            @(posedge clk);    
+            
+            //wait 1 nanosecond for the dout to update
+            #1;                
+            
+            //print the 64 bit string
+            $display("%016X", tb_dout);
         end
     endtask
-
     //test sequence
- 
     initial begin
-        //reset the ram to all zeros so we know the 80s are really being written
-        for (int i=0; i<512; i++) mock_ram[i] = 64'd0;
-        
+            
         #20 rst = 0; #10;
         
         $display("starting DMA loader");
-        @(posedge clk) start_loader = 1;
-        @(posedge clk) start_loader = 0;
+        @(posedge clk) start_loader=1;
+        @(posedge clk) start_loader=0;
 
         wait(loader_done);
         $display("[time: %0t] loader done", $time);
 
-        //call the visualizer
         print_padded_memory();
 
         #50;
