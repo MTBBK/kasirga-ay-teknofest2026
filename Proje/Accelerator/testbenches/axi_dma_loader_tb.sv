@@ -2,17 +2,17 @@
 
 module axi4_dma_loader_tb();
 
-    logic clk = 0;
-    logic rst = 1;
+    logic clk=0;
+    logic rst=1;
 
     //axi master ports
     logic [31:0] M_AXI_ARADDR;
     logic [4:0] M_AXI_ARLEN;
     logic M_AXI_ARVALID;
-    logic M_AXI_ARREADY = 0;
-    logic [31:0] M_AXI_RDATA = 0;
-    logic M_AXI_RLAST = 0;
-    logic M_AXI_RVALID = 0;
+    logic M_AXI_ARREADY=0;
+    logic [31:0] M_AXI_RDATA=0;
+    logic M_AXI_RLAST=0;
+    logic M_AXI_RVALID=0;
     logic M_AXI_RREADY;
 
     //bram ports
@@ -52,22 +52,22 @@ module axi4_dma_loader_tb();
 
     initial begin
         //clearing both of the memories 
-        for (int i=0; i<4096; i++) temp_file_mem[i] = 64'h0;
-        for (int i=0; i<32768; i++) input_file_mem[i] = 8'h0;
+        for (int i=0; i<4096; i++) temp_file_mem[i]=64'h0;
+        for (int i=0; i<32768; i++) input_file_mem[i]=8'h0;
         
         //loading 64-bit hex data into the temporary array
-        $readmemh("input_data.mem", temp_file_mem);
+        $readmemh("input_data.mem",temp_file_mem);
         
         //unpack the 64 bit lines in little endian format
         for (int i=0; i<4096; i++) begin
-            input_file_mem[i*8 + 0] = temp_file_mem[i][7:0]; 
-            input_file_mem[i*8 + 1] = temp_file_mem[i][15:8];
-            input_file_mem[i*8 + 2] = temp_file_mem[i][23:16];
-            input_file_mem[i*8 + 3] = temp_file_mem[i][31:24];
-            input_file_mem[i*8 + 4] = temp_file_mem[i][39:32];
-            input_file_mem[i*8 + 5] = temp_file_mem[i][47:40];
-            input_file_mem[i*8 + 6] = temp_file_mem[i][55:48];
-            input_file_mem[i*8 + 7] = temp_file_mem[i][63:56];
+            input_file_mem[i*8+0]=temp_file_mem[i][7:0]; 
+            input_file_mem[i*8+1]=temp_file_mem[i][15:8];
+            input_file_mem[i*8+2]=temp_file_mem[i][23:16];
+            input_file_mem[i*8+3]=temp_file_mem[i][31:24];
+            input_file_mem[i*8+4]=temp_file_mem[i][39:32];
+            input_file_mem[i*8+5]=temp_file_mem[i][47:40];
+            input_file_mem[i*8+6]=temp_file_mem[i][55:48];
+            input_file_mem[i*8+7]=temp_file_mem[i][63:56];
         end
         
         $display("memory got unpacked");
@@ -78,7 +78,7 @@ module axi4_dma_loader_tb();
     logic [31:0] current_addr=0; 
     
     //base address offset for the memory translation
-    logic [31:0] BASE_ADDR = 32'h0001_2000; 
+    logic [31:0] BASE_ADDR=32'h0001_2000; 
 
     always_ff @(posedge clk) begin
         if (rst) begin
@@ -92,7 +92,7 @@ module axi4_dma_loader_tb();
                 burst_count<=0;
                 
                 //subtract BASE_ADDR to index cleanly into our array starting at 0
-                current_addr<=M_AXI_ARADDR - BASE_ADDR; 
+                current_addr<=M_AXI_ARADDR-BASE_ADDR; 
             end else begin
                 M_AXI_ARREADY<=1'b0;
             end
@@ -151,7 +151,7 @@ module axi4_dma_loader_tb();
         
         for (int i = 0; i < 334; i++) begin
             //give the buffer the address we want to read
-            tb_raddr = i;      
+            tb_raddr=i;      
             
             //wait for the clock edge so the buffer can process the read
             @(posedge clk);    
