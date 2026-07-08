@@ -27,6 +27,8 @@ module top(
     
     input  logic uart_rx_i,
     output logic uart_tx_o,
+    input logic uart_stream_rx_i,
+    output logic uart_stream_tx_o,
     
     output logic scl_o,
     inout logic sda_io,
@@ -47,7 +49,7 @@ module top(
     parameter clk_freq_Mhz=100;
     parameter clk_freq_Hz=50_000_000;
     
-    
+    logic interrupt_1_bit;
     //Data Memory obi-axi
     logic obi_req_data;        
     logic obi_gnt_data;         
@@ -355,7 +357,7 @@ module top(
     logic sleep_en;
     
     logic [31:0] interrupt;
-    assign interrupt=32'd0;
+    assign interrupt={15'd0,interrupt_1_bit,16'd0};
     logic [31:0] boot_addr;
     assign boot_addr=32'h0000_0000;
     
@@ -440,7 +442,7 @@ module top(
         .rst_n(rst_n_i),
         .o_scl(scl_o),
         .sda(sda_io),
-        .o_intr(interrupt),
+        .o_intr(),
         .AWVALID(awvalid_slv6), .AWREADY(awready_slv6), .AWADDR(awaddr_slv6),
         .WDATA(wdata_slv6),     .WSTRB(wstrb_slv6),     .WVALID(wvalid_slv6), .WREADY(wready_slv6) ,
         .BVALID(bvalid_slv6),   .BREADY(bready_slv6),   .BRESP(bresp_slv6),
@@ -505,65 +507,160 @@ module top(
                                                                                          
     
     );
-    logic uart_stream_rx;
-    logic uart_stream_tx;
-    uart_top #(.baud_rate(uart_baud_rate),.clock_frequency(clk_freq_Mhz)) uart_stream_inst(   
+    
+    logic [7:0]  stream_rx_byte_o;     
+    logic        stream_rx_byte_valid_o;
+                                        
+    logic [31:0] fsm_tx_start_addr_o;   
+    logic [31:0] fsm_tx_length_o;       
+    logic        fsm_tx_trigger_o;      
+    logic        fsm_tx_dump_done_i;    
+    logic [7:0]  fsm_tx_data_i;         
+    logic        fsm_tx_enable_i;      
+    logic        fsm_tx_done_o;          
+    logic [31:0] read_data;
+    
+    logic [31:0] uart_to_axi_AWADDR;
+    logic        uart_to_axi_AWVALID;
+    logic        uart_to_axi_AWREADY;
+                         
+    logic [31:0] uart_to_axi_WDATA;  
+    logic [3:0]  uart_to_axi_WSTRB;  
+    logic        uart_to_axi_WVALID; 
+    logic        uart_to_axi_WREADY; 
+                        
+    logic [1:0]  uart_to_axi_BRESP;  
+    logic        uart_to_axi_BVALID;
+    logic        uart_to_axi_BREADY; 
+                            
+    logic [31:0] uart_to_axi_ARADDR; 
+    logic        uart_to_axi_ARVALID;
+    logic        uart_to_axi_ARREADY;
+                            
+    logic [31:0] uart_to_axi_RDATA;  
+    logic [1:0]  uart_to_axi_RRESP;  
+    logic        uart_to_axi_RVALID; 
+    logic        uart_to_axi_RREADY;
+    
+    logic stream_done;
+
+    uart_stream_top #(.baud_rate(uart_baud_rate),.clock_frequency(clk_freq_Mhz)) uart_stream_inst(   
               .S_AXI_ACLK(clk_i),     
               .S_AXI_ARESETN(rst_n_i), 
-              .uart_rx_i(uart_stream_rx),
-              .uart_tx_o(uart_stream_tx),
+              .uart_rx_i(uart_stream_rx_i),
+              .uart_tx_o(uart_stream_tx_o),
               .S_AXI_AWVALID(awvalid_slv5), .S_AXI_AWREADY(awready_slv5), .S_AXI_AWADDR(awaddr_slv5),
               .S_AXI_WDATA(wdata_slv5),     .S_AXI_WSTRB(wstrb_slv5), .S_AXI_WVALID(wvalid_slv5), .S_AXI_WREADY(wready_slv5) ,
               .S_AXI_BVALID(bvalid_slv5),   .S_AXI_BREADY(bready_slv5), .S_AXI_BRESP(bresp_slv5),
               
               .S_AXI_ARVALID(arvalid_slv5), .S_AXI_ARREADY(arready_slv5), .S_AXI_ARADDR(araddr_slv5),
-              .S_AXI_RVALID(rvalid_slv5),   .S_AXI_RREADY(rready_slv5),   .S_AXI_RDATA(rdata_slv5), .S_AXI_RRESP(rresp_slv5)
+              .S_AXI_RVALID(rvalid_slv5),   .S_AXI_RREADY(rready_slv5),   .S_AXI_RDATA(rdata_slv5), .S_AXI_RRESP(rresp_slv5),
+              
+              .stream_rx_byte_o(stream_rx_byte_o),      
+              .stream_rx_byte_valid_o(stream_rx_byte_valid_o),
+                                     
+              .fsm_tx_start_addr_o(fsm_tx_start_addr_o),          
+              .fsm_tx_trigger_o(fsm_tx_trigger_o),      
+              .fsm_tx_dump_done_i(fsm_tx_dump_done_i),
+              .fsm_read_data_i(read_data) ,
+              .fsm_stream_done_i(stream_done)  
+                       
+    );
+    
+    
+
+    
+    uart_stream_to_axi uart_to_axi(
+        .clk_i(clk_i),             
+        .rst_n_i(rst_n_i),           
+                                              
+        .rx_byte_i(stream_rx_byte_o),         
+        .rx_byte_valid_i(stream_rx_byte_valid_o),   
+                   
+        .tx_start_addr_i(fsm_tx_start_addr_o),          
+        .tx_start_trigger_i(fsm_tx_trigger_o),
+        .tx_dump_done_o(fsm_tx_dump_done_i), 
+        .read_data_o(read_data),   
+                  
+        .M_AXI_AWADDR(uart_to_axi_AWADDR),      
+        .M_AXI_AWVALID(uart_to_axi_AWVALID),     
+        .M_AXI_AWREADY(uart_to_axi_AWREADY),     
+                           
+        .M_AXI_WDATA(uart_to_axi_WDATA),       
+        .M_AXI_WSTRB(uart_to_axi_WSTRB),       
+        .M_AXI_WVALID(uart_to_axi_WVALID),      
+        .M_AXI_WREADY(uart_to_axi_WREADY),      
+                           
+        .M_AXI_BRESP(uart_to_axi_BRESP),       
+        .M_AXI_BVALID(uart_to_axi_BVALID),      
+        .M_AXI_BREADY(uart_to_axi_BREADY),      
+                                                           
+        .M_AXI_ARADDR(uart_to_axi_ARADDR),      
+        .M_AXI_ARVALID(uart_to_axi_ARVALID),     
+        .M_AXI_ARREADY(uart_to_axi_ARREADY),     
+                           
+        .M_AXI_RDATA(uart_to_axi_RDATA),       
+        .M_AXI_RRESP(uart_to_axi_RRESP),       
+        .M_AXI_RVALID(uart_to_axi_RVALID),      
+        .M_AXI_RREADY(uart_to_axi_RREADY),      
+                          
+        .stream_done_o(stream_done)      
     );
     
     
     logic [31:0] dma_araddr;
     logic [7:0]  dma_arlen;  
-    logic [2:0]  dma_arsize; 
-    logic [1:0]  dma_arburst;
     logic        dma_arvalid;            
     logic        dma_arready;            
                                          
-    logic [31:0] dma_rdata; 
-    logic [1:0]  dma_rresp;  
+    logic [31:0] dma_rdata;   
     logic        dma_rlast;              
     logic        dma_rvalid;             
-    logic        dma_rready;  
+    logic        dma_rready;
+    
+    logic [31:0] dma_awaddr ;
+    logic        dma_awvalid;
+    logic        dma_awready;
+    logic [31:0] dma_wdata  ;
+    logic [3:0]  dma_wstrb  ;
+    logic        dma_wvalid ;
+    logic        dma_wready ;
+    logic        dma_bvalid ;
+    logic        dma_bready ;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+     
            
     accelerator_top accelerator_top_inst (
-       .S_AXI_AWADDR    (awaddr_slv9), 
-       .S_AXI_AWVALID   (awvalid_slv9),
-       .S_AXI_AWREADY   (awready_slv9),             
-       .S_AXI_WDATA     (wdata_slv9),  
-       .S_AXI_WSTRB     (wstrb_slv9),  
-       .S_AXI_WVALID    (wvalid_slv9), 
-       .S_AXI_WREADY    (wready_slv9),          
-       .S_AXI_BRESP     (bresp_slv9),  
-       .S_AXI_BVALID    (bvalid_slv9), 
-       .S_AXI_BREADY    (bready_slv9),             
-       .S_AXI_ARADDR    (araddr_slv9), 
-       .S_AXI_ARVALID   (arvalid_slv9),
-       .S_AXI_ARREADY   (arready_slv9),             
-       .S_AXI_RDATA     (rdata_slv9),  
-       .S_AXI_RVALID    (rvalid_slv9), 
-       .S_AXI_RRESP     (rresp_slv9),  
-       .S_AXI_RREADY    (rready_slv9),           
+       .clk(clk_i),
+       .rst(!rst_n_i),          
        .M_AXI_ARADDR    (dma_araddr ), 
        .M_AXI_ARLEN     (dma_arlen  ),  
-       .M_AXI_ARSIZE    (dma_arsize ), 
-       .M_AXI_ARBURST   (dma_arburst),
        .M_AXI_ARVALID   (dma_arvalid),
        .M_AXI_ARREADY   (dma_arready),             
-       .M_AXI_RDATA     (dma_rdata  ),  
-       .M_AXI_RRESP     (dma_rresp  ),  
+       .M_AXI_RDATA     (dma_rdata  ),    
        .M_AXI_RLAST     (dma_rlast  ),  
        .M_AXI_RVALID    (dma_rvalid ), 
-       .M_AXI_RREADY    (dma_rready ), 
-       .interrupt       ()
+       .M_AXI_RREADY    (dma_rready ),
+       .M_AXI_AWADDR    (dma_awaddr ),
+       .M_AXI_AWVALID   (dma_awvalid),
+       .M_AXI_AWREADY   (dma_awready),
+       .M_AXI_WDATA     (dma_wdata  ),
+       .M_AXI_WSTRB     (dma_wstrb  ),
+       .M_AXI_WVALID    (dma_wvalid ),
+       .M_AXI_WREADY    (dma_wready ),
+       .M_AXI_BVALID    (dma_bvalid ),
+       .M_AXI_BREADY    (dma_bready ),
+       .start_loader    (stream_done),
+       .interrupt       (interrupt_1_bit)
     );
 
 
@@ -936,6 +1033,69 @@ module top(
         .AWLEN_DMA(),
         .WLAST_DMA()
         );
+        
+        //Accelerator Data Memory
+    memory_axi#(
+        .BASE_ADDRESS(32'h0000_12000),
+        .SIZE(30720)
+        ) accelerator_memory(
+        .clk(clk_i),
+        .rst_i(rst_n_i),
+        
+        .AWADDR(uart_to_axi_AWADDR),  
+        .AWVALID(uart_to_axi_AWVALID),
+        .AWREADY(uart_to_axi_AWREADY),
+                                      
+        .WDATA(uart_to_axi_WDATA),    
+        .WSTRB(uart_to_axi_WSTRB),    
+        .WVALID(uart_to_axi_WVALID),  
+        .WREADY(uart_to_axi_WREADY),  
+                                      
+        .BRESP(uart_to_axi_BRESP),    
+        .BVALID(uart_to_axi_BVALID),  
+        .BREADY(uart_to_axi_BREADY),  
+                                      
+        .ARADDR(uart_to_axi_ARADDR),  
+        .ARVALID(uart_to_axi_ARVALID),
+        .ARREADY(uart_to_axi_ARREADY),
+                                      
+        .RDATA(uart_to_axi_RDATA),      
+        .RVALID(uart_to_axi_RVALID),  
+        .RREADY(uart_to_axi_RREADY),  
+        
+        .AWVALID_DMA(dma_awvalid),     
+        .AWREADY_DMA(dma_awready),
+        .AWADDR_DMA (dma_awaddr),
+        .WVALID_DMA (dma_wvalid),
+        .WREADY_DMA (dma_wready),
+        .WDATA_DMA  (dma_wdata),
+        .WSTRB_DMA  (dma_wstrb),
+        .BVALID_DMA (dma_bvalid),
+        .BREADY_DMA (dma_bready),
+        .ARREADY_DMA(dma_arready),
+        .ARVALID_DMA(dma_arvalid),
+        .ARADDR_DMA(dma_araddr),
+        .RVALID_DMA(dma_rvalid),
+        .RREADY_DMA(dma_rready),
+        .RDATA_DMA(dma_rdata),
+        
+        .ARLEN_DMA(dma_arlen),
+        .RLAST_DMA(dma_rlast),
+        
+        .AWLEN_DMA(6'd0),
+        .WLAST_DMA(1'b1)
+        );
+         
+  
+ 
+ 
+        
+        
+        
+        
+        
+        
+        
         
     
     

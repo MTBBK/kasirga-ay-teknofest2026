@@ -90,7 +90,7 @@ set my_files [list \
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/Accelerator/*.sv"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/Accelerator/Softmax/rtl/*.sv"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/Accelerator/Softmax/memoryfiles/*.mem"]
-lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/MemoryFiles/*"]
+lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/MemoryModules/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/QSPI/rtl/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/Timer/rtl/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/UART/rtl/*"]

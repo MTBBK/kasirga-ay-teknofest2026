@@ -4,6 +4,7 @@
 #include "gpio.h"
 #include "i2c.h"
 #include "interrupt.h"
+#include "uart_stream.h"
 
 
 int main(void) {
@@ -24,7 +25,7 @@ int main(void) {
     uart_send_string(" -> RDID    (0x9F) : "); 
     uart_send_hex32(devID2); 
     uart_send_string("\r\n\n");
-
+    /*
     uart_send_string("GPIO Testi");
     uart_send_char('\n');
     //GPIO test
@@ -48,7 +49,7 @@ int main(void) {
     uart_send_hex32(gpio_val2);
     uart_send_string("\r\n");
     uart_send_char('\n');
-
+    */
 
 
     uart_send_string("I2C Testi");
@@ -67,7 +68,8 @@ int main(void) {
     //Timer test
     timer_init(0,1,100000);
     
-    
+    gpio_write_pin(15, 1); // "Veri göndermeye başlayabilirsin, hazırım" sinyali
+    uart_stream_wait_for_data();
 
     while(1) {
          if (REG_READ(TIM_EVN_ADDR) > 0) {
