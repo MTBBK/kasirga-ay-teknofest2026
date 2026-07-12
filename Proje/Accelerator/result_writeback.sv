@@ -28,6 +28,9 @@ module result_writeback #(
         WAIT_RESP
     } state_t;
     state_t state;
+    
+    logic aw_done;   
+    logic w_done;
 
     logic [3:0] latched_result;
 
@@ -43,6 +46,8 @@ module result_writeback #(
             M_AXI_WVALID<=1'b0;
             write_done<=1'b0;
             latched_result<=4'd0;
+            aw_done<=1'b0;
+            w_done<=1'b0;
         end else begin
             write_done<=1'b0; 
 
@@ -52,14 +57,26 @@ module result_writeback #(
                         latched_result<=result_class; 
                         M_AXI_AWVALID<=1'b1;
                         M_AXI_WVALID<= 1'b1;
-                        state <=SEND;
+                        aw_done<=1'b0;
+                        w_done<=1'b0;
+                        state<=SEND;
                     end
                 end
 
                 SEND: begin
-                    if (M_AXI_AWREADY && M_AXI_WREADY) begin
+                //should accept each channel independently memory_axi fires them 1 cycle apart
+                    if (M_AXI_AWVALID && M_AXI_AWREADY) begin
                         M_AXI_AWVALID<=1'b0;
+                        aw_done<=1'b1;
+                    end
+                    if(M_AXI_WVALID && M_AXI_WREADY) begin 
                         M_AXI_WVALID<=1'b0;
+                        w_done<=1'b1;
+                    end
+                    //to check if both of them are accepted 
+                    if ((M_AXI_AWREADY || aw_done) && (M_AXI_WREADY || w_done)) begin
+                        aw_done<=1'b0;
+                        w_done<=1'b0;
                         state<=WAIT_RESP;
                     end
                 end
