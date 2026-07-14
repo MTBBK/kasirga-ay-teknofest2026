@@ -1,6 +1,3 @@
-Output:
+UVM 1.2 Test:
 Simulated using Siemens QuestaSim on EDA Playground.
 
-[SEQ] Read CPB: 364: The AXI-Lite bus successfully wrote and read back the Clock Per Baud (CPB) configuration.
-[SEQ] Read CFG: 6: The AXI-Lite bus correctly read the CFG register after the wait time, confirming that the transmission finished (bit 2 is high).
-[SEQ] Read RDR (Loopback): 5a: The exact byte we transmitted (0x5A) was successfully received by the loopback mechanism and read from the Receive Data Register!
