@@ -355,9 +355,23 @@ module top(
     
     
     logic sleep_en;
-    
+    logic held_interrupt;
+    logic irq_ack;
+    always_ff@(posedge clk_i)begin 
+        if(!rst_n_i)begin
+            held_interrupt<=0;
+        end
+        else begin 
+            if(interrupt_1_bit)begin 
+                held_interrupt<=1;
+            end
+            else if(irq_ack)begin 
+                held_interrupt<=0;
+            end
+        end
+    end
     logic [31:0] interrupt;
-    assign interrupt={15'd0,interrupt_1_bit,16'd0};
+    assign interrupt={15'd0,held_interrupt,16'd0};
     logic [31:0] boot_addr;
     assign boot_addr=32'h0000_0000;
     
@@ -424,7 +438,7 @@ module top(
 
      // Interrupt interface
     .irq_i                    (interrupt),
-    .irq_ack_o                (),
+    .irq_ack_o                (irq_ack),
     .irq_id_o                 (),
 
     // Debug interface
@@ -543,6 +557,8 @@ module top(
     logic        uart_to_axi_RREADY;
     
     logic stream_done;
+    logic stream_enable;
+    logic hw_clear;
 
     uart_stream_top #(.baud_rate(uart_baud_rate),.clock_frequency(clk_freq_Mhz)) uart_stream_inst(   
               .S_AXI_ACLK(clk_i),     
@@ -563,7 +579,9 @@ module top(
               .fsm_tx_trigger_o(fsm_tx_trigger_o),      
               .fsm_tx_dump_done_i(fsm_tx_dump_done_i),
               .fsm_read_data_i(read_data) ,
-              .fsm_stream_done_i(stream_done)  
+              .fsm_stream_done_i(stream_done),
+              .hw_rx_clear_i(hw_clear),   
+              .stream_enable_o(stream_enable)
                        
     );
     
@@ -604,7 +622,9 @@ module top(
         .M_AXI_RVALID(uart_to_axi_RVALID),      
         .M_AXI_RREADY(uart_to_axi_RREADY),      
                           
-        .stream_done_o(stream_done)      
+        .stream_done_o(stream_done),
+        .hw_rx_clear_o(hw_clear),   
+        .stream_enable_i(stream_enable)      
     );
     
     
@@ -992,9 +1012,11 @@ module top(
     //Data Memory
     memory_axi#(
         .BASE_ADDRESS(32'h0000_3000)
-        ) data_memory(
+    ) data_memory(
         .clk(clk_i),
         .rst_i(rst_n_i),
+        
+        // AXI-Lite (İşlemci Tarafı)
         .ARADDR(araddr_slv1),
         .ARVALID(arvalid_slv1),
         .ARREADY(arready_slv1),
@@ -1011,30 +1033,31 @@ module top(
         .BREADY(bready_slv1),
         .WVALID(wvalid_slv1),
         
-        .AWVALID_DMA(),
-        .ARREADY_DMA(),
+        // DMA GİRİŞLERİ (INPUT) -> Kesinlikle 0'a bağlanmalı
+        .AWVALID_DMA(1'b0),
+        .AWADDR_DMA(32'd0),
+        .AWLEN_DMA(6'd0),
+        .WVALID_DMA(1'b0),
+        .WDATA_DMA(32'd0),
+        .WSTRB_DMA(4'd0),
+        .WLAST_DMA(1'b0),
+        .ARVALID_DMA(1'b0),
+        .ARADDR_DMA(32'd0),
+        .ARLEN_DMA(5'd0),
+        .BREADY_DMA(1'b0),
+        .RREADY_DMA(1'b0),
+        
+        // DMA ÇIKIŞLARI (OUTPUT) -> Boş kalabilir
         .AWREADY_DMA(),
-        .AWADDR_DMA(),
-        .WVALID_DMA(),
         .WREADY_DMA(),
-        .WDATA_DMA(),
-        .WSTRB_DMA(),
         .BVALID_DMA(),
-        .BREADY_DMA(),
-        .ARVALID_DMA(),
-        .ARADDR_DMA(),
+        .ARREADY_DMA(),
         .RVALID_DMA(),
-        .RREADY_DMA(),
         .RDATA_DMA(),
+        .RLAST_DMA()
+    );
         
-        .ARLEN_DMA(),
-        .RLAST_DMA(),
-        
-        .AWLEN_DMA(),
-        .WLAST_DMA()
-        );
-        
-        //Accelerator Data Memory
+        //Data Memory
     memory_axi#(
         .BASE_ADDRESS(32'h0000_12000),
         .SIZE(30720)
@@ -1097,7 +1120,23 @@ module top(
         
         
         
-    
+    assign awready_slv8 = 1'b0;
+    assign wready_slv8  = 1'b0;
+    assign bvalid_slv8  = 1'b0;
+    assign bresp_slv8   = 2'b00;
+    assign arready_slv8 = 1'b0;
+    assign rvalid_slv8  = 1'b0;
+    assign rdata_slv8   = 32'd0;
+    assign rresp_slv8   = 2'b00;
+
+    assign awready_slv9 = 1'b0;
+    assign wready_slv9  = 1'b0;
+    assign bvalid_slv9  = 1'b0;
+    assign bresp_slv9   = 2'b00;
+    assign arready_slv9 = 1'b0;
+    assign rvalid_slv9  = 1'b0;
+    assign rdata_slv9   = 32'd0;
+    assign rresp_slv9   = 2'b00;
     
 endmodule
 

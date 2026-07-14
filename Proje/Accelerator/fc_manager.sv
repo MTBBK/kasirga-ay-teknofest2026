@@ -9,11 +9,12 @@ input logic rst,
 input logic basla,//writeenable,
 input logic [63:0]buff_read_data,
 output logic [9:0]buff_read_addr,
-output logic signed [7:0]resultvals[0:3]
+output logic signed [7:0]resultvals[0:3],
+output logic bitti
     );
     logic [9:0]readaddres_counter;
     
-    logic bitti;
+    
     logic [3:0] outputready;
     logic [7:0] yataykablo[0:4];
     logic [7:0] dikeykablo[0:1][0:3];

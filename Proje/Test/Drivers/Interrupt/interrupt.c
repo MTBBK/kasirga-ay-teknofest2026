@@ -19,5 +19,5 @@ void setup_interrupt(){
     set_csr_bits(mie,MIE_MTIE);
     uintptr_t interrupthandler=(uintptr_t) interr;
     uintptr_t mtvec_val=interrupthandler &~3UL;
-    set_csr_bits(mtvec,mtvec_val);
+    write_csr(mtvec, mtvec_val);
 }

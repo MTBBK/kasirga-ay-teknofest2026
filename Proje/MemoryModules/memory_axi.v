@@ -171,14 +171,17 @@ always@(posedge clk)begin
         axi_bvalid <= 1'b0;
 end
 
+
 //AXI4 DMA BVALID
 initial axi_bvalid_dma = 1'b0;
-always@(posedge clk)begin
+always@(posedge clk) begin
     if(!rst_i)
         axi_bvalid_dma <= 1'b0;
-    else if(WLAST_DMA)
+    // DÜZELTME: Sadece WLAST_DMA değil, aynı zamanda verinin 
+    // bellek tarafından kabul edildiği (axi_write_ready_dma) anı bekliyoruz.
+    else if(WLAST_DMA && axi_write_ready_dma)
         axi_bvalid_dma <= 1'b1;
-    else if(BREADY_DMA)
+    else if(BREADY_DMA && axi_bvalid_dma)
         axi_bvalid_dma <= 1'b0;
 end
 

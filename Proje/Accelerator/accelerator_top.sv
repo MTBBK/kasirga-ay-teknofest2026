@@ -105,14 +105,16 @@ module accelerator_top(
     );
     
     logic [63:0] outputbufferdataout;                                       
-    logic signed [7:0]fc_results[0:3];  
+    logic signed [7:0]fc_results[0:3];
+    logic fc_manager_done;
     fc_manager fullyconnected_manager(//feederdan çok manager gibi oldu bu hali
         .clk(clk),                
         .rst(rst),                
         .basla(fcfeederbasla),        
         .buff_read_data(outputbufferdataout),
         .buff_read_addr(fcfeeder_buffaddress),
-        .resultvals(fc_results) 
+        .resultvals(fc_results),
+        .bitti(fc_manager_done)
     );
     
     bufferv3 outputbuffer(
@@ -123,7 +125,8 @@ module accelerator_top(
         .dout(outputbufferdataout)
     );
     logic signed [7:0]softmax_results[0:3];
-    logic softmax_start=1;
+    logic softmax_start;
+    assign softmax_start=fc_manager_done;
     logic softmax_done;
     softmax softmax_inst(
         .clk_i(clk),
@@ -160,7 +163,8 @@ module accelerator_top(
     assign results_class=result;
     
     
-    logic infer_done=softmax_done;
+    logic infer_done;
+    assign infer_done=softmax_done;
     logic loader_done;
     
     logic [9:0] loader_addr;
@@ -239,6 +243,35 @@ buffer_byte_en buffer(
     //    .din(omanager_buffwritedata),
     //    .dout(outputbufferdataout)
     //);
-   assign interrupt=write_done;
+
+   //interrupt
+//   logic [1:0] interrupt_counter;
+
+//    always_ff @(posedge clk) begin 
+//        if (rst) begin 
+//            interrupt <= 0;
+//            interrupt_counter <= 0;
+//        end 
+//        else begin 
+            
+//            if (write_done && interrupt_counter == 0) begin
+//                interrupt <= 1; 
+//                interrupt_counter <= 1;
+//            end
+//            else if (interrupt_counter > 0) begin
+//                if (interrupt_counter == 2'd3) begin 
+//                    interrupt <= 0;                  
+//                    interrupt_counter <= 0;          
+//                end
+//                else begin 
+//                    interrupt_counter <= interrupt_counter + 1;
+//                end
+//            end
+//        end
+//    end
+
+assign interrupt=write_done;
+   
+   
 endmodule
 
