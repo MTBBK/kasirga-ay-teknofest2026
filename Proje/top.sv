@@ -18,8 +18,9 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
+// Comment the line below if you want to deactivate JTAG module so that it can work as normal as before
 `define ENABLE_JTAG
+
 module top(
     input logic clk_i,
     input logic rst_n_i,
@@ -50,6 +51,7 @@ module top(
     input  logic jtag_tdi_i,
     output logic jtag_tdo_o
 `endif
+
     );
     
     parameter uart_baud_rate=921600;
@@ -80,13 +82,11 @@ module top(
     logic [31:0] axi_rdata_instr_i;
     logic axi_rvalid_instr_i;
     logic axi_rready_instr_;
-
+    
+    
     // ---------------------------------------------------------------
-    // JTAG / Debug Module (optional, see ENABLE_JTAG)
+    // JTAG / Debug Module (optional, purely additive -- see ENABLE_JTAG)
     // ---------------------------------------------------------------
-    // Instruction bus, downstream of the demux, feeding obi_to_axi_readonly.
-    // When ENABLE_JTAG is off these are simple pass-throughs of the core's
-    // raw instruction OBI signals (see assigns below).
     wire        obi_req_instr_sys;
     wire        obi_gnt_instr_sys;
     wire        obi_rvalid_instr_sys;
@@ -105,22 +105,17 @@ module top(
     logic [31:0] instr_dbg_rdata;
 
     // Must match dm_jtag_subsystem's DmBaseAddress parameter below, AND
-    // the xbar module's actual slv8 decode (xbar.sv: awaddr_master[19:12]
-    // == 8'h10), so the window is 0x0001_0000-0x0001_0FFF.
+    // the xbar module's slv8 decode (xbar.sv: awaddr_master[19:12]==8'h10),
+    // so the window is 0x0001_0000-0x0001_0FFF.
     localparam logic [31:0] DBG_BASE_ADDR = 32'h0001_0000;
-    localparam logic [31:0] DBG_ADDR_MASK = 32'h000F_F000; // mirrors xbar's [19:12] decode
+    localparam logic [31:0] DBG_ADDR_MASK = 32'h000F_F000;
 `endif
-
     
     
     
     
     
-    
-    
-    
-    
-    //XBAR S�gnals
+    //XBAR Sıgnals
 
     // MASTER(core) INTERFACE
     // WRITE ADDRESS CHANNEL
@@ -393,9 +388,23 @@ module top(
     
     
     logic sleep_en;
-    
+    logic held_interrupt;
+    logic irq_ack;
+    always_ff@(posedge clk_i)begin 
+        if(!rst_n_i)begin
+            held_interrupt<=0;
+        end
+        else begin 
+            if(interrupt_1_bit)begin 
+                held_interrupt<=1;
+            end
+            else if(irq_ack)begin 
+                held_interrupt<=0;
+            end
+        end
+    end
     logic [31:0] interrupt;
-    assign interrupt={15'd0,interrupt_1_bit,16'd0};
+    assign interrupt={15'd0,held_interrupt,16'd0};
     logic [31:0] boot_addr;
     assign boot_addr=32'h0000_0000;
     
@@ -467,7 +476,7 @@ module top(
 
      // Interrupt interface
     .irq_i                    (interrupt),
-    .irq_ack_o                (),
+    .irq_ack_o                (irq_ack),
     .irq_id_o                 (),
 
     // Debug interface
@@ -484,8 +493,8 @@ module top(
 `ifdef ENABLE_JTAG
     // ---------------------------------------------------------------
     // Instruction-bus demux: fork debug-window instruction fetches
-    // (debug ROM code, run while the core is halted) away from the
-    // normal ROM/Instruction-Memory path, straight to the DM.
+    // away from the normal ROM/Instruction-Memory path, straight to
+    // the Debug Module. (xbar_readonly is untouched.)
     // ---------------------------------------------------------------
     obi_addr_demux #(
         .DBG_BASE (DBG_BASE_ADDR),
@@ -517,7 +526,7 @@ module top(
     // JTAG TAP + DTM + Debug Module
     // ---------------------------------------------------------------
     dm_jtag_subsystem #(
-        .IdcodeValue   (32'h249511C3), // arbitrary but LSB must be 1 (JTAG spec)
+        .IdcodeValue   (32'h249511C3),
         .DmBaseAddress (DBG_BASE_ADDR)
     ) u_dm_jtag_subsystem (
         .clk_i     (clk_i),
@@ -546,8 +555,7 @@ module top(
         .s_axi_rvalid_o  (rvalid_slv8),  .s_axi_rready_i  (rready_slv8),  .s_axi_rdata_o  (rdata_slv8), .s_axi_rresp_o (rresp_slv8)
     );
 `else
-    // JTAG disabled: instruction bus feeds obi_to_axi_readonly unchanged,
-    // and slv8 is left unconnected exactly as in the original design.
+    // JTAG disabled: instruction bus feeds obi_to_axi_readonly unchanged.
     assign obi_req_instr_sys  = obi_req_instr_i;
     assign obi_addr_instr_sys = obi_addr_instr_i;
     assign obi_gnt_instr_o    = obi_gnt_instr_sys;
@@ -664,6 +672,8 @@ module top(
     logic        uart_to_axi_RREADY;
     
     logic stream_done;
+    logic stream_enable;
+    logic hw_clear;
 
     uart_stream_top #(.baud_rate(uart_baud_rate),.clock_frequency(clk_freq_Mhz)) uart_stream_inst(   
               .S_AXI_ACLK(clk_i),     
@@ -684,7 +694,9 @@ module top(
               .fsm_tx_trigger_o(fsm_tx_trigger_o),      
               .fsm_tx_dump_done_i(fsm_tx_dump_done_i),
               .fsm_read_data_i(read_data) ,
-              .fsm_stream_done_i(stream_done)  
+              .fsm_stream_done_i(stream_done),
+              .hw_rx_clear_i(hw_clear),   
+              .stream_enable_o(stream_enable)
                        
     );
     
@@ -725,7 +737,9 @@ module top(
         .M_AXI_RVALID(uart_to_axi_RVALID),      
         .M_AXI_RREADY(uart_to_axi_RREADY),      
                           
-        .stream_done_o(stream_done)      
+        .stream_done_o(stream_done),
+        .hw_rx_clear_o(hw_clear),   
+        .stream_enable_i(stream_enable)      
     );
     
     
@@ -1113,9 +1127,11 @@ module top(
     //Data Memory
     memory_axi#(
         .BASE_ADDRESS(32'h0000_3000)
-        ) data_memory(
+    ) data_memory(
         .clk(clk_i),
         .rst_i(rst_n_i),
+        
+        // AXI-Lite (İşlemci Tarafı)
         .ARADDR(araddr_slv1),
         .ARVALID(arvalid_slv1),
         .ARREADY(arready_slv1),
@@ -1132,30 +1148,31 @@ module top(
         .BREADY(bready_slv1),
         .WVALID(wvalid_slv1),
         
-        .AWVALID_DMA(),
-        .ARREADY_DMA(),
+        // DMA GİRİŞLERİ (INPUT) -> Kesinlikle 0'a bağlanmalı
+        .AWVALID_DMA(1'b0),
+        .AWADDR_DMA(32'd0),
+        .AWLEN_DMA(6'd0),
+        .WVALID_DMA(1'b0),
+        .WDATA_DMA(32'd0),
+        .WSTRB_DMA(4'd0),
+        .WLAST_DMA(1'b0),
+        .ARVALID_DMA(1'b0),
+        .ARADDR_DMA(32'd0),
+        .ARLEN_DMA(5'd0),
+        .BREADY_DMA(1'b0),
+        .RREADY_DMA(1'b0),
+        
+        // DMA ÇIKIŞLARI (OUTPUT) -> Boş kalabilir
         .AWREADY_DMA(),
-        .AWADDR_DMA(),
-        .WVALID_DMA(),
         .WREADY_DMA(),
-        .WDATA_DMA(),
-        .WSTRB_DMA(),
         .BVALID_DMA(),
-        .BREADY_DMA(),
-        .ARVALID_DMA(),
-        .ARADDR_DMA(),
+        .ARREADY_DMA(),
         .RVALID_DMA(),
-        .RREADY_DMA(),
         .RDATA_DMA(),
+        .RLAST_DMA()
+    );
         
-        .ARLEN_DMA(),
-        .RLAST_DMA(),
-        
-        .AWLEN_DMA(),
-        .WLAST_DMA()
-        );
-        
-        //Accelerator Data Memory
+        //Data Memory
     memory_axi#(
         .BASE_ADDRESS(32'h0000_12000),
         .SIZE(30720)
@@ -1206,4 +1223,25 @@ module top(
         .AWLEN_DMA(6'd0),
         .WLAST_DMA(1'b1)
         );
+        
+`ifndef ENABLE_JTAG
+    assign awready_slv8 = 1'b0;
+    assign wready_slv8  = 1'b0;
+    assign bvalid_slv8  = 1'b0;
+    assign bresp_slv8   = 2'b00;
+    assign arready_slv8 = 1'b0;
+    assign rvalid_slv8  = 1'b0;
+    assign rdata_slv8   = 32'd0;
+    assign rresp_slv8   = 2'b00;
+`endif
+
+    assign awready_slv9 = 1'b0;
+    assign wready_slv9  = 1'b0;
+    assign bvalid_slv9  = 1'b0;
+    assign bresp_slv9   = 2'b00;
+    assign arready_slv9 = 1'b0;
+    assign rvalid_slv9  = 1'b0;
+    assign rdata_slv9   = 32'd0;
+    assign rresp_slv9   = 2'b00;
+    
 endmodule
