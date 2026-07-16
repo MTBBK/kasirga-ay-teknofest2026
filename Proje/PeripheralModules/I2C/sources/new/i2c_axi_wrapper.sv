@@ -36,7 +36,7 @@ module i2c_axi_wrapper #(
     output wire        RVALID,
     input  wire        RREADY,
     output wire [31:0] RDATA,
-    output wire        RRESP
+    output wire  [1:0]      RRESP
 );
 
     // Bellek Haritasý Offset Tanýmlarý
