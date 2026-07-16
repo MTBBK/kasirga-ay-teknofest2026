@@ -77,7 +77,7 @@ module timer_top #(
     parameter int CLK_FREQ = 50_000_000
 )(
     input wire clk,
-    input wire rst_i, // Aktif-düşük reset
+    input wire rst_i, // Düz reset
 
     // AXI4-Lite
     input wire AWVALID,
@@ -126,10 +126,10 @@ module timer_top #(
         .CLK_FREQ(CLK_FREQ)
     ) i_timer_core (
         .clk_i    (clk),
-        .rst_i    (!rst_i),         // rst-i terslendi
+        .rst_i    (!rst_i),         // rst-i tersi
         .tim_pre  (TIM_PRE),
         .tim_are  (TIM_ARE),
-        .tim_clr  (TIM_CLR[0]),     // Rapor: Yazmacın alt biti kullanılır
+        .tim_clr  (TIM_CLR[0]),     // Yazmacın alt biti kullanılır
         .tim_ena  (TIM_ENA[0]),
         .tim_mod  (TIM_MOD[0]),
         .tim_evc  (TIM_EVC[0]),
