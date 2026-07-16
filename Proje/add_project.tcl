@@ -82,6 +82,7 @@ set my_files [list \
     "${PROJE_DIR}/Core/rtl/cv32e40p_fp_wrapper.sv" \
     "${PROJE_DIR}/Core/rtl/cv32e40p_top.sv" \
     "${PROJE_DIR}/Test/top_module_test/boot.mem" \
+    "${PROJE_DIR}/Test/top_module_test/audio_input.mem"
     "${PROJE_DIR}/Test/top_module_test/mem_Q512.mem" \
     "${PROJE_DIR}/Test/top_module_test/sfdp.mem" \
 ]

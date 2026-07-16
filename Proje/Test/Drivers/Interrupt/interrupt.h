@@ -1,6 +1,3 @@
-
-
-
 #define write_csr(csr, val) \
     __asm__ __volatile__ ("csrw " #csr ", %0" :: "r"(val))
 

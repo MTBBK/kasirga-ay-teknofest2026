@@ -7,7 +7,8 @@ module im2col_feeder(
     output logic [9:0]buff_read_addr,
     output logic [7:0]sa_word_o[0:9],
     output logic sawordo_started,//diğer besleyici modul için sinyal. ben veri göndermeye başladım diyor
-    output logic endofregion
+    output logic endofregion,
+    input logic start
     );
     
     logic [2:0] global_word_offset;
@@ -23,7 +24,7 @@ module im2col_feeder(
     logic [9:0]lanereg_ready;//feedlane içeriisind eki laneregin veri kabul etmeye hazır olduğunu gösteren sinyal, hepsi bir olunca başla sinyali vermeyi düşünüyorum 
     logic [7:0] laneregs [0:9][0:7];
 
-    assign startread = &lanereg_ready; 
+    assign startread = start&&(&lanereg_ready); 
     
     always_ff @(posedge clk)begin
         if (rst) begin 
@@ -96,7 +97,7 @@ module im2col_feeder(
                     for (int i = 0; i < 10; i=i+1) begin
                         sa_word_o[i] <= '0;
                     end
-                    if(&fifovalid && fifofeeder_ready)begin//valid ready handshake'i
+                    if(&fifovalid && fifofeeder_ready&&start)begin//valid ready handshake'i
                         fifofeeder <= laneregs;
                         fifofeeder_ready <= 1'b0;
                         feeder_state <= senddata;

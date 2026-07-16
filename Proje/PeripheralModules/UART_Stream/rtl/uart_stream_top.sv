@@ -1,8 +1,8 @@
 `timescale 1ns / 1ps
 
 module uart_stream_top #(
-    parameter integer baud_rate = 921600, // (bps) 
-    parameter integer clock_frequency = 100 // Mhz
+    parameter integer baud_rate = 921600, //(bps) 
+    parameter integer clock_frequency = 100 //Mhz
 ) (
     // Physical UART Ports
     input  logic uart_rx_i,
@@ -41,7 +41,10 @@ module uart_stream_top #(
     output logic        fsm_tx_trigger_o,     
     input  logic        fsm_tx_dump_done_i,   
     input  logic [31:0] fsm_read_data_i,  
-    input  logic        fsm_stream_done_i   
+    input  logic        fsm_stream_done_i,
+    
+    input  logic        hw_rx_clear_i,   // YENİ EKLENDİ
+    output logic        stream_enable_o  // YENİ EKLENDİ
 );
 
     // User Registers (Memory Map)
@@ -51,10 +54,10 @@ module uart_stream_top #(
                 ADDR_UART_TDR = 32'h0000600C, 
                 ADDR_UART_CFG = 32'h00006010,
                 ADDR_TX_DUMP_ADR  = 32'h00006014,
-                ADDR_TX_DUMP_DATA = 32'h0000601C;
+                ADDR_TX_DUMP_DATA = 32'h00006018;
                 
     // UART_CPB Calculation
-    localparam int CPB_VALUE = (clock_frequency * 1000000) / baud_rate;
+    localparam int CPB_VALUE = (clock_frequency * 1000000) / baud_rate; 
     
     logic [31:0] uart_cpb; 
     logic [31:0] uart_stp; 
@@ -64,7 +67,9 @@ module uart_stream_top #(
     logic [31:0] tx_dump_adr;
     
     assign fsm_tx_start_addr_o = tx_dump_adr;
-    assign fsm_tx_trigger_o    = uart_cfg[3]; // CFG 3. bit tetiği çeker
+    assign fsm_tx_trigger_o    = uart_cfg[3]; 
+    
+    assign stream_enable_o = uart_cfg[5]; 
     
     // Set Unused Channels
     assign S_AXI_BRESP = 2'b00;
@@ -73,8 +78,9 @@ module uart_stream_top #(
     // Internal UART wires
     logic tx_done, rx_done, tx_busy;
     logic [31:0] rx_data_raw;
-    logic rx_clear_trigger;
-    assign rx_clear_trigger = (S_AXI_ARVALID && S_AXI_ARREADY && (S_AXI_ARADDR == ADDR_UART_RDR));
+    
+    logic rx_clear_trigger; 
+    assign rx_clear_trigger = (S_AXI_ARVALID && S_AXI_ARREADY && (S_AXI_ARADDR == ADDR_UART_RDR)) || hw_rx_clear_i;
     
     // 1. AXI4-Lite Bus Signals & Handshaking
     logic axi_awready, axi_arready, axi_rvalid, axi_bvalid;
@@ -117,7 +123,6 @@ module uart_stream_top #(
             uart_cfg    <= 32'd0;
             tx_dump_adr <= 32'd0;
         end else begin
-            // Yazılım (AXI) Üzerinden Yazma İşlemleri
             if (axi_awready) begin
                 case (S_AXI_AWADDR)
                     ADDR_UART_CPB: begin
@@ -142,7 +147,7 @@ module uart_stream_top #(
                         if(S_AXI_WSTRB[0]) begin
                             uart_cfg[0] <= S_AXI_WDATA[0];
                             uart_cfg[3] <= S_AXI_WDATA[3];
-                            // Yeni veri gönderimi başlatılırken tx_done temizle
+                            uart_cfg[5] <= S_AXI_WDATA[5]; 
                             if (S_AXI_WDATA[0]) uart_cfg[2] <= 1'b0;
                         end
                     end
@@ -155,7 +160,6 @@ module uart_stream_top #(
                 endcase
             end
 
-            // RX - Veri alındı bayrağını Set/Reset etme
             if (rx_done) begin
                 uart_cfg[1] <= 1'b1; 
             end
@@ -163,17 +167,16 @@ module uart_stream_top #(
                 uart_cfg[1] <= 1'b0;
             end
             
-            // FSM - TX Dump Bitti
             if (fsm_tx_dump_done_i) uart_cfg[3] <= 1'b0;
-
+            
             if (fsm_stream_done_i) begin
-                uart_cfg[4] <= 1'b1; // Donanım SET eder
+                uart_cfg[4] <= 1'b1; // Done bayrağını 1 yap
+                uart_cfg[5] <= 1'b0; // YENİ: Stream Enable'ı otomatik kapat!
             end 
             else if (axi_awready && (S_AXI_AWADDR == ADDR_UART_CFG) && S_AXI_WSTRB[0] && (S_AXI_WDATA[4] == 1'b0)) begin
-                uart_cfg[4] <= 1'b0; // İşlemci yazılımı RESET eder
+                uart_cfg[4] <= 1'b0;
             end
             
-            // TX - Veri iletimi bitti bayrağı
             if (tx_done) begin
                 uart_cfg[0] <= 1'b0; 
                 uart_cfg[2] <= 1'b1; 
@@ -211,7 +214,7 @@ module uart_stream_top #(
         end
     end
 
-    // 4. Instantiating your Core Logic
+    // 4. Instantiating Core Logic
     uart_rx RX (
         .clock_i(S_AXI_ACLK),
         .reset_i(S_AXI_ARESETN),

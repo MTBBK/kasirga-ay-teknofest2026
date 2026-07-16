@@ -10,11 +10,11 @@ input logic basla,//writeenable,
 input logic [63:0]buff_read_data,
 output logic [9:0]buff_read_addr,
 output logic signed [7:0]resultvals[0:3],
-output logic bitti
+output logic done
     );
     logic [9:0]readaddres_counter;
     
-    
+    logic bitti;
     logic [3:0] outputready;
     logic [7:0] yataykablo[0:4];
     logic [7:0] dikeykablo[0:1][0:3];
@@ -198,12 +198,15 @@ output logic bitti
     
     always_ff @(posedge clk) begin 
         if(rst)begin 
-            resultvals <= '{default:'0};   
+            resultvals <= '{default:'0}; 
+            done<=1'b0;  
         end
         else begin
             //
+            done<=1'b0;
             if(&req_output_valid)begin
                 resultvals <= requantization_outputs;
+                done<=1'b1;
             end
         end
     end

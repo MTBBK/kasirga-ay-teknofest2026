@@ -6,16 +6,36 @@ def process_verilog_mem(input_file):
         return 0, []
 
     raw_bytes = []
+    current_address = None
     
-    # 1. Objcopy dosyasındaki tüm ham baytları tek bir listede topla
+    # 1. Objcopy dosyasındaki tüm ham baytları adres boşluklarına dikkat ederek topla
     with open(input_file, 'r') as f_in:
         for line in f_in:
             line = line.strip()
-            # Boş satırları veya @ ile başlayan adres etiketlerini atla
-            if not line or line.startswith('@'):
+            # Boş satırları atla
+            if not line:
                 continue
-            # Satırdaki boşlukla ayrılmış tüm baytları listeye ekle (Örn: ['37', '51', '00', '00'])
-            raw_bytes.extend(line.split())
+                
+            # Eğer satır adres ise (Örn: @00001008)
+            if line.startswith('@'):
+                new_address = int(line[1:], 16) # Adresi Hex'ten Integer'a çevir
+                
+                # Eğer ilk adresi okuyorsak taban adres olarak belirle
+                if current_address is None:
+                    current_address = new_address
+                # Eğer yeni adres mevcut adresten ilerideyse araya sıfır (00) doldur
+                elif new_address > current_address:
+                    gap = new_address - current_address
+                    raw_bytes.extend(["00"] * gap)
+                    current_address = new_address
+            
+            # Eğer satır bayt verisi ise (Örn: 37 51 00 00)
+            else:
+                tokens = line.split()
+                raw_bytes.extend(tokens)
+                # Okunan bayt sayısı kadar mevcut adresi ilerlet
+                if current_address is not None:
+                    current_address += len(tokens)
 
     formatted_bytes = []
     word_count = 0

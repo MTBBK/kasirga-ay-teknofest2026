@@ -39,6 +39,23 @@ module accelerator_top(
     logic [7:0]sa_word_o[0:9];
     logic sawordo_started;
     logic endofregion;
+    
+    logic start_accelerator;
+    logic infer_done;
+    logic loader_done;
+    always_ff@(posedge clk)begin 
+        if(rst)begin
+            start_accelerator<=0;
+        end
+        else begin 
+            if(loader_done)begin 
+                start_accelerator<=1;
+            end
+            if(infer_done)begin 
+                start_accelerator<=0;
+            end
+        end
+    end
     im2col_feeder im2colFeeder(
         .clk(clk),
         .rst(rst),
@@ -46,7 +63,8 @@ module accelerator_top(
         .buff_read_addr(buff_read_addr),
         .sa_word_o(sa_word_o),
         .sawordo_started(sawordo_started),
-        .endofregion(endofregion)
+        .endofregion(endofregion),
+        .start(start_accelerator)
     );
     
     logic write_enable = 0;
@@ -114,7 +132,7 @@ module accelerator_top(
         .buff_read_data(outputbufferdataout),
         .buff_read_addr(fcfeeder_buffaddress),
         .resultvals(fc_results),
-        .bitti(fc_manager_done)
+        .done(fc_manager_done)
     );
     
     bufferv3 outputbuffer(
@@ -163,9 +181,9 @@ module accelerator_top(
     assign results_class=result;
     
     
-    logic infer_done;
+    
     assign infer_done=softmax_done;
-    logic loader_done;
+    
     
     logic [9:0] loader_addr;
     logic [63:0] loader_din;

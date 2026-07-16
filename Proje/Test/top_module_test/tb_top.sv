@@ -10,6 +10,8 @@ module tb_top();
     // Uart sinyalleri
     logic uart_rx_i;
     logic uart_tx_o;
+    logic uart_stream_rx_i;
+    logic uart_stream_tx_o;
     
     //gpio sinyalleri
     wire [15:0] gpio_o;
@@ -22,11 +24,11 @@ module tb_top();
     
     // QSPI Sinyalleri
     wire sclk_o;
-    wire cs_n; // cs_ olarak tanımlamışsın, cs_n (active low) olarak düzeltelim
-    wire qspi_io_0; // MOSI (Data 0)
-    wire qspi_io_1; // MISO (Data 1)
-    wire qspi_io_2; // Data 2 (WP/Hold vb.)
-    wire qspi_io_3; // Data 3
+    wire cs_n; 
+    wire qspi_io_0; 
+    wire qspi_io_1; 
+    wire qspi_io_2; 
+    wire qspi_io_3; 
     pullup(qspi_io_0);
     pullup(qspi_io_1);
     pullup(qspi_io_2);
@@ -48,11 +50,13 @@ module tb_top();
         .qspi_io_0(qspi_io_0),
         .qspi_io_1(qspi_io_1),
         .qspi_io_2(qspi_io_2),
-        .qspi_io_3(qspi_io_3)
+        .qspi_io_3(qspi_io_3),
+        .uart_stream_rx_i(uart_stream_rx_i), 
+        .uart_stream_tx_o(uart_stream_tx_o)
     );
 
     // ---------------------------------------------------------
-    // UART TERMİNAL AJANI BAĞLANTISI (921600 Baud)
+    // 1. UART TERMİNAL AJANI BAĞLANTISI (921600 Baud)
     // ---------------------------------------------------------
     simulated_uart_rx #(
         .BIT_PERIOD_NS(1085) // 1 saniye / 921600 baud = ~1085 ns
@@ -60,106 +64,146 @@ module tb_top();
         .rx_i(uart_tx_o) // İşlemciden çıkan TX'i ajanın RX girişine bağlıyoruz
     );
 
-    // Micron Flash Simülasyon Modülü Bağlantısı
-    // Not: N25Qxxx portları versiyona göre değişebilir. 
-    // Yüklediğin koddaki 'HOLD_pin' veya 'RESET_pin' tanımlarına göre portlar şekilleniyor.
-    // Standart SPI Quad modu için genelde aşağıdaki gibidir:
-    
-    integer vcc = 3000; // VCC sinyali (modelin internal logic'i için gerekebilir)
+    // ---------------------------------------------------------
+    // 2. QSPI FLASH BAĞLANTISI
+    // ---------------------------------------------------------
+    integer vcc = 3000; 
     
     N25Qxxx flash_mem (
-        .S(cs_n),           // Chip Select
-        .C_(sclk_o),        // Clock (C_ veya C olarak tanımlı olabilir modelde)
-        .HOLD_DQ3(qspi_io_3), // DQ3 / HOLD
-        .DQ0(qspi_io_0),    // DQ0 / MOSI
-        .DQ1(qspi_io_1),    // DQ1 / MISO
+        .S(cs_n),           
+        .C_(sclk_o),        
+        .HOLD_DQ3(qspi_io_3), 
+        .DQ0(qspi_io_0),    
+        .DQ1(qspi_io_1),    
         .Vcc(vcc),
-        .Vpp_W_DQ2(qspi_io_2) // DQ2 / VPP/WP
-        // .RESET2(...) // Eğer model RESET_pin veya Feature_8 tanımıyla derlendiyse bu port da gerekebilir.
+        .Vpp_W_DQ2(qspi_io_2) 
     );
 
-    // Clock Üretimi (100 MHz)
+    // ---------------------------------------------------------
+    // 3. CLOCK VE RESET YÖNETİMİ
+    // ---------------------------------------------------------
     initial begin
         clk_i = 0;
         forever #5 clk_i = ~clk_i; 
     end
 
-    // Reset ve Başlangıç
     initial begin
-        rst_n_i = 0;
         rst_n_i = 0;
         fetch_enable = 0;
         uart_rx_i = 1;
+        uart_stream_rx_i = 1; // Başlangıçta UART hattı IDLE (High) olmalı
         
         #200; // Sistemin oturması için bekle
         rst_n_i = 0;
         #200;
         rst_n_i = 1;
         fetch_enable = 1; // İşlemci çalışmaya başlasın
+        
         // Simülasyon süresi
         #500000000;
         $display("Simulasyon bitti.");
         $finish;
     end
 
+    // ---------------------------------------------------------
+    // 4. BİLGİSAYARI (PC) TAKLİT EDEN VERİ ENJEKTÖRÜ (YENİ)
+    // ---------------------------------------------------------
+    integer file_handle;
+    integer scan_status;
+    logic [7:0] audio_byte;
 
+    // 1 Baytlık veriyi 921600 baud rate ile seri pinden içeri üfleyen Task
+    task send_stream_byte(input logic [7:0] data);
+        begin
+            // 1. Start Bit (Lojik 0)
+            uart_stream_rx_i = 1'b0;
+            #(1085);
+            
+            // 2. Data Bits (8-bit, LSB First)
+            for (int j = 0; j < 8; j++) begin
+                uart_stream_rx_i = data[j];
+                #(1085);
+            end
+            
+            // 3. Stop Bit (Lojik 1)
+            uart_stream_rx_i = 1'b1;
+            #(1085);
+        end
+    endtask
+    integer tb_byte_count = 0;
+    initial begin
+        // Reset kalkmasını bekle
+        wait (rst_n_i == 1'b1);
+        
+        // Çekirdeğin init işlemlerini bitirmesi için GPIO-15'in 1 olmasını bekle
+        wait (gpio_o[15] == 1'b1); 
+        
+        $display("[TB] İşlemci hazır, veri akışına başlanıyor.");
+        file_handle = $fopen("audio_input.mem", "r");
+        if (file_handle == 0) begin
+            $display("[TB UYARI] audio_input.hex dosyasi bulunamadi! Veri gonderimi yapilmayacak.");
+        end else begin
+            $display("[TB] Bilgisayardan (PC) Inference ses verisi gonderilmeye basliyor...");
+            
+            while (!$feof(file_handle) && tb_byte_count < 2256) begin // <--- LİMİT EKLENDİ
+                scan_status = $fscanf(file_handle, "%h\n", audio_byte);
+                if (scan_status == 1) begin
+                    send_stream_byte(audio_byte);
+                    tb_byte_count = tb_byte_count + 1;
+                end
+            end
+            $display("[TB] Tum Inference verisi basariyla AXI-Stream uzerinden gonderildi.");
+            
+            $fclose(file_handle);
+            $display("[TB] Tum Inference verisi basariyla AXI-Stream uzerinden gonderildi.");
+        end
+    end
+
+    // ---------------------------------------------------------
+    // 5. I2C GOLDEN SLAVE SIMÜLASYONU
+    // ---------------------------------------------------------
     pullup(sda_io);
-   
     
-    // =====================================================================
-    // 2. GOLDEN SLAVE AXI-STREAM KONTROL SİNYALLERİ
-    // =====================================================================
-    logic [7:0] slave_tx_data  = 8'hAA; // Master okuma yaparsa (READ), slave bu veriyi göndersin
-    logic       slave_tx_valid = 1'b1;  // Slave göndermeye her zaman hazır
+    logic [7:0] slave_tx_data  = 8'hAA; 
+    logic       slave_tx_valid = 1'b1;  
     logic       slave_tx_ready;
     
-    logic [7:0] slave_rx_data;          // Master'dan gelen veri buraya düşecek
+    logic [7:0] slave_rx_data;          
     logic       slave_rx_valid;
-    logic       slave_rx_ready = 1'b1;  // Slave veri almaya her zaman hazır
+    logic       slave_rx_ready = 1'b1;  
     
     wire slave_sda_o;
     wire slave_sda_t;
     
-    // Slave'in kendi inout SDA pinini tristate mantığıyla sda_net'e bağlıyoruz
     assign sda_io = slave_sda_t ? 1'bz : slave_sda_o;
     
-    // =====================================================================
-    // 3. GOLDEN SLAVE INSTANTIATION
-    // =====================================================================
     i2c_slave #(
         .FILTER_LEN(4)
     ) golden_slave_inst (
         .clk(clk_i),
-        .rst(!rst_n_i), // Slave modülü active-high reset kullanır, invert ediyoruz
+        .rst(!rst_n_i), 
     
-        // --- Konfigürasyon ---
         .enable(1'b1),
-        .device_address(7'h01),      // C kodunda (i2c_WRITE(3, 0x01..)) kullandığın adres!
-        .device_address_mask(7'h7F), // Tam eşleşme istiyoruz
+        .device_address(7'h01),      
+        .device_address_mask(7'h7F), 
     
-        // --- I2C Arayüzü ---
-        .scl_i(scl_o), // Master'ın ürettiği SCL'yi dinliyor
-        .scl_o(),        // BOŞ BIRAK: Senin master'da clock stretching yok (scl_o sadece output)
-        .scl_t(),        // BOŞ BIRAK: Çakışmayı önlüyoruz
-        .sda_i(sda_io), // Hattan veriyi okur
-        .sda_o(slave_sda_o), // Hatta veri (veya ACK) basmak istediğinde
-        .sda_t(slave_sda_t), // Tri-state kontrolü
+        .scl_i(scl_o), 
+        .scl_o(),        
+        .scl_t(),        
+        .sda_i(sda_io), 
+        .sda_o(slave_sda_o), 
+        .sda_t(slave_sda_t), 
     
-        // --- AXI Stream TX (Slave'den -> Master'a) ---
-        // Eğer C kodunda i2c_READ yaparsan, bu veri gidecek
         .s_axis_data_tdata(slave_tx_data),
         .s_axis_data_tvalid(slave_tx_valid),
         .s_axis_data_tready(slave_tx_ready),
         .s_axis_data_tlast(1'b0),
     
-        // --- AXI Stream RX (Master'dan -> Slave'e) ---
-        // Eğer C kodunda i2c_WRITE yaparsan, Master'ın gönderdiği baytlar buraya dökülür
         .m_axis_data_tdata(slave_rx_data),
         .m_axis_data_tvalid(slave_rx_valid),
         .m_axis_data_tready(slave_rx_ready),
         .m_axis_data_tlast(),
     
-        // --- Durum Sinyalleri (İsteğe bağlı) ---
         .busy(),
         .bus_address(),
         .bus_addressed(),
@@ -167,10 +211,6 @@ module tb_top();
         .release_bus(1'b0)
     );
     
-    // =====================================================================
-    // 4. TESTBENCH EKRAN MONİTÖRÜ (DEBUG)
-    // =====================================================================
-    // Master'ın gönderdiği her veri baytını terminalde gösterir:
     always @(posedge clk_i) begin
         if (slave_rx_valid && slave_rx_ready) begin
             $display("[I2C GOLDEN SLAVE] Master'dan Veri Geldi! Deger: 0x%02X", slave_rx_data);
@@ -189,47 +229,35 @@ module simulated_uart_rx #(
 
     reg [7:0] rx_data;
     integer i;
-    logic is_new_line = 1'b1; // Zaman damgasını sadece satır başlarında basmak için
+    logic is_new_line = 1'b1; 
 
     initial begin
         $display("[UART AJANI] Terminal dinleniyor... (921600 Baud)");
         forever begin
-            // 1. START BİTİNİ BEKLE (Yüksekten düşüğe geçiş)
             @(negedge rx_i);
-            
-            // 2. Start bitinin ortasına kadar bekle (Doğru örnekleme için)
             #(BIT_PERIOD_NS / 2);
 
-            // 3. 8 DATA BİTİNİ OKU (LSB Önce)
             rx_data = 8'b0;
             for (i=0; i<8; i=i+1) begin
-                #(BIT_PERIOD_NS);  // Bir sonraki bitin ortasına git
-                rx_data[i] = rx_i; // Biti örnekle
+                #(BIT_PERIOD_NS);  
+                rx_data[i] = rx_i; 
             end
 
-            // 4. STOP BİTİNİ BEKLE (Hat tekrar 1 olmalı)
             #(BIT_PERIOD_NS);
             if (rx_i == 1'b1) begin
-                // VERİ BAŞARIYLA ALINDI!
-                
-                // Eğer yeni bir satırın ilk karakteriyse ve boşluk/enter değilse zamanı bas
                 if (is_new_line && (rx_data != 8'h0D) && (rx_data != 8'h0A)) begin
-                    $write("[%0t ns] ", $time); // Şimdiki simülasyon zamanını yazdır
-                    is_new_line = 1'b0;         // Bayrağı indir ki harf harf zaman basmasın
+                    $write("[%0t ns] ", $time); 
+                    is_new_line = 1'b0;         
                 end
 
-                // Karakteri ekrana bas
                 $write("%c", rx_data); 
 
-                // Eğer gelen karakter '\n' (Line Feed - 0x0A) ise, bir sonraki harf için bayrağı kaldır
                 if (rx_data == 8'h0A) begin 
                     is_new_line = 1'b1;
                 end
-
             end else begin
                 $display("\n[%0t ns] [UART HATA] Frame hatasi (Stop biti okunamadi). Gelen: %h", $time, rx_data);
             end
         end
     end
 endmodule
-

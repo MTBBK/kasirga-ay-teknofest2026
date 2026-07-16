@@ -98,6 +98,7 @@ module axi4_dma_loader #(
             col_idx<='0;
         end else begin
             loader_we<=8'd0; //default off
+            loader_done<=1'b0;
 
             case (state)
                 IDLE: begin
