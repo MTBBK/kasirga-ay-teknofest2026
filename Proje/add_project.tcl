@@ -17,7 +17,7 @@ set_property include_dirs $INCLUDE_PATHS [get_filesets sim_1]
 
 # 1. Tek tek eklenecek ana tasarım dosyaları
 set my_files [list \
-    "${PROJE_DIR}/top.sv" \
+    "${PROJE_DIR}/temporary_top/top.sv" \
     "${PROJE_DIR}/PeripheralModules/GPIO/gpio.v" \
     "${PROJE_DIR}/PeripheralModules/I2C/sources/new/I2C_master.sv" \
     "${PROJE_DIR}/PeripheralModules/I2C/sources/new/i2c_axi_wrapper.sv" \
@@ -82,9 +82,11 @@ set my_files [list \
     "${PROJE_DIR}/Core/rtl/cv32e40p_fp_wrapper.sv" \
     "${PROJE_DIR}/Core/rtl/cv32e40p_top.sv" \
     "${PROJE_DIR}/Test/top_module_test/boot.mem" \
-    "${PROJE_DIR}/Test/top_module_test/audio_input.mem"
-    "${PROJE_DIR}/Test/top_module_test/mem_Q512.mem" \
+    "${PROJE_DIR}/Test/top_module_test/audio_input.mem" \
+    "${PROJE_DIR}/Software/MainProgram/mem_Q512.mem" \
     "${PROJE_DIR}/Test/top_module_test/sfdp.mem" \
+    "${PROJE_DIR}/PeripheralModules/UART_Stream/rtl/uart_stream_to_axi.sv" \
+    "${PROJE_DIR}/PeripheralModules/UART_Stream/rtl/uart_stream_top.sv" \
 ]
 
 # 2. Dinamik olarak toplanacak klasörler

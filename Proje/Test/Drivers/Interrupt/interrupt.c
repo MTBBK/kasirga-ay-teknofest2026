@@ -3,9 +3,11 @@
 #include "uart_stream.h"
 
 void __attribute__((interrupt("machine"), aligned(256))) interrupt(void){
-    uart_send_string("interrupt basarili");
+    uart_send_string("\ninterrupt basarili");
     uint32_t data= uart_stream_read_ai_memory(RESULT_ADDR);
+    uart_send_string("\nSonuc:");
     uart_send_hex32(data);
+    uart_send_string("\n");
     
 
 

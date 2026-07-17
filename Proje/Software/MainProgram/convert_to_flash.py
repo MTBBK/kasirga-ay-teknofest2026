@@ -64,7 +64,7 @@ def count_to_hex_bytes(count):
     return [hex_str[0:2], hex_str[2:4], hex_str[4:6], hex_str[6:8]]
 
 def generate_flash_mem():
-    output_file = "flash.mem"
+    output_file = "mem_Q512.mem"
     
     # GCC/Objcopy'den çıkan gerçek .mem dosyalarını işle
     ins_count, ins_bytes = process_verilog_mem("instruction.mem")
