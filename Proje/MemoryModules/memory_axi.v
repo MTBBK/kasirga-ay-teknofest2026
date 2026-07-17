@@ -291,4 +291,3 @@ always@(*)
     else
         read_burst_counter_next = 0;
 endmodule
-

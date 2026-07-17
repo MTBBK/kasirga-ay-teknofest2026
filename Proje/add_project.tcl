@@ -97,6 +97,7 @@ lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/MemoryModules/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/QSPI/rtl/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/Timer/rtl/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/UART/rtl/*"]
+lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/Accelerator/model_weights/*.mem"]
 
 
 # Tasarım dosyalarını içe aktar

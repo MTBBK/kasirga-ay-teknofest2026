@@ -145,7 +145,7 @@ module tb_top();
         end else begin
             $display("[TB] Bilgisayardan (PC) Inference ses verisi gonderilmeye basliyor...");
             
-            while (!$feof(file_handle) && tb_byte_count < 2256) begin // <--- LİMİT EKLENDİ
+            while (!$feof(file_handle) && tb_byte_count < 1960) begin // <--- LİMİT EKLENDİ
                 scan_status = $fscanf(file_handle, "%h\n", audio_byte);
                 if (scan_status == 1) begin
                     send_stream_byte(audio_byte);

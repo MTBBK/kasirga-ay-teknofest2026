@@ -149,7 +149,7 @@ module xbar(
     input wire [1:0] rresp_slv4,
     input wire [31:0] rdata_slv4,
 
-    // SLAVE5 (LDPC_UART)
+    // SLAVE5 (UART_STREAM)
     // WRITE ADDRESS CHANNEL
     output wire awvalid_slv5,
     input wire awready_slv5,
@@ -269,7 +269,7 @@ module xbar(
     input wire [1:0]    rresp_slv9,
     input wire [31:0]   rdata_slv9
 );
-    reg [8:0] select_slv;
+    reg [9:0] select_slv;
     always @(*) begin
         select_slv = 10'b0; 
 
