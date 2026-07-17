@@ -19,7 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 // Comment the line below if you want to deactivate JTAG module so that it can work as normal as before
-`define ENABLE_JTAG
+//`define ENABLE_JTAG
 
 module top(
     input logic clk_i,
@@ -58,7 +58,7 @@ module top(
     parameter clk_freq_Mhz=100;
     parameter clk_freq_Hz=50_000_000;
     
-    logic interrupt_1_bit;
+    logic accelerator_interrupt_1_bit;
     //Data Memory obi-axi
     logic obi_req_data;        
     logic obi_gnt_data;         
@@ -395,7 +395,7 @@ module top(
             held_interrupt<=0;
         end
         else begin 
-            if(interrupt_1_bit)begin 
+            if(accelerator_interrupt_1_bit)begin 
                 held_interrupt<=1;
             end
             else if(irq_ack)begin 
@@ -795,7 +795,7 @@ module top(
        .M_AXI_BVALID    (dma_bvalid ),
        .M_AXI_BREADY    (dma_bready ),
        .start_loader    (stream_done),
-       .interrupt       (interrupt_1_bit)
+       .interrupt       (accelerator_interrupt_1_bit)
     );
 
 

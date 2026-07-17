@@ -98,6 +98,7 @@ lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/QSPI/rtl/*
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/Timer/rtl/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/UART/rtl/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/Accelerator/model_weights/*.mem"]
+lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/JTAG/*.sv"]
 
 
 # Tasarım dosyalarını içe aktar
