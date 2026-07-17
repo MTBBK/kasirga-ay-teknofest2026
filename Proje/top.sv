@@ -18,8 +18,7 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-// Comment the line below if you want to deactivate JTAG module so that it can work as normal as before
-`define ENABLE_JTAG
+
 
 module top(
     input logic clk_i,
@@ -43,14 +42,6 @@ module top(
     inout wire qspi_io_1,
     inout wire qspi_io_2,
     inout wire qspi_io_3
-`ifdef ENABLE_JTAG
-    ,
-    input  logic jtag_tck_i,
-    input  logic jtag_tms_i,
-    input  logic jtag_trst_ni,
-    input  logic jtag_tdi_i,
-    output logic jtag_tdo_o
-`endif
 
     );
     
@@ -58,7 +49,7 @@ module top(
     parameter clk_freq_Mhz=100;
     parameter clk_freq_Hz=50_000_000;
     
-    logic interrupt_1_bit;
+    logic accelerator_interrupt_1_bit;
     //Data Memory obi-axi
     logic obi_req_data;        
     logic obi_gnt_data;         
@@ -84,32 +75,8 @@ module top(
     logic axi_rready_instr_;
     
     
-    // ---------------------------------------------------------------
-    // JTAG / Debug Module (optional, purely additive -- see ENABLE_JTAG)
-    // ---------------------------------------------------------------
-    wire        obi_req_instr_sys;
-    wire        obi_gnt_instr_sys;
-    wire        obi_rvalid_instr_sys;
-    wire [31:0] obi_addr_instr_sys;
-    wire [31:0] obi_rdata_instr_sys;
-
-`ifdef ENABLE_JTAG
-    logic        dbg_req_from_jtag;
-    logic [31:0] dbg_halt_addr_from_jtag;
-    logic [31:0] dbg_exception_addr_from_jtag;
-
-    logic        instr_dbg_req;
-    logic        instr_dbg_gnt;
-    logic        instr_dbg_rvalid;
-    logic [31:0] instr_dbg_addr;
-    logic [31:0] instr_dbg_rdata;
-
-    // Must match dm_jtag_subsystem's DmBaseAddress parameter below, AND
-    // the xbar module's slv8 decode (xbar.sv: awaddr_master[19:12]==8'h10),
-    // so the window is 0x0001_0000-0x0001_0FFF.
-    localparam logic [31:0] DBG_BASE_ADDR = 32'h0001_0000;
-    localparam logic [31:0] DBG_ADDR_MASK = 32'h000F_F000;
-`endif
+    
+    
     
     
     
@@ -395,7 +362,7 @@ module top(
             held_interrupt<=0;
         end
         else begin 
-            if(interrupt_1_bit)begin 
+            if(accelerator_interrupt_1_bit)begin 
                 held_interrupt<=1;
             end
             else if(irq_ack)begin 
@@ -448,13 +415,8 @@ module top(
     // Configuration
     .boot_addr_i              (boot_addr),
     .mtvec_addr_i             (32'd0),
-`ifdef ENABLE_JTAG
-    .dm_halt_addr_i           (dbg_halt_addr_from_jtag),
-    .dm_exception_addr_i      (dbg_exception_addr_from_jtag),
-`else
     .dm_halt_addr_i           (32'd0),
     .dm_exception_addr_i      (32'd0),
-`endif
     .hart_id_i                (32'd0),
 
     // Instruction memory interface
@@ -480,88 +442,11 @@ module top(
     .irq_id_o                 (),
 
     // Debug interface
-`ifdef ENABLE_JTAG
-    .debug_req_i              (dbg_req_from_jtag),
-`else
     .debug_req_i              (1'b0),
-`endif
     .debug_havereset_o        (),
     .debug_running_o          (),
     .debug_halted_o           ()
 );
-
-`ifdef ENABLE_JTAG
-    // ---------------------------------------------------------------
-    // Instruction-bus demux: fork debug-window instruction fetches
-    // away from the normal ROM/Instruction-Memory path, straight to
-    // the Debug Module. (xbar_readonly is untouched.)
-    // ---------------------------------------------------------------
-    obi_addr_demux #(
-        .DBG_BASE (DBG_BASE_ADDR),
-        .DBG_MASK (DBG_ADDR_MASK)
-    ) u_instr_dbg_demux (
-        .clk_i         (clk_i),
-        .rst_ni        (rst_n_i),
-
-        .core_req_i    (obi_req_instr_i),
-        .core_addr_i   (obi_addr_instr_i),
-        .core_gnt_o    (obi_gnt_instr_o),
-        .core_rvalid_o (obi_rvalid_instr_o),
-        .core_rdata_o  (obi_rdata_instr_o),
-
-        .sys_req_o     (obi_req_instr_sys),
-        .sys_addr_o    (obi_addr_instr_sys),
-        .sys_gnt_i     (obi_gnt_instr_sys),
-        .sys_rvalid_i  (obi_rvalid_instr_sys),
-        .sys_rdata_i   (obi_rdata_instr_sys),
-
-        .dbg_req_o     (instr_dbg_req),
-        .dbg_addr_o    (instr_dbg_addr),
-        .dbg_gnt_i     (instr_dbg_gnt),
-        .dbg_rvalid_i  (instr_dbg_rvalid),
-        .dbg_rdata_i   (instr_dbg_rdata)
-    );
-
-    // ---------------------------------------------------------------
-    // JTAG TAP + DTM + Debug Module
-    // ---------------------------------------------------------------
-    dm_jtag_subsystem #(
-        .IdcodeValue   (32'h249511C3),
-        .DmBaseAddress (DBG_BASE_ADDR)
-    ) u_dm_jtag_subsystem (
-        .clk_i     (clk_i),
-        .rst_ni    (rst_n_i),
-
-        .jtag_tck_i   (jtag_tck_i),
-        .jtag_tms_i   (jtag_tms_i),
-        .jtag_trst_ni (jtag_trst_ni),
-        .jtag_tdi_i   (jtag_tdi_i),
-        .jtag_tdo_o   (jtag_tdo_o),
-
-        .debug_req_o          (dbg_req_from_jtag),
-        .dm_halt_addr_o       (dbg_halt_addr_from_jtag),
-        .dm_exception_addr_o  (dbg_exception_addr_from_jtag),
-
-        .instr_dbg_req_i    (instr_dbg_req),
-        .instr_dbg_addr_i   (instr_dbg_addr),
-        .instr_dbg_gnt_o    (instr_dbg_gnt),
-        .instr_dbg_rvalid_o (instr_dbg_rvalid),
-        .instr_dbg_rdata_o  (instr_dbg_rdata),
-
-        .s_axi_awvalid_i (awvalid_slv8), .s_axi_awready_o (awready_slv8), .s_axi_awaddr_i (awaddr_slv8),
-        .s_axi_wvalid_i  (wvalid_slv8),  .s_axi_wready_o  (wready_slv8),  .s_axi_wdata_i  (wdata_slv8), .s_axi_wstrb_i (wstrb_slv8),
-        .s_axi_bvalid_o  (bvalid_slv8),  .s_axi_bready_i  (bready_slv8),  .s_axi_bresp_o  (bresp_slv8),
-        .s_axi_arvalid_i (arvalid_slv8), .s_axi_arready_o (arready_slv8), .s_axi_araddr_i (araddr_slv8),
-        .s_axi_rvalid_o  (rvalid_slv8),  .s_axi_rready_i  (rready_slv8),  .s_axi_rdata_o  (rdata_slv8), .s_axi_rresp_o (rresp_slv8)
-    );
-`else
-    // JTAG disabled: instruction bus feeds obi_to_axi_readonly unchanged.
-    assign obi_req_instr_sys  = obi_req_instr_i;
-    assign obi_addr_instr_sys = obi_addr_instr_i;
-    assign obi_gnt_instr_o    = obi_gnt_instr_sys;
-    assign obi_rvalid_instr_o = obi_rvalid_instr_sys;
-    assign obi_rdata_instr_o  = obi_rdata_instr_sys;
-`endif
 
     //Peripheral Modules
 
@@ -795,7 +680,7 @@ module top(
        .M_AXI_BVALID    (dma_bvalid ),
        .M_AXI_BREADY    (dma_bready ),
        .start_loader    (stream_done),
-       .interrupt       (interrupt_1_bit)
+       .interrupt       (accelerator_interrupt_1_bit)
     );
 
 
@@ -1036,11 +921,11 @@ module top(
     
     //R/O obi-to-axi
     obi_to_axi_readonly obi_to_axi_instr(
-       .obi_req_i(obi_req_instr_sys),          
-       .obi_gnt_o(obi_gnt_instr_sys),          
-       .obi_rvalid_o(obi_rvalid_instr_sys),       
-       .obi_addr_i(obi_addr_instr_sys),  
-       .obi_rdata_o(obi_rdata_instr_sys),                  
+       .obi_req_i(obi_req_instr_i),          
+       .obi_gnt_o(obi_gnt_instr_o),          
+       .obi_rvalid_o(obi_rvalid_instr_o),       
+       .obi_addr_i(obi_addr_instr_i),  
+       .obi_rdata_o(obi_rdata_instr_o),                  
        .axi_araddr_o(axi_araddr_instr_o),
        .axi_arvalid_o(axi_arvalid_instr_o),      
        .axi_arready_i(axi_arready_instr_i),                        
@@ -1223,8 +1108,18 @@ module top(
         .AWLEN_DMA(6'd0),
         .WLAST_DMA(1'b1)
         );
+         
+  
+ 
+ 
         
-`ifndef ENABLE_JTAG
+        
+        
+        
+        
+        
+        
+        
     assign awready_slv8 = 1'b0;
     assign wready_slv8  = 1'b0;
     assign bvalid_slv8  = 1'b0;
@@ -1233,7 +1128,6 @@ module top(
     assign rvalid_slv8  = 1'b0;
     assign rdata_slv8   = 32'd0;
     assign rresp_slv8   = 2'b00;
-`endif
 
     assign awready_slv9 = 1'b0;
     assign wready_slv9  = 1'b0;
@@ -1245,3 +1139,4 @@ module top(
     assign rresp_slv9   = 2'b00;
     
 endmodule
+
