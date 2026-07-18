@@ -59,6 +59,7 @@ output logic done
     logic [7:0] data [0:79];
     logic [6:0] count;
     logic start_send;
+    logic [6:0] sendcount;
     
     typedef enum logic [1:0] {
         idle = 2'b00,
@@ -75,12 +76,12 @@ output logic done
             stagger1 <= '0;     
             stagger2 <= '{default: '0};
             stagger3 <= '{default: '0};
-            weight_buffer_addr <= '0;
             data <= '{default: '0};
             count <= '0;
             start_send <= 1'b0;
             current_state <= idle;
             //bitti <= 1'b0;
+            sendcount<= '0;
         end
         else begin
             case(current_state)
@@ -113,32 +114,38 @@ output logic done
                         readaddres_counter <= readaddres_counter + 1'b1;
                     end
                     
-                    if(count == 7'd0)begin
-                    //bu ifi ve ağırlık belseme kısmındaki adres artırma kısmını okuma uyuşmazlığı çözülsün diye yazdım benzeri veri kısmında da var biraz karıştırdı kodu
-                        weight_buffer_addr <= weight_buffer_addr + 1'b1;
-                    end
                 end
             endcase
+            //
+            yataykablo[0] <= '0;                 
+            if(start_send == 1'b1)begin          
+                yataykablo[0] <= data[sendcount];
+                sendcount <= sendcount + 1'b1;   
+                if(sendcount == 7'd79)begin      
+                    sendcount <= '0;             
+                    start_send <= 1'b0;          
+                end                              
+            end                                  
         end    
     end
-    
-    logic [6:0] sendcount;
-    always_ff @(posedge clk)begin//datayı ver
-        if(rst)begin 
-            sendcount<= '0;
-        end
-        else begin
-            yataykablo[0] <= '0; 
-            if(start_send == 1'b1)begin
-                yataykablo[0] <= data[sendcount];
-                sendcount <= sendcount + 1'b1;
-                if(sendcount == 7'd79)begin
-                    sendcount <= '0;
-                    start_send <= 1'b0;
-                end
-            end
-        end
-    end
+    //MULTİPLE DRİVER HATASINI DÜZELTMEK İÇİN BU KISMI STATE MACHİNE İN OLDUĞU FF BLOĞUNA KOYUYUORUM
+    //logic [6:0] sendcount;
+    //always_ff @(posedge clk)begin//datayı ver
+    //    if(rst)begin 
+    //        sendcount<= '0;
+    //    end
+    //    else begin
+    //        yataykablo[0] <= '0; 
+    //        if(start_send == 1'b1)begin
+    //            yataykablo[0] <= data[sendcount];
+    //            sendcount <= sendcount + 1'b1;
+    //            if(sendcount == 7'd79)begin
+    //                sendcount <= '0;
+    //                start_send <= 1'b0;
+    //            end
+    //        end
+    //    end
+    //end
     
     logic we;
     logic [31:0]din;
@@ -150,8 +157,14 @@ output logic done
             we <= 0;
             din <= '0;
             bitti_stagger <= '0;
+            weight_buffer_addr <= '0;
         end
         else begin
+            /////MULTİPLE DRİVER İÇİN DÜZELTME DENEMESİ
+            ////bu ifi ve ağırlık belseme kısmındaki adres artırma kısmını okuma uyuşmazlığı çözülsün diye yazdım benzeri veri kısmında da var biraz karıştırdı kodu
+            if(current_state == read &&count == 7'd0)begin 
+                weight_buffer_addr <= weight_buffer_addr + 1'b1;
+            end
             dikeykablo[0][0] <= '0;
             stagger1 <=         '0;
             stagger2[0] <=      '0;
