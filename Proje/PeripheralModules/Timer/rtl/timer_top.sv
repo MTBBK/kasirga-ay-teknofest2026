@@ -27,7 +27,7 @@ module timer_top #(
     output wire RVALID,
     input wire RREADY,
     output wire [31:0] RDATA,  
-    output wire RRESP
+    output wire [1:0] RRESP
 );
 
     localparam ADDR_TIM_PRE = 32'h0001_1000,
