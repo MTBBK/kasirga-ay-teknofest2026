@@ -1,12 +1,8 @@
 `timescale 1ns / 1ps
-//TODOS:
-//output bufferı tamamen aradan çıkartıp direkt outputları burada biriktirebiliriz aslında
-//80 değeri kaydetmek yerine output buffera veri yazıldığını görünce okuyup 8 tanesini gönderip tekrar okuyup tekrar gönderebiliriz
-//pe ler içerisinde signed işlem yapılıyor ancak veri girişimizin unsigned olması olazım yanlış algılıyor onun dışı doğru
 module fc_manager(
 input logic clk,
 input logic rst,
-input logic basla,//writeenable,
+input logic basla,
 ///////////
 //input logic [63:0]buff_read_data,
 //output logic [9:0]buff_read_addr,
@@ -55,16 +51,16 @@ output logic done
     logic [7:0] stagger2[0:1];
     logic [7:0] stagger3[0:2];
     
-    always_ff @(posedge clk)begin
-        dikeykablo[0][1] <= stagger1;
-        
-        stagger2[1] <= stagger2[0];
-        dikeykablo[0][2] <= stagger2[1];
-        
-        stagger3[1] <= stagger3[0];
-        stagger3[2] <= stagger3[1];
-        dikeykablo[0][3] <= stagger3[2];
-    end
+    //always_ff @(posedge clk)begin
+    //    dikeykablo[0][1] <= stagger1;
+    //    
+    //    stagger2[1] <= stagger2[0];
+    //    dikeykablo[0][2] <= stagger2[1];
+    //    
+    //    stagger3[1] <= stagger3[0];
+    //    stagger3[2] <= stagger3[1];
+    //    dikeykablo[0][3] <= stagger3[2];
+    //end
     
     logic [11:0]weight_buffer_addr;
     logic [31:0]weight_buffer_data;
@@ -103,10 +99,10 @@ output logic done
         if(rst)begin
             //readaddres_counter <= '0;
             yataykablo[0] <= '0;       
-            dikeykablo[0][0] <='0;
-            stagger1 <= '0;     
-            stagger2 <= '{default: '0};
-            stagger3 <= '{default: '0};
+            
+            
+            
+            
             //data <= '{default: '0};
             //count <= '0;
             start_send <= 1'b0;
@@ -170,15 +166,31 @@ output logic done
     assign bitti = bitti_stagger[3];
     
     always_ff @(posedge clk)begin//ağırlıkları ver
+        
+        ///STAGGER MEKANİZMASI YÖNETİMİ 
+        dikeykablo[0][1] <= stagger1;   
+                                        
+        stagger2[1] <= stagger2[0];     
+        dikeykablo[0][2] <= stagger2[1];
+                                        
+        stagger3[1] <= stagger3[0];     
+        stagger3[2] <= stagger3[1];     
+        dikeykablo[0][3] <= stagger3[2];
+        
         if(rst)begin
             we <= 0;
             din <= '0;
             bitti_stagger <= '0;
             weight_buffer_addr <= '0;
+            dikeykablo[0][0] <='0;     
+            stagger1 <= '0;            
+            stagger2 <= '{default: '0};
+            stagger3 <= '{default: '0};
         end
         else begin
             /////MULTİPLE DRİVER İÇİN DÜZELTME DENEMESİ
             ////bu ifi ve ağırlık belseme kısmındaki adres artırma kısmını okuma uyuşmazlığı çözülsün diye yazdım benzeri veri kısmında da var biraz karıştırdı kodu
+            /////AĞIRLIK BESLEME MEKANİZMASI
             if(basla)begin 
                 weight_buffer_addr <= weight_buffer_addr + 1'b1;
             end
@@ -197,6 +209,7 @@ output logic done
                 
             end
             
+            /////FC IŞLEMI BİTİMİ
             if(weight_buffer_addr == 12'd4000)begin// bütün fc işlemi bitti demek (bütün ağırlıkları verdik)
                 bitti_stagger[0] <= 1'b1;
                 weight_buffer_addr <= '0;
@@ -204,6 +217,8 @@ output logic done
             else begin 
                 bitti_stagger <= bitti_stagger << 1;
             end
+            
+            
         end
     end
     
