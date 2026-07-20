@@ -7,12 +7,43 @@ module fc_manager(
 input logic clk,
 input logic rst,
 input logic basla,//writeenable,
-input logic [63:0]buff_read_data,
-output logic [9:0]buff_read_addr,
+///////////
+//input logic [63:0]buff_read_data,
+//output logic [9:0]buff_read_addr,
+///####################////////
+input logic [63:0]fc_input_data,
+input logic [3:0]fc_input_data_addr,
+input logic fc_input_data_valid,//!!burada bir handshake mekanizmadı yok şuan zaten fc sıradaki conv penceresinden önce bitmesi gerekiyor diye ilerdeki değişikliklerde dikkat etmek gerekebilir
+////////
 output logic signed [7:0]resultvals[0:3],
 output logic done
     );
-    logic [9:0]readaddres_counter;
+    //buradan okunacak artık veriler
+    //logic [63:0] fc_inputs [0:9];
+    logic [7:0] fc_inputs [0:79];
+    always_ff @(posedge clk)begin 
+        if(rst)begin 
+            fc_inputs <= '{default:'0};
+        end
+        else begin 
+            if(fc_input_data_valid)begin 
+                //fc_inputs[fc_input_data_addr] <= fc_input_data;
+                ////alttaki çok daha iyi olacak gibi
+                
+                fc_inputs[8*fc_input_data_addr]      <= fc_input_data[7:0];
+                fc_inputs[8*fc_input_data_addr+3'd1] <= fc_input_data[15:8];
+                fc_inputs[8*fc_input_data_addr+3'd2] <= fc_input_data[23:16];
+                fc_inputs[8*fc_input_data_addr+3'd3] <= fc_input_data[31:24];
+                fc_inputs[8*fc_input_data_addr+3'd4] <= fc_input_data[39:32];
+                fc_inputs[8*fc_input_data_addr+3'd5] <= fc_input_data[47:40];
+                fc_inputs[8*fc_input_data_addr+3'd6] <= fc_input_data[55:48];
+                fc_inputs[8*fc_input_data_addr+3'd7] <= fc_input_data[63:56];
+            end
+        end
+    end
+    
+    
+    //logic [9:0]readaddres_counter;
     
     logic bitti;
     logic [3:0] outputready;
@@ -56,8 +87,8 @@ output logic done
     endgenerate
     
     
-    logic [7:0] data [0:79];
-    logic [6:0] count;
+    //logic [7:0] data [0:79];
+    //ogic [6:0] count;
     logic start_send;
     logic [6:0] sendcount;
     
@@ -70,56 +101,59 @@ output logic done
     
     always_ff @(posedge clk)begin//datayı al
         if(rst)begin
-            readaddres_counter <= '0;
+            //readaddres_counter <= '0;
             yataykablo[0] <= '0;       
             dikeykablo[0][0] <='0;
             stagger1 <= '0;     
             stagger2 <= '{default: '0};
             stagger3 <= '{default: '0};
-            data <= '{default: '0};
-            count <= '0;
+            //data <= '{default: '0};
+            //count <= '0;
             start_send <= 1'b0;
             current_state <= idle;
             //bitti <= 1'b0;
             sendcount<= '0;
         end
         else begin
-            case(current_state)
-                idle:begin 
-                    if(basla)begin 
-                        current_state <= gecicioku;
-                    end
-                end
-                gecicioku:begin
-                    current_state <= read;
-                    readaddres_counter <= readaddres_counter + 1'b1;
-                end
-                read:begin
-                    
-                    data[count]      <= buff_read_data[7:0];
-                    data[count+3'd1] <= buff_read_data[15:8];
-                    data[count+3'd2] <= buff_read_data[23:16];
-                    data[count+3'd3] <= buff_read_data[31:24];
-                    data[count+3'd4] <= buff_read_data[39:32];
-                    data[count+3'd5] <= buff_read_data[47:40];
-                    data[count+3'd6] <= buff_read_data[55:48];
-                    data[count+3'd7] <= buff_read_data[63:56];
-                    count <= count +4'd8;
-                    start_send <= 1'b1;
-                    if(count == 7'd72)begin 
-                        current_state <= idle;
-                        count <= '0;
-                    end
-                    else begin
-                        readaddres_counter <= readaddres_counter + 1'b1;
-                    end
-                    
-                end
-            endcase
-            //
+            if(basla)begin ///olur gibi
+                start_send <= 1'b1;
+            end
+            //case(current_state)
+            //    idle:begin 
+            //        if(basla)begin 
+            //            current_state <= gecicioku;
+            //        end
+            //    end
+            //    gecicioku:begin
+            //        current_state <= read;
+            //        readaddres_counter <= readaddres_counter + 1'b1;
+            //    end
+            //    read:begin
+            //        
+            //        data[count]      <= buff_read_data[7:0];
+            //        data[count+3'd1] <= buff_read_data[15:8];
+            //        data[count+3'd2] <= buff_read_data[23:16];
+            //        data[count+3'd3] <= buff_read_data[31:24];
+            //        data[count+3'd4] <= buff_read_data[39:32];
+            //        data[count+3'd5] <= buff_read_data[47:40];
+            //        data[count+3'd6] <= buff_read_data[55:48];
+            //        data[count+3'd7] <= buff_read_data[63:56];
+            //        count <= count +4'd8;
+            //        start_send <= 1'b1;
+            //        if(count == 7'd72)begin 
+            //            current_state <= idle;
+            //            count <= '0;
+            //        end
+            //        else begin
+            //            readaddres_counter <= readaddres_counter + 1'b1;
+            //        end
+            //        
+            //    end
+            //endcase
+            //veri gönderme kısmı
             yataykablo[0] <= '0;                 
             if(start_send == 1'b1)begin          
-                yataykablo[0] <= data[sendcount];
+                yataykablo[0] <= fc_inputs[sendcount];
                 sendcount <= sendcount + 1'b1;   
                 if(sendcount == 7'd79)begin      
                     sendcount <= '0;             
@@ -128,24 +162,7 @@ output logic done
             end                                  
         end    
     end
-    //MULTİPLE DRİVER HATASINI DÜZELTMEK İÇİN BU KISMI STATE MACHİNE İN OLDUĞU FF BLOĞUNA KOYUYUORUM
-    //logic [6:0] sendcount;
-    //always_ff @(posedge clk)begin//datayı ver
-    //    if(rst)begin 
-    //        sendcount<= '0;
-    //    end
-    //    else begin
-    //        yataykablo[0] <= '0; 
-    //        if(start_send == 1'b1)begin
-    //            yataykablo[0] <= data[sendcount];
-    //            sendcount <= sendcount + 1'b1;
-    //            if(sendcount == 7'd79)begin
-    //                sendcount <= '0;
-    //                start_send <= 1'b0;
-    //            end
-    //        end
-    //    end
-    //end
+    
     
     logic we;
     logic [31:0]din;
@@ -162,7 +179,7 @@ output logic done
         else begin
             /////MULTİPLE DRİVER İÇİN DÜZELTME DENEMESİ
             ////bu ifi ve ağırlık belseme kısmındaki adres artırma kısmını okuma uyuşmazlığı çözülsün diye yazdım benzeri veri kısmında da var biraz karıştırdı kodu
-            if(current_state == read &&count == 7'd0)begin 
+            if(basla)begin 
                 weight_buffer_addr <= weight_buffer_addr + 1'b1;
             end
             dikeykablo[0][0] <= '0;
@@ -180,7 +197,7 @@ output logic done
                 
             end
             
-            if(weight_buffer_addr == 12'd4000)begin
+            if(weight_buffer_addr == 12'd4000)begin// bütün fc işlemi bitti demek (bütün ağırlıkları verdik)
                 bitti_stagger[0] <= 1'b1;
                 weight_buffer_addr <= '0;
             end
@@ -236,6 +253,6 @@ output logic done
         .dout(weight_buffer_data)
     );
     
-    assign buff_read_addr = readaddres_counter;
+    //assign buff_read_addr = readaddres_counter;
     
 endmodule

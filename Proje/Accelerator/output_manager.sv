@@ -7,7 +7,7 @@ input logic alloutputsready,
 input logic signed[31:0] pe_outputs[0:79],
 
 output logic [63:0]buffwritedata,
-output logic [9:0]buffwriteaddr,
+output logic [3:0]buffwriteaddr,
 output logic buffwriteenable,
 output logic feederbasla
     );
@@ -21,13 +21,13 @@ output logic feederbasla
     logic signed [31:0] collectedoutputs[0:79];
     logic [6:0] linecount;
     logic signed [7:0] bufferdata [0:7];
-    logic [8:0] buffaddress;
+    logic [3:0] buffaddress;
      
     
     logic signed [31:0] postp_in [0:7];
     logic signed [7:0] postp_out[0:7];
-    logic invalid;
-    logic [7:0] outvalid;
+    logic inputvalid;
+    logic [7:0] outputvalid;
     
     localparam int scalevals[0:7] = '{1653229999,1516545207,2000799311,1159928266,1498403863,1285645282,2146175029,1756589032};
     localparam int shiftvals[0:7] = '{41,43,41,41,41,41,41,41};
@@ -37,10 +37,10 @@ output logic feederbasla
             relu_req #(.scale(scalevals[i]),.shift(shiftvals[i]))postprocess(
                 .clk(clk),                
                 .rst(rst),          
-                .input_valid(invalid),                 
+                .input_valid(inputvalid),                 
                 .data_in(postp_in[i]), 
                 .data_out(postp_out[i]),
-                .output_valid(outvalid[i])      
+                .output_valid(outputvalid[i])      
             );
         end
     endgenerate
@@ -50,14 +50,13 @@ output logic feederbasla
             current_state <= idle;
             collectedoutputs <= '{default: '0};
             linecount <= '0;
-            buffaddress <= '0;
-            invalid <= 1'b0;
+            inputvalid <= 1'b0;
             postp_in <= '{default: '0};
         end
         else begin
             case(current_state)
                 idle:begin
-                    invalid <= 1'b0;
+                    inputvalid <= 1'b0;
                     collectedoutputs <= '{default: '0};
                     if(alloutputsready==1'b1)begin
                         collectedoutputs <= pe_outputs;
@@ -65,9 +64,6 @@ output logic feederbasla
                     end
                 end
                 sendtopostprocess:begin
-                    //for( j= 0;j<8;j=j+1)begin
-                    //    postp_in[j] <= collectedoutputs[linecount+j];
-                    //end
                     postp_in[0] <= collectedoutputs[linecount];
                     postp_in[1] <= collectedoutputs[linecount+4'd1];
                     postp_in[2] <= collectedoutputs[linecount+4'd2];
@@ -77,8 +73,8 @@ output logic feederbasla
                     postp_in[6] <= collectedoutputs[linecount+4'd6];
                     postp_in[7] <= collectedoutputs[linecount+4'd7];
                     
-                    invalid <= 1'b1;
-                    linecount <= linecount + 4'd8;//burda kaldım
+                    inputvalid <= 1'b1;
+                    linecount <= linecount + 4'd8;
                     if(linecount == 7'd72)begin
                         linecount <= '0;
                         current_state <= idle;
@@ -93,12 +89,15 @@ output logic feederbasla
         if(rst)begin
             sayac <= '0;
             bufferdata <= '{default: '0};
+            buffaddress <= '0;
+
         end
         else begin
             bufferdata <= '{default: '0};
             buffwriteenable <= 1'b0;
+            buffaddress <= '0;
             feederbasla <= 1'b0;
-            if(&outvalid)begin
+            if(&outputvalid)begin
                 bufferdata <= postp_out; 
                 buffwriteenable <= 1'b1;
                 buffaddress <= buffaddress + 1'b1;
@@ -106,12 +105,13 @@ output logic feederbasla
                 sayac <= sayac + 1'b1;
                 if(sayac == 4'd9)begin
                     sayac <= '0;
-                    feederbasla <= 1'b1;
+                    feederbasla <= 1'b1;//10x8 lik sa dan 10 farklı conv pencersesinin, 8 farklı kerneldeki sonucunu requantize edip yazdıktan sonra diğerleri gelene kadar fully connecteda başla diyor
                 end
             end
         end
     end
     
+    /// 
     assign buffwriteaddr = buffaddress - 1'b1;
     
     assign buffwritedata[7:0] = bufferdata[0];
@@ -124,4 +124,3 @@ output logic feederbasla
     assign buffwritedata[63:56] = bufferdata[7];
     
 endmodule
-

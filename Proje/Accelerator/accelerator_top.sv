@@ -98,8 +98,10 @@ module accelerator_top(
         .alloutputsready(alloutputsready)//BUERA
     );
     
+    //BU BAĞLANTILAR GÜNCELLENDİ ARTIK BRAME GİTMİYOR DİREKT FC MANAGERA GİDİYOR ÇIKTILAR
+    //İSİMİLERİ DÜZELTİLECEK
     logic [63:0] omanager_buffwritedata;
-    logic [9:0] omanager_buffwritaddress;
+    logic [3:0] omanager_buffwritaddress;
     logic omanager_buffwriteenable;
     logic fcfeederbasla;
     output_manager omanager(
@@ -113,15 +115,6 @@ module accelerator_top(
         .feederbasla(fcfeederbasla)
     );
     
-    logic [9:0] outputbuffaddress;
-        logic [9:0] fcfeeder_buffaddress;
-    outputbuff_arbiter oarbit(
-        .omanageraddress(omanager_buffwritaddress),
-        .omanagerwriteenable(omanager_buffwriteenable),
-        .fcfeederaddress(fcfeeder_buffaddress),
-        .outputaddress(outputbuffaddress)
-    );
-    
     logic [63:0] outputbufferdataout;                                       
     logic signed [7:0]fc_results[0:3];
     logic fc_manager_done;
@@ -129,19 +122,13 @@ module accelerator_top(
         .clk(clk),                
         .rst(rst),                
         .basla(fcfeederbasla),        
-        .buff_read_data(outputbufferdataout),
-        .buff_read_addr(fcfeeder_buffaddress),
+        .fc_input_data(omanager_buffwritedata),
+        .fc_input_data_addr(omanager_buffwritaddress),
+        .fc_input_data_valid(omanager_buffwriteenable),
         .resultvals(fc_results),
         .done(fc_manager_done)
     );
     
-    bufferv3 outputbuffer(
-        .clk(clk),                  
-        .write_enable(omanager_buffwriteenable),//veri ya
-        .addr(outputbuffaddress),
-        .din(omanager_buffwritedata),
-        .dout(outputbufferdataout)
-    );
     logic signed [7:0]softmax_results[0:3];
     logic softmax_start;
     assign softmax_start=fc_manager_done;

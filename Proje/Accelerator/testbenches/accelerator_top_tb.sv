@@ -66,7 +66,7 @@ module accelerator_top_tb(
     );
     
     logic [63:0] omanager_buffwritedata;
-    logic [9:0] omanager_buffwritaddress;
+    logic [3:0] omanager_buffwritaddress;
     logic omanager_buffwriteenable;
     logic fcfeederbasla;
     output_manager omanager(
@@ -80,14 +80,14 @@ module accelerator_top_tb(
         .feederbasla(fcfeederbasla)
     );
     
-    logic [9:0] outputbuffaddress;
-        logic [9:0] fcfeeder_buffaddress;
-    outputbuff_arbiter oarbit(
-        .omanageraddress(omanager_buffwritaddress),
-        .omanagerwriteenable(omanager_buffwriteenable),
-        .fcfeederaddress(fcfeeder_buffaddress),
-        .outputaddress(outputbuffaddress)
-    );
+    //logic [9:0] outputbuffaddress;
+    //logic [9:0] fcfeeder_buffaddress;
+    //outputbuff_arbiter oarbit(
+    //    .omanageraddress(omanager_buffwritaddress),
+    //    .omanagerwriteenable(omanager_buffwriteenable),
+    //    .fcfeederaddress(fcfeeder_buffaddress),
+    //    .outputaddress(outputbuffaddress)
+    //);
     
     logic [63:0] outputbufferdataout;                                       
     logic signed [7:0]fc_results[0:3];
@@ -96,19 +96,21 @@ module accelerator_top_tb(
         .clk(clk),                
         .rst(rst),                
         .basla(fcfeederbasla),        
-        .buff_read_data(outputbufferdataout),
-        .buff_read_addr(fcfeeder_buffaddress),
+        .fc_input_data(omanager_buffwritedata),
+        .fc_input_data_addr(omanager_buffwritaddress),
+        .fc_input_data_valid(omanager_buffwriteenable),
         .resultvals(fc_results),
         .done(fc_manager_done)
     );
     
-    bufferv3 outputbuffer(
-        .clk(clk),                  
-        .write_enable(omanager_buffwriteenable),//veri ya
-        .addr(outputbuffaddress),
-        .din(omanager_buffwritedata),
-        .dout(outputbufferdataout)
-    );
+    //bufferv3 outputbuffer(
+    //    .clk(clk),                  
+    //    .write_enable(omanager_buffwriteenable),//veri ya
+    //    .addr(outputbuffaddress),
+    //    .din(omanager_buffwritedata),
+    //    .dout(outputbufferdataout)
+    //);
+    
     logic signed [7:0]softmax_results[0:3];
     logic softmax_start;
     assign softmax_start=fc_manager_done;
@@ -183,6 +185,7 @@ module accelerator_top_tb(
         //58x46 nın tamamını yapması 5000 çevrim civarı sürüyor gibi görünüyor
        
         //45075te biterse bütün girdi verisini göndermiş oluyor feeder, simulasyonu finishten 39275ns daha çalıştırmak demek bu.
+       #40785
         $finish;
     end
 
