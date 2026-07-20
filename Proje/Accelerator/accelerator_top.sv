@@ -239,54 +239,6 @@ buffer_byte_en buffer(
     .din(loader_din),
     .dout(buff_read_data)
 );
-    //tb üst satırdan itibaren kopyalayıp bu kodun yerine yapıştırdım bi hata falan çıkarsa diye silmiyorum
-    //logic [63:0] omanager_buffwritedata;
-    //logic [9:0] omanager_buffwritaddress;
-    //logic omanager_buffwriteenable;
-    //output_manager omanager(
-    //    .clk(clk),
-    //    .rst(rst),
-    //    .alloutputsready(alloutputsready),
-    //    .pe_outputs(pe_outputs),
-    //    .buffwritedata(omanager_buffwritedata),
-    //    .buffwriteaddr(omanager_buffwritaddress), 
-    //    .buffwriteenable(omanager_buffwriteenable)     
-    //);
-    //
-    //logic [63:0] outputbufferdataout;
-    //bufferv3 outputbuffer(
-    //    .clk(clk),                  
-    //    .write_enable(omanager_buffwriteenable),//veri ya
-    //    .addr(omanager_buffwritaddress),
-    //    .din(omanager_buffwritedata),
-    //    .dout(outputbufferdataout)
-    //);
-
-   //interrupt
-//   logic [1:0] interrupt_counter;
-
-//    always_ff @(posedge clk) begin 
-//        if (rst) begin 
-//            interrupt <= 0;
-//            interrupt_counter <= 0;
-//        end 
-//        else begin 
-            
-//            if (write_done && interrupt_counter == 0) begin
-//                interrupt <= 1; 
-//                interrupt_counter <= 1;
-//            end
-//            else if (interrupt_counter > 0) begin
-//                if (interrupt_counter == 2'd3) begin 
-//                    interrupt <= 0;                  
-//                    interrupt_counter <= 0;          
-//                end
-//                else begin 
-//                    interrupt_counter <= interrupt_counter + 1;
-//                end
-//            end
-//        end
-//    end
 
 assign interrupt=write_done;
    

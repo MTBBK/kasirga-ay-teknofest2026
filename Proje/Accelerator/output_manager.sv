@@ -26,7 +26,8 @@ output logic feederbasla
     
     logic signed [31:0] postp_in [0:7];
     logic signed [7:0] postp_out[0:7];
-    logic invalid,outvalid;
+    logic invalid;
+    logic [7:0] outvalid;
     
     localparam int scalevals[0:7] = '{1653229999,1516545207,2000799311,1159928266,1498403863,1285645282,2146175029,1756589032};
     localparam int shiftvals[0:7] = '{41,43,41,41,41,41,41,41};
@@ -39,7 +40,7 @@ output logic feederbasla
                 .input_valid(invalid),                 
                 .data_in(postp_in[i]), 
                 .data_out(postp_out[i]),
-                .output_valid(outvalid)      
+                .output_valid(outvalid[i])      
             );
         end
     endgenerate
@@ -49,7 +50,6 @@ output logic feederbasla
             current_state <= idle;
             collectedoutputs <= '{default: '0};
             linecount <= '0;
-            bufferdata <= '{default: '0};
             buffaddress <= '0;
             invalid <= 1'b0;
             postp_in <= '{default: '0};
@@ -92,12 +92,13 @@ output logic feederbasla
     always_ff @(posedge clk)begin
         if(rst)begin
             sayac <= '0;
+            bufferdata <= '{default: '0};
         end
         else begin
             bufferdata <= '{default: '0};
             buffwriteenable <= 1'b0;
             feederbasla <= 1'b0;
-            if(outvalid == 1'b1)begin
+            if(&outvalid)begin
                 bufferdata <= postp_out; 
                 buffwriteenable <= 1'b1;
                 buffaddress <= buffaddress + 1'b1;
@@ -123,3 +124,4 @@ output logic feederbasla
     assign buffwritedata[63:56] = bufferdata[7];
     
 endmodule
+

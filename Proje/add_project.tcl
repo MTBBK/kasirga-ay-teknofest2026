@@ -1,5 +1,5 @@
 # Temel Proje Dizini (Tek Değişken)
-set PROJE_DIR "/mnt/disk2/Gtihub_Projects/kasirga-ay-teknofest2026/Proje"
+set PROJE_DIR "/home/alperen/Projects/kasirga-ay-teknofest2026/Proje"
 
 # Include yollarını PROJE_DIR üzerinden dinamik olarak ayarlıyoruz
 set INCLUDE_PATHS [list \
