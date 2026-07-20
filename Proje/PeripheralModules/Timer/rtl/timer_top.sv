@@ -1,8 +1,6 @@
 `timescale 1ns / 1ps
 
-module timer_top #(
-    parameter int CLK_FREQ = 50_000_000
-)(
+module timer_top (
     input wire clk,
     input wire rst_i, // Aktif-düşük reset
 
@@ -49,9 +47,7 @@ module timer_top #(
     reg axi_rready;
     
     
-        timer #(
-        .CLK_FREQ(CLK_FREQ)
-    ) i_timer_core (
+        timer i_timer_core (
         .clk_i    (clk),
         .rst_i    (!rst_i),         // rst-i terslendi
         .tim_pre  (TIM_PRE),

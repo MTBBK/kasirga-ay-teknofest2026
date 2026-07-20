@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 
-module timer#(parameter int CLK_FREQ=50_000_000)(
+module timer(
     input logic clk_i,
     input logic rst_i,
     input logic [31:0] tim_pre,
