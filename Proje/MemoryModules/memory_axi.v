@@ -117,46 +117,42 @@ initial begin
        memory[i] = 32'h00000000;
     end
 end
-always@(posedge clk) begin
-            if(axi_write_ready_dma)
-            begin
-                if(WSTRB_DMA[0])
-                    memory[burst_write_address_dma][7:0]  <= WDATA_DMA[7:0];
-                if(WSTRB_DMA[1])
-                    memory[burst_write_address_dma][15:8] <= WDATA_DMA[15:8];
-                if(WSTRB_DMA[2])
-                    memory[burst_write_address_dma][23:16] <= WDATA_DMA[23:16];
-                if(WSTRB_DMA[3])
-                    memory[burst_write_address_dma][31:24] <= WDATA_DMA[31:24];
-            end
-            else if (axi_write_ready)
-            begin
-                if(WSTRB[0])
-                    memory[correct_write_address][7:0] <= WDATA[7:0];
-                if(WSTRB[1])
-                    memory[correct_write_address][15:8] <= WDATA[15:8];
-                if(WSTRB[2])
-                    memory[correct_write_address][23:16] <= WDATA[23:16];
-                if(WSTRB[3])
-                    memory[correct_write_address][31:24] <= WDATA[31:24];
-        end
-end
 
-//AXI4 Lite RDATA assignment
-always @(posedge clk)begin
-    if(!rst_i)
-        axi_rdata <= 32'b0;
-    if(!ARVALID || RREADY)begin
-        axi_rdata <= memory[correct_read_address];
+// PORT A: AXI4 DMA
+// Priority to write over read
+wire [31:0] bram_addr_dma = axi_write_ready_dma ? burst_write_address_dma : burst_read_address_dma;
+wire        bram_en_dma   = axi_write_ready_dma || axi_read_ready_dma || RREADY_DMA;
+
+always @(posedge clk) begin
+    if (bram_en_dma) begin
+        // Byte-enabled writes
+        if (axi_write_ready_dma) begin
+            if(WSTRB_DMA[0]) memory[bram_addr_dma][7:0]  <= WDATA_DMA[7:0];
+            if(WSTRB_DMA[1]) memory[bram_addr_dma][15:8] <= WDATA_DMA[15:8];
+            if(WSTRB_DMA[2]) memory[bram_addr_dma][23:16] <= WDATA_DMA[23:16];
+            if(WSTRB_DMA[3]) memory[bram_addr_dma][31:24] <= WDATA_DMA[31:24];
+        end
+        // Synchronous read happens on every enabled clock cycle
+        axi_rdata_dma <= memory[bram_addr_dma];
     end
 end
 
-//AXI4 DMA  RDATA assignment
-always @(posedge clk)begin
-    if(!rst_i)
-        axi_rdata_dma <= 128'b0;
-    if(axi_read_ready_dma || RREADY_DMA)begin
-        axi_rdata_dma <= memory[burst_read_address_dma];
+// PORT B: AXI4 Lite
+// Priority to write over read
+wire [31:0] bram_addr_lite = axi_write_ready ? correct_write_address : correct_read_address;
+wire        bram_en_lite   = axi_write_ready || (!ARVALID || RREADY);
+
+always @(posedge clk) begin
+    if (bram_en_lite) begin
+        // Byte-enabled writes
+        if (axi_write_ready) begin
+            if(WSTRB[0]) memory[bram_addr_lite][7:0]  <= WDATA[7:0];
+            if(WSTRB[1]) memory[bram_addr_lite][15:8] <= WDATA[15:8];
+            if(WSTRB[2]) memory[bram_addr_lite][23:16] <= WDATA[23:16];
+            if(WSTRB[3]) memory[bram_addr_lite][31:24] <= WDATA[31:24];
+        end
+        // Synchronous read happens on every enabled clock cycle
+        axi_rdata <= memory[bram_addr_lite];
     end
 end
 
@@ -291,3 +287,4 @@ always@(*)
     else
         read_burst_counter_next = 0;
 endmodule
+
