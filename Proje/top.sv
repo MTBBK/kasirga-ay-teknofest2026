@@ -22,7 +22,16 @@
 //`define ENABLE_JTAG
 
 module top(
+
+    // Clock Pin for default clock
     input logic clk_i,
+    
+    // Clock Pins for P and N
+    /*
+    input logic sysclk_p,
+    input logic sysclk_n,
+    */
+    
     input logic rst_n_i,
     input logic fetch_enable,
     
@@ -34,15 +43,13 @@ module top(
     output logic scl_o,
     inout logic sda_io,
     
-    output logic [15:0] gpio_o,
-    input  logic [15:0] gpio_i,
-    
     output logic sclk_o,
     output logic cs_o,
     inout wire qspi_io_0,
     inout wire qspi_io_1,
     inout wire qspi_io_2,
     inout wire qspi_io_3
+    
 `ifdef ENABLE_JTAG
     ,
     input  logic jtag_tck_i,
@@ -53,12 +60,65 @@ module top(
 `endif
 
     );
-    
+
     parameter uart_baud_rate=921600;
     parameter clk_freq_Mhz=100;
     parameter clk_freq_Hz=50_000_000;
+        
+    logic [15:0] gpio_o;
+    logic [15:0] gpio_i;
     
     logic accelerator_interrupt_1_bit;
+    
+    /*
+    // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    // 200MHz to 100 MHz CLOCK GENERATOR DELETE IF YOU DO NOT WANT OSMAN.
+    logic clk_200mhz;
+    logic clkfb_in, clkfb_out;
+    logic clk_100mhz_unbuf;
+    logic clk_i;
+
+    IBUFGDS #(
+        .DIFF_TERM("FALSE"),
+        .IBUF_LOW_PWR("TRUE")
+    ) u_ibufg_sysclk (
+        .I(sysclk_p),
+        .IB(sysclk_n),
+        .O(clk_200mhz)
+    );
+
+    MMCME2_BASE #(
+        .BANDWIDTH("OPTIMIZED"),
+        .CLKFBOUT_MULT_F(5.0),
+        .CLKFBOUT_PHASE(0.0),
+        .CLKIN1_PERIOD(5.000), // 200 MHz
+        .CLKOUT0_DIVIDE_F(10.0), // 1000 / 10 = 100 MHz
+        .CLKOUT0_DUTY_CYCLE(0.5),
+        .CLKOUT0_PHASE(0.0),
+        .DIVCLK_DIVIDE(1),
+        .REF_JITTER1(0.010)
+    ) u_mmcm (
+        .CLKIN1(clk_200mhz),
+        .CLKFBIN(clkfb_in),
+        .CLKFBOUT(clkfb_out),
+        .CLKOUT0(clk_100mhz_unbuf),
+        .PWRDWN(1'b0),
+        .RST(1'b0),
+        .LOCKED() // You could tie this to reset logic if needed
+    );
+
+    BUFG u_bufg_fb (
+        .I(clkfb_out),
+        .O(clkfb_in)
+    );
+
+    BUFG u_bufg_100m (
+        .I(clk_100mhz_unbuf),
+        .O(clk_i)
+    );
+    // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+    */
+    
     //Data Memory obi-axi
     logic obi_req_data;        
     logic obi_gnt_data;         
@@ -1245,3 +1305,4 @@ module top(
     assign rresp_slv9   = 2'b00;
     
 endmodule
+
