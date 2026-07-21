@@ -43,19 +43,21 @@ module accelerator_top(
     logic start_accelerator;
     logic infer_done;
     logic loader_done;
+    
     always_ff@(posedge clk)begin 
         if(rst)begin
-            start_accelerator<=0;
+            start_accelerator <= 1'b0;
         end
         else begin 
             if(loader_done)begin 
-                start_accelerator<=1;
+                start_accelerator <= 1'b1;
             end
             if(infer_done)begin 
-                start_accelerator<=0;
+               start_accelerator <= 1'b0;
             end
         end
     end
+
     im2col_feeder im2colFeeder(
         .clk(clk),
         .rst(rst),
@@ -152,21 +154,42 @@ module accelerator_top(
     logic [3:0] result;
     logic maxindex1;
     logic maxindex2;
+    
+    
     always_comb begin 
-        maxindex1=(softmax_results[1]>softmax_results[0])?1'b1:1'b0;
-        maxindex2=(softmax_results[3]>softmax_results[2])?1'b1:1'b0;
-        if(maxindex1&&maxindex2)begin 
-            if(softmax_results[3]>softmax_results[1]) result=4'b0111;
-            else result=4'b1101;
-        end
-        else if(!maxindex1&&!maxindex2)begin 
-            if(softmax_results[2]>softmax_results[0]) result=4'b1011;
-            else result=4'b1110;  
-        end
+        result = 4'b0000; 
+        
+        maxindex1 = (softmax_results[1] > softmax_results[0]) ? 1'b1 : 1'b0;
+        maxindex2 = (softmax_results[3] > softmax_results[2]) ? 1'b1 : 1'b0;
+        
+        case ({maxindex2, maxindex1})
+            2'b11: begin // 3 and 1 are local max
+                if(softmax_results[3] > softmax_results[1]) result = 4'b0111; // Class 3 wins
+                else result = 4'b1101; // Class 1 wins
+            end
+            2'b00: begin // 2 and 0 are local max
+                if(softmax_results[2] > softmax_results[0]) result = 4'b1011; // Class 2 wins
+                else result = 4'b1110; // Class 0 wins
+            end
+            2'b01: begin // 2 and 1 are local max (MISSING IN ORIGINAL)
+                if(softmax_results[2] > softmax_results[1]) result = 4'b1011; // Class 2 wins
+                else result = 4'b1101; // Class 1 wins
+            end
+            2'b10: begin // 3 and 0 are local max (MISSING IN ORIGINAL)
+                if(softmax_results[3] > softmax_results[0]) result = 4'b0111; // Class 3 wins
+                else result = 4'b1110; // Class 0 wins
+            end
+        endcase
     end
     
-    assign results_class=result;
-    
+    // assign results_class=result;
+    always_ff @(posedge clk) begin
+        if (rst) begin
+            results_class <= 4'b0000;
+        end else if (infer_done) begin
+            results_class <= result;
+        end
+    end
     
     
     assign infer_done=softmax_done;
@@ -231,4 +254,5 @@ assign interrupt=write_done;
    
    
 endmodule
+
 
