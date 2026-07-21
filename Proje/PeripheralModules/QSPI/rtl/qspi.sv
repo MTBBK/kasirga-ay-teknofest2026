@@ -177,6 +177,7 @@ module qspi(
         qspi_data_oe = 4'b0000;
         qspi_data_o  = 4'b0000;
         rx_data_o    = rx_shift_reg;
+        target_cycles=6'd0;
         
         case(current_state) 
             IDLE:begin
@@ -223,7 +224,7 @@ module qspi(
                 end
             end
             ADDR:begin
-                target_cycles='d0;
+                target_cycles=6'd0;
                 // ICARUS COMPILER HATASI ÇÖZÜLDÜ
                 if(data_mode==2'b01)begin
                     qspi_data_oe=4'b0001;
