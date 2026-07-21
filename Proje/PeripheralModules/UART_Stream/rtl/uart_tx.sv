@@ -65,12 +65,11 @@ module uart_tx(
         tx_out            = 1'b1; // Idle high 
         tx_done           = 1'b0;
 
-        // Calculate stop limit based on UART_STP [cite: 3, 4]
+        // Calculate stop limit based on UART_STP
         case(uart_stp[1:0])
             2'b00:   stop_limit = uart_cpb;                    // 1 Stop bit
             2'b01:   stop_limit = uart_cpb + (uart_cpb >> 1);  // 1.5 Stop bits
-            2'b10, 
-            2'b11:   stop_limit = (uart_cpb << 1);             // 2 Stop bits
+            2'b10, 2'b11:   stop_limit = (uart_cpb << 1);      // 2 Stop bits
             default: stop_limit = uart_cpb;
         endcase
 
