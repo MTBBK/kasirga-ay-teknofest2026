@@ -597,7 +597,7 @@ module top(
     );
 
     //Timer
-    timer_top #(.CLK_FREQ(clk_freq_Hz)) timer_top_inst(.clk(clk_i),
+    timer_top timer_top_inst(.clk(clk_i),
                              .rst_i(rst_n_i),
                              .AWVALID(awvalid_slv3), .AWREADY(awready_slv3), .AWADDR(awaddr_slv3),
                              .WDATA(wdata_slv3),     .WSTRB(wstrb_slv3),     .WVALID(wvalid_slv3), .WREADY(wready_slv3) ,
