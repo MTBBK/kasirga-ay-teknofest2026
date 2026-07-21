@@ -6,13 +6,32 @@ input logic rst,
 input logic [7:0]left_in[0:9],
 input logic [7:0]top_in[0:7],
 input logic interestregionfinished,
-output logic signed [31:0] pe_outputs[0:79] ,
+//output logic signed [31:0] pe_outputs[0:79] ,
+output logic signed [31:0] sa_line_outputs[0:7],
 output logic alloutputsready
     );
     
     logic [7:0] yataykablo [0:9][0:8];
     logic [7:0] dikeykablo [0:10][0:7];
-    logic signed [31:0] outputs [0:79];
+    //logic signed [31:0] outputs [0:79];
+    
+    logic signed [31:0] outputkablo [0:10][0:7];
+    assign outputkablo[10][0] = '0;//en alttan giren kablolar. biz boşalan veriyi üstten alıcaz, alttan sıfırlar girse olur.
+    assign outputkablo[10][1] = '0;
+    assign outputkablo[10][2] = '0;
+    assign outputkablo[10][3] = '0;
+    assign outputkablo[10][4] = '0;
+    assign outputkablo[10][5] = '0;
+    assign outputkablo[10][6] = '0;
+    assign outputkablo[10][7] = '0;
+    assign sa_line_outputs[0] = outputkablo[0][0];
+    assign sa_line_outputs[1] = outputkablo[0][1];
+    assign sa_line_outputs[2] = outputkablo[0][2];
+    assign sa_line_outputs[3] = outputkablo[0][3];
+    assign sa_line_outputs[4] = outputkablo[0][4];
+    assign sa_line_outputs[5] = outputkablo[0][5];
+    assign sa_line_outputs[6] = outputkablo[0][6];
+    assign sa_line_outputs[7] = outputkablo[0][7];
     
     logic endofregionkablo[0:10][0:7];
     assign endofregionkablo[0][0] = interestregionfinished;
@@ -30,10 +49,30 @@ output logic alloutputsready
             
         end
     end
-    assign alloutputsready = endofregionkablo[10][7];
-    assign pe_outputs = outputs;
     
-    //bi initial bloğuna almak lazım çok uzun oldu
+    //assign alloutputsready = endofregionkablo[10][7];
+    logic [3:0] sa_send_outputs_counter; 
+    always_ff@(posedge clk)begin 
+        if(rst)begin
+            alloutputsready<=1'b0;
+            sa_send_outputs_counter <= '0;
+        end
+        else begin 
+            if(endofregionkablo[10][7])begin 
+                alloutputsready<= 1'b1;
+            end
+            if(alloutputsready)begin 
+                sa_send_outputs_counter <= sa_send_outputs_counter + 1'b1;
+                if(sa_send_outputs_counter == 4'd9)begin 
+                    alloutputsready <= 1'b0;
+                    sa_send_outputs_counter <= '0;
+                end
+            end
+        end
+    end
+    //assign pe_outputs = outputs;
+    
+    //bi initial bloğuna almak lazım çok uzun oldu. ~2 ay sonra~ neyse boşver hoş duruyor 
     assign yataykablo[0][0] = left_in[0];
     assign yataykablo[1][0] = left_in[1];
     assign yataykablo[2][0] = left_in[2];
@@ -67,7 +106,9 @@ output logic alloutputsready
                 .interestregionfinished_o(endofregionkablo[i+1][j]),
                 .dogu_out(yataykablo[i][j+1]),
                 .guney_out(dikeykablo[i+1][j]),
-                .outputs(outputs[i*8+j])
+                .sendoutputs(alloutputsready),
+                .reserve_in(outputkablo[i+1][j]),//bunlar kendi aralarında bağlanacak artık veri akış kabloları gibi
+                .reserve_out(outputkablo[i][j])//bunlar kendi aralarında bağlanacak artık veri akış kabloları gibi
                 );
             end
         end

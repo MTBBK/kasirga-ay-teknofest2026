@@ -45,22 +45,14 @@ output logic done
     logic [3:0] outputready;
     logic [7:0] yataykablo[0:4];
     logic [7:0] dikeykablo[0:1][0:3];
+    logic signed [31:0] outputkablo [0:1][0:3];
+    
     logic signed [31:0] outputs[0:3];
     
     logic [7:0] stagger1;
     logic [7:0] stagger2[0:1];
     logic [7:0] stagger3[0:2];
     
-    //always_ff @(posedge clk)begin
-    //    dikeykablo[0][1] <= stagger1;
-    //    
-    //    stagger2[1] <= stagger2[0];
-    //    dikeykablo[0][2] <= stagger2[1];
-    //    
-    //    stagger3[1] <= stagger3[0];
-    //    stagger3[2] <= stagger3[1];
-    //    dikeykablo[0][3] <= stagger3[2];
-    //end
     
     logic [11:0]weight_buffer_addr;
     logic [31:0]weight_buffer_data;
@@ -77,7 +69,9 @@ output logic done
                 .interestregionfinished_o(outputready[i]),
                 .dogu_out(yataykablo[i+1'b1]),
                 .guney_out(dikeykablo[1][i]),
-                .outputs(outputs[i])
+                .sendoutputs(1'b0),                                                                      
+                .reserve_in(outputkablo[0][i]),//bunlar kendi aralarında bağlanacak artık veri akış kabloları gibi  
+                .reserve_out(outputs[i])//bunlar kendi aralarında bağlanacak artık veri akış kabloları gibi        
             );
         end
     endgenerate

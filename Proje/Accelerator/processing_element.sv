@@ -11,7 +11,10 @@ input logic interestregionfinished_i,
 output logic interestregionfinished_o,
 output logic [7:0] dogu_out,
 output logic [7:0] guney_out,
-output logic [31:0] outputs
+
+input logic sendoutputs,
+input logic [31:0] reserve_in,
+output logic [31:0] reserve_out
 
     ); 
     
@@ -38,7 +41,7 @@ output logic [31:0] outputs
     logic signed [accum_bit_width-1'd1 : 0] outputValue = '0; 
     logic signed [accum_bit_width-1'd1 : 0] reserveValue = '0;
     
-    assign outputs = reserveValue;
+    assign reserve_out = reserveValue;
     
     logic signed [9:0] bati_offset ;//sonradan eklendi
     assign bati_offset = bati_in + 10'sd128;
@@ -63,6 +66,10 @@ output logic [31:0] outputs
             if(interestregionfinished_i)begin 
                 reserveValue <= outputValue;
                 outputValue <= biasvalue;//bias değeri koyacağım
+            end
+            if(sendoutputs)begin
+                reserve_out<= reserveValue;
+                reserveValue<= reserve_in;
             end
         end
     end

@@ -86,7 +86,7 @@ module accelerator_top(
         .sa_weight_o(sa_weight_o)
     );
     
-    logic signed[31:0] pe_outputs[0:79];
+    logic signed[31:0] sa_line_outputs[0:7];
     logic alloutputsready;
     sa_wrapper sa_wrapper(
         .clk(clk),
@@ -94,7 +94,7 @@ module accelerator_top(
         .left_in(sa_word_o),
         .top_in(sa_weight_o),
         .interestregionfinished(endofregion),
-        .pe_outputs(pe_outputs),
+        .sa_line_outputs(sa_line_outputs),
         .alloutputsready(alloutputsready)//BUERA
     );
     
@@ -108,7 +108,7 @@ module accelerator_top(
         .clk(clk),
         .rst(rst),
         .alloutputsready(alloutputsready),
-        .pe_outputs(pe_outputs),
+        .sa_line_outputs(sa_line_outputs),
         .buffwritedata(omanager_buffwritedata),
         .buffwriteaddr(omanager_buffwritaddress), 
         .buffwriteenable(omanager_buffwriteenable),

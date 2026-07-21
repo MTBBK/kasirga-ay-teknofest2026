@@ -53,7 +53,7 @@ module accelerator_top_tb(
         .sa_weight_o(sa_weight_o)
     );
     
-    logic signed[31:0] pe_outputs[0:79];
+    logic signed[31:0] sa_line_outputs[0:7];
     logic alloutputsready;
     sa_wrapper sa_wrapper(
         .clk(clk),
@@ -61,10 +61,12 @@ module accelerator_top_tb(
         .left_in(sa_word_o),
         .top_in(sa_weight_o),
         .interestregionfinished(endofregion),
-        .pe_outputs(pe_outputs),
+        .sa_line_outputs(sa_line_outputs),
         .alloutputsready(alloutputsready)//BUERA
     );
     
+    //BU BAĞLANTILAR GÜNCELLENDİ ARTIK BRAME GİTMİYOR DİREKT FC MANAGERA GİDİYOR ÇIKTILAR
+    //İSİMİLERİ DÜZELTİLECEK
     logic [63:0] omanager_buffwritedata;
     logic [3:0] omanager_buffwritaddress;
     logic omanager_buffwriteenable;
@@ -73,7 +75,7 @@ module accelerator_top_tb(
         .clk(clk),
         .rst(rst),
         .alloutputsready(alloutputsready),
-        .pe_outputs(pe_outputs),
+        .sa_line_outputs(sa_line_outputs),
         .buffwritedata(omanager_buffwritedata),
         .buffwriteaddr(omanager_buffwritaddress), 
         .buffwriteenable(omanager_buffwriteenable),
@@ -89,7 +91,7 @@ module accelerator_top_tb(
     //    .outputaddress(outputbuffaddress)
     //);
     
-    logic [63:0] outputbufferdataout;                                       
+    //logic [63:0] outputbufferdataout;                                       
     logic signed [7:0]fc_results[0:3];
     logic fc_manager_done;
     fc_manager fullyconnected_manager(//feederdan çok manager gibi oldu bu hali

@@ -107,7 +107,7 @@ module im2col_feeder(
                         endofregioncount <= endofregioncount+1'b1;//yeni kısım
                         if(endofregioncount == 4'd10)begin
                             endofregioncount<= 5'd1;
-                            endofregion <= 1'b1;
+                            endofregion <= 1'b1;//end of region sinyali yeni feeder verilerinden hemen önce gelip sa da biriken değerleri toparlıyor
                         end
                     end
                 end
