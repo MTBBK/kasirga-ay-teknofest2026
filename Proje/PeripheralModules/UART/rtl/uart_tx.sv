@@ -45,40 +45,39 @@ module uart_tx(
 
     always_ff @(posedge clock_i or negedge reset_i) begin
         if (!reset_i) begin
-            state        <= IDLE;
+            state <= IDLE;
             baud_counter <= 0;
-            bit_index    <= 0;
-            data_latch   <= 8'h0;
+            bit_index <= 0;
+            data_latch <= 8'h0;
         end else begin
-            state        <= state_next;
+            state <= state_next;
             baud_counter <= baud_counter_next;
-            bit_index    <= bit_index_next;
-            data_latch   <= data_latch_next;
+            bit_index <= bit_index_next;
+            data_latch <= data_latch_next;
         end
     end
 
     always_comb begin
-        state_next        = state;
+        state_next = state;
         baud_counter_next = baud_counter;
-        bit_index_next    = bit_index;
-        data_latch_next   = data_latch;
-        tx_out            = 1'b1; // Idle high 
-        tx_done           = 1'b0;
+        bit_index_next = bit_index;
+        data_latch_next = data_latch;
+        tx_out = 1'b1; // Idle high 
+        tx_done = 1'b0;
 
-        // Calculate stop limit based on UART_STP [cite: 3, 4]
+        // Calculate stop limit based on UART_STP
         case(uart_stp[1:0])
-            2'b00:   stop_limit = uart_cpb;                    // 1 Stop bit
-            2'b01:   stop_limit = uart_cpb + (uart_cpb >> 1);  // 1.5 Stop bits
-            2'b10, 
-            2'b11:   stop_limit = (uart_cpb << 1);             // 2 Stop bits
+            2'b00: stop_limit = uart_cpb;                    // 1 Stop bit
+            2'b01: stop_limit = uart_cpb + (uart_cpb >> 1);  // 1.5 Stop bits
+            2'b10, 2'b11: stop_limit = (uart_cpb << 1);      // 2 Stop bits
             default: stop_limit = uart_cpb;
         endcase
 
         case(state)
             IDLE: begin
                 if (tx_enable) begin
-                    data_latch_next   = uart_tdr[7:0];
-                    state_next        = START;
+                    data_latch_next = uart_tdr[7:0];
+                    state_next = START;
                     baud_counter_next = 0;
                 end
             end
@@ -86,8 +85,8 @@ module uart_tx(
                 tx_out = 1'b0; // Start bit
                 if (baud_counter >= uart_cpb - 1) begin
                     baud_counter_next = 0;
-                    state_next        = FLOW;
-                    bit_index_next    = 0;
+                    state_next = FLOW;
+                    bit_index_next = 0;
                 end else begin
                     baud_counter_next = baud_counter + 1;
                 end
@@ -109,8 +108,8 @@ module uart_tx(
                 tx_out = 1'b1;
                 if (baud_counter >= stop_limit - 1) begin
                     baud_counter_next = 0;
-                    tx_done           = 1'b1; // Set UART_CFG[2] 
-                    state_next        = IDLE;
+                    tx_done = 1'b1; // Set UART_CFG[2] 
+                    state_next = IDLE;
                 end else begin
                     baud_counter_next = baud_counter + 1;
                 end
