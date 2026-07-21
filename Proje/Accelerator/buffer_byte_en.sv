@@ -11,8 +11,7 @@ module buffer_byte_en #(
     input  logic [DATA_WIDTH-1:0] din,
     output logic [DATA_WIDTH-1:0] dout
 );
-    
-    logic [DATA_WIDTH-1:0] ram [0:DEPTH-1];
+    (* ram_style = "block" *) logic [DATA_WIDTH-1:0] ram [0:DEPTH-1];
     
     always_ff @(posedge clk) begin
         if (write_enable[0]) ram[waddr][7:0]<=din[7:0];
