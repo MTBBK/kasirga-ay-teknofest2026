@@ -1,5 +1,5 @@
 # Temel Proje Dizini (Tek Değişken)
-set PROJE_DIR "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje"
+set PROJE_DIR "/mnt/disk2/Gtihub_Projects/kasirga-ay-teknofest2026/Proje"
 
 # Include yollarını PROJE_DIR üzerinden dinamik olarak ayarlıyoruz
 set INCLUDE_PATHS [list \
@@ -22,7 +22,6 @@ set my_files [list \
     "${PROJE_DIR}/PeripheralModules/GPIO/gpio.v" \
     "${PROJE_DIR}/PeripheralModules/I2C/sources/new/I2C_master.sv" \
     "${PROJE_DIR}/PeripheralModules/I2C/sources/new/i2c_axi_wrapper.sv" \
-    "${PROJE_DIR}/PeripheralModules/I2C/sources/new/i2c_slave.v" \
     "${PROJE_DIR}/PeripheralModules/xbar.sv" \
     "${PROJE_DIR}/PeripheralModules/xbar_readonly.sv" \
     "${PROJE_DIR}/PeripheralModules/obi_to_axi.sv" \
@@ -114,6 +113,7 @@ set sim_files [list \
     "${PROJE_DIR}/Core/bhv/cv32e40p_sim_clock_gate.sv" \
     "${PROJE_DIR}/Core/bhv/include/cv32e40p_tracer_pkg.sv" \
     "${PROJE_DIR}/Core/bhv/cv32e40p_tb_wrapper.sv" \
+    "${PROJE_DIR}/PeripheralModules/I2C/sources/new/i2c_slave.v" \
 ]
 
 # top_module_test dizinindeki tüm sv/v dosyalarını al (Testbench vs.)

@@ -194,7 +194,7 @@ module qspi_axi_wrapper(
 
 
     assign tx_fifo_wr_en = (axi_awready && S_AXI_WVALID && (S_AXI_AWADDR == ADDR_QSPI_DR) && !tx_fifo_full);
-    assign rx_fifo_rd_en = (axi_arready && S_AXI_ARVALID && (S_AXI_ARADDR == ADDR_QSPI_DR) && !rx_fifo_empty);
+    assign rx_fifo_rd_en = (~axi_arready && S_AXI_ARVALID && (S_AXI_ARADDR[15:0] == ADDR_QSPI_DR) && !rx_fifo_empty);
     assign rx_underflow = axi_arready && (S_AXI_ARADDR == ADDR_QSPI_DR) && rx_fifo_empty;
     assign tx_overflow = S_AXI_AWREADY && (S_AXI_AWADDR == ADDR_QSPI_DR) && tx_fifo_full;
 
@@ -281,3 +281,4 @@ module qspi_axi_wrapper(
     end
 
 endmodule
+

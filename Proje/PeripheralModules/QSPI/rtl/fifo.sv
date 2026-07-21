@@ -1,26 +1,4 @@
-`timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 05/06/2026 05:20:49 PM
-// Design Name: 
-// Module Name: fifo
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
-
-module fifo #(parameter DATA_WIDTH=32,parameter DEPTH=64)(
+module fifo #(parameter DATA_WIDTH=32, parameter DEPTH=64)(
     input logic clk,
     input logic rst_n,
     input logic flush,
@@ -35,6 +13,7 @@ module fifo #(parameter DATA_WIDTH=32,parameter DEPTH=64)(
     output logic empty
     );
     
+    // Memory array
     logic [DATA_WIDTH-1:0] mem [0:DEPTH-1];
     
     localparam PTR_WIDTH=$clog2(DEPTH);
@@ -42,29 +21,42 @@ module fifo #(parameter DATA_WIDTH=32,parameter DEPTH=64)(
     logic [PTR_WIDTH:0] wr_ptr;
     logic [PTR_WIDTH:0] rd_ptr;
     
-    assign full=((wr_ptr[PTR_WIDTH]!=rd_ptr[PTR_WIDTH])&&(wr_ptr[PTR_WIDTH-1:0]==rd_ptr[PTR_WIDTH-1:0]));
-    assign empty=(wr_ptr==rd_ptr);
-    assign data_out = empty ? {DATA_WIDTH{1'b0}} : mem[rd_ptr[PTR_WIDTH-1:0]];
+    assign full  = ((wr_ptr[PTR_WIDTH] != rd_ptr[PTR_WIDTH]) && (wr_ptr[PTR_WIDTH-1:0] == rd_ptr[PTR_WIDTH-1:0]));
+    assign empty = (wr_ptr == rd_ptr);
     
-    always_ff @(posedge clk or negedge rst_n)begin 
-        if(!rst_n)begin 
+    // -------------------------------------------------------------
+    // Pointer & Status Logic (with asynchronous reset)
+    // -------------------------------------------------------------
+    always_ff @(posedge clk or negedge rst_n) begin 
+        if (!rst_n) begin 
             wr_ptr <= 0;
             rd_ptr <= 0;
         end
-        else if(flush)begin 
+        else if (flush) begin 
             wr_ptr <= 0;
             rd_ptr <= 0;
         end 
         else begin
-            if (wr_en&&!full)begin 
-                mem[wr_ptr[PTR_WIDTH-1:0]]<=data_in;
-                wr_ptr<=wr_ptr+1;
-            
+            // Removed the "else if" so simultaneous read/writes work
+            if (wr_en && !full) begin 
+                wr_ptr <= wr_ptr + 1;
             end
-            else if(rd_en&&!empty)begin 
-                rd_ptr<=rd_ptr+1;
+            if (rd_en && !empty) begin 
+                rd_ptr <= rd_ptr + 1;
             end      
         end
     end
- 
+
+    // -------------------------------------------------------------
+    // BRAM Inference Logic (Strictly Synchronous, NO Reset)
+    // -------------------------------------------------------------
+    always_ff @(posedge clk) begin
+        if (wr_en && !full) begin 
+            mem[wr_ptr[PTR_WIDTH-1:0]] <= data_in;
+        end
+        if (rd_en && !empty) begin
+            data_out <= mem[rd_ptr[PTR_WIDTH-1:0]];
+        end
+    end
+
 endmodule

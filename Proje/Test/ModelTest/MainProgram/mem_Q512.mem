@@ -1,0 +1,44 @@
+//--- 0x1000 Adresinden İtibaren Buyruk Belleği (Instructions) ---
+@1000
+
+//--- 0x3000 Adresinde Veri Belleği (Data Memory) ---
+@3000
+
+//--- Micron Modelinin Kendi İçindeki Fabrika Gereksinimleri ---
+@00
+00
+01
+@08
+A5
+5A
+@00FFFE
+00
+00
+@010000
+AA
+BB
+@080000
+00
+01
+02
+03
+04
+@080FFE
+80
+81
+@08F000
+90
+91
+@08FFFE
+9E
+9F
+@090000
+10
+11
+@FFFFFA
+0A
+0B
+0C
+0D
+0E
+0F
