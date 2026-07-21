@@ -1,27 +1,32 @@
 `timescale 1ns / 1ps
-
 module buffer_byte_en #(
-    parameter DATA_WIDTH = 64,
-    parameter ADDR_WIDTH = 10,
-    parameter DEPTH = 334 //enough for the 46x58 padded grid
+    parameter DATA_WIDTH=64,
+    parameter ADDR_WIDTH=10,
+    parameter DEPTH=512   
 )(
     input  logic clk,
-    input  logic [7:0] write_enable, //8 bit array for byte control
-    input  logic [ADDR_WIDTH-1:0] waddr,     //write address
-    input  logic [ADDR_WIDTH-1:0] raddr,     //read address
+    input  logic [7:0] write_enable,
+    input  logic [ADDR_WIDTH-1:0] waddr,
+    input  logic [ADDR_WIDTH-1:0] raddr,
     input  logic [DATA_WIDTH-1:0] din,
     output logic [DATA_WIDTH-1:0] dout
 );
-
-    logic [DATA_WIDTH-1:0] ram [DEPTH-1:0];
+    
+    logic [DATA_WIDTH-1:0] ram [0:DEPTH-1];
     
     always_ff @(posedge clk) begin
-        //loop through all 8 bytes and only write the ones enabled
-        for (int i=0;i<8;i=i+1) begin
-            if (write_enable[i]) begin
-                ram[waddr][i*8 +:8]<=din[i*8+:8];
-            end
-        end
-        dout<=ram[raddr]; 
+        if (write_enable[0]) ram[waddr][7:0]<=din[7:0];
+        if (write_enable[1]) ram[waddr][15:8]<=din[15:8];
+        if (write_enable[2]) ram[waddr][23:16]<=din[23:16];
+        if (write_enable[3]) ram[waddr][31:24]<=din[31:24];
+        if (write_enable[4]) ram[waddr][39:32]<=din[39:32];
+        if (write_enable[5]) ram[waddr][47:40]<=din[47:40];
+        if (write_enable[6]) ram[waddr][55:48]<=din[55:48];
+        if (write_enable[7]) ram[waddr][63:56]<=din[63:56];
     end
+    
+    always_ff @(posedge clk) begin
+        dout <= ram[raddr];
+    end
+
 endmodule
