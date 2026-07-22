@@ -3,8 +3,8 @@
 module sa_wrapper(
 input logic clk,
 input logic rst,
-input logic [7:0]left_in[0:9],
-input logic [7:0]top_in[0:7],
+input logic signed [7:0]left_in[0:9],
+input logic signed [7:0]top_in[0:7],
 input logic interestregionfinished,
 output logic signed [31:0] sa_line_outputs[0:7], 
 output logic alloutputsready
@@ -14,8 +14,15 @@ output logic alloutputsready
     //onun çıktısını da sa ya takarız
     
     
-    logic [7:0] solkenarskewed [0:9];
-    stagger_sa_edge #(.datacount(10)) solkenar_stagger(
+    logic signed [7:0] solkenarskewed [0:9];
+    //stagger_sa_edge #(.datacount(10)) solkenar_stagger(
+    //.clk(clk),
+    //.rst(rst),
+    //.en_i(1'b1),
+    //.word_i(left_in),
+    //.skew_o(solkenarskewed)
+    //);
+    stagger_sa_edge_10 solkenar_stagger(
     .clk(clk),
     .rst(rst),
     .en_i(1'b1),
@@ -23,7 +30,7 @@ output logic alloutputsready
     .skew_o(solkenarskewed)
     );
     
-    logic [7:0] ustkenarskewed [0:7];
+    logic signed [7:0] ustkenarskewed [0:7];
     stagger_sa_edge #(.datacount(8)) ustkenar_stagger(
     .clk(clk),
     .rst(rst),
