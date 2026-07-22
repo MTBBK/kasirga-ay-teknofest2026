@@ -1,16 +1,18 @@
 `timescale 1ns / 1ps
+//TODOS:
+//Belki lut sayısını azaltmak için zero gatingi silebiliriz (harcıyor mu bilmiyorum)
 module processing_element #(parameter int accum_bit_width = 32,
 parameter bias = 0
 )(
     input logic clk,
     input logic rst,
 
-input logic signed [7:0] bati_in,//input boyutları parametrize edilebilir ama gerek yok gibi
+input logic signed [8:0] bati_in,//input boyutları parametrize edilebilir ama gerek yok gibi
 input logic signed [7:0] kuzey_in,
 input logic interestregionfinished_i,
 output logic interestregionfinished_o,
-output logic [7:0] dogu_out,
-output logic [7:0] guney_out,
+output logic signed [8:0] dogu_out,
+output logic signed [7:0] guney_out,
 
 input logic sendoutputs,
 input logic [31:0] reserve_in,
@@ -43,8 +45,8 @@ output logic [31:0] reserve_out
     
     assign reserve_out = reserveValue;
     
-    logic signed [9:0] bati_offset ;//sonradan eklendi
-    assign bati_offset = bati_in + 10'sd128;
+    //logic signed [9:0] bati_offset ;//sonradan eklendi
+    //assign bati_offset = bati_in + 10'sd128;
     
     always_ff @(posedge clk) begin 
         if(rst) begin 
@@ -60,15 +62,15 @@ output logic [31:0] reserve_out
             //if(kuzey_in != 8'd0 || bati_in != 8'd0)begin
             //    outputValue <= 32'(((bati_in + 9'sd128) * kuzey_in)) + outputValue; //!!!BURADAKİ DEĞİŞİKLİĞE DİKKATT
             //end
-            if(kuzey_in != 8'd0 || bati_offset != 10'd0)begin                           
-                outputValue <= 32'(((bati_offset) * kuzey_in)) + outputValue;
+            if(kuzey_in != 8'd0 || bati_in!= 10'd0)begin                           
+                outputValue <= 32'(((bati_in) * kuzey_in)) + outputValue;
             end                                                                    
             if(interestregionfinished_i)begin 
                 reserveValue <= outputValue;
                 outputValue <= biasvalue;//bias değeri koyacağım
             end
             if(sendoutputs)begin
-                reserve_out<= reserveValue;
+                //reserve_out<= reserveValue;
                 reserveValue<= reserve_in;
             end
         end

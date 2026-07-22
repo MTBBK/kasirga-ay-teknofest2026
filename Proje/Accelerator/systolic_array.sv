@@ -3,16 +3,16 @@
 module systolic_array(
 input logic clk,
 input logic rst,
-input logic [7:0]left_in[0:9],
-input logic [7:0]top_in[0:7],
+input logic signed [7:0]left_in[0:9],
+input logic signed [7:0]top_in[0:7],
 input logic interestregionfinished,
 //output logic signed [31:0] pe_outputs[0:79] ,
 output logic signed [31:0] sa_line_outputs[0:7],
 output logic alloutputsready
     );
     
-    logic [7:0] yataykablo [0:9][0:8];
-    logic [7:0] dikeykablo [0:10][0:7];
+    logic signed [8:0] yataykablo [0:9][0:8];
+    logic signed [7:0] dikeykablo [0:10][0:7];
     //logic signed [31:0] outputs [0:79];
     
     logic signed [31:0] outputkablo [0:10][0:7];
@@ -73,16 +73,16 @@ output logic alloutputsready
     //assign pe_outputs = outputs;
     
     //bi initial bloğuna almak lazım çok uzun oldu. ~2 ay sonra~ neyse boşver hoş duruyor 
-    assign yataykablo[0][0] = left_in[0];
-    assign yataykablo[1][0] = left_in[1];
-    assign yataykablo[2][0] = left_in[2];
-    assign yataykablo[3][0] = left_in[3];
-    assign yataykablo[4][0] = left_in[4];
-    assign yataykablo[5][0] = left_in[5];
-    assign yataykablo[6][0] = left_in[6];
-    assign yataykablo[7][0] = left_in[7];
-    assign yataykablo[8][0] = left_in[8];
-    assign yataykablo[9][0] = left_in[9];
+    assign yataykablo[0][0] = left_in[0] + 10'sd128;
+    assign yataykablo[1][0] = left_in[1] + 10'sd128;
+    assign yataykablo[2][0] = left_in[2] + 10'sd128;
+    assign yataykablo[3][0] = left_in[3] + 10'sd128;
+    assign yataykablo[4][0] = left_in[4] + 10'sd128;
+    assign yataykablo[5][0] = left_in[5] + 10'sd128;
+    assign yataykablo[6][0] = left_in[6] + 10'sd128;
+    assign yataykablo[7][0] = left_in[7] + 10'sd128;
+    assign yataykablo[8][0] = left_in[8] + 10'sd128;
+    assign yataykablo[9][0] = left_in[9] + 10'sd128;
     
     assign dikeykablo[0][0] = top_in[0];
     assign dikeykablo[0][1] = top_in[1];

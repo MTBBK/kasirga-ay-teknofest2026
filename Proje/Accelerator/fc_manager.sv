@@ -3,10 +3,6 @@ module fc_manager(
 input logic clk,
 input logic rst,
 input logic basla,
-///////////
-//input logic [63:0]buff_read_data,
-//output logic [9:0]buff_read_addr,
-///####################////////
 input logic [63:0]fc_input_data,
 input logic [3:0]fc_input_data_addr,
 input logic fc_input_data_valid,//!!burada bir handshake mekanizmadı yok şuan zaten fc sıradaki conv penceresinden önce bitmesi gerekiyor diye ilerdeki değişikliklerde dikkat etmek gerekebilir
@@ -16,7 +12,7 @@ output logic done
     );
     //buradan okunacak artık veriler
     //logic [63:0] fc_inputs [0:9];
-    logic [7:0] fc_inputs [0:79];
+    logic signed [7:0] fc_inputs [0:79];
     always_ff @(posedge clk)begin 
         if(rst)begin 
             fc_inputs <= '{default:'0};
@@ -43,7 +39,7 @@ output logic done
     
     logic bitti;
     logic [3:0] outputready;
-    logic [7:0] yataykablo[0:4];
+    logic [8:0] yataykablo[0:4];
     logic [7:0] dikeykablo[0:1][0:3];
     logic signed [31:0] outputkablo [0:1][0:3];
     
@@ -143,7 +139,7 @@ output logic done
             //veri gönderme kısmı
             yataykablo[0] <= '0;                 
             if(start_send == 1'b1)begin          
-                yataykablo[0] <= fc_inputs[sendcount];
+                yataykablo[0] <= fc_inputs[sendcount] + 10'sd128;
                 sendcount <= sendcount + 1'b1;   
                 if(sendcount == 7'd79)begin      
                     sendcount <= '0;             
