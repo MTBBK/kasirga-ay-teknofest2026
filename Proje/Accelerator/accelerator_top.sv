@@ -36,7 +36,7 @@ module accelerator_top(
     logic [63:0]buff_read_data;
     
     logic [9:0]buff_read_addr;
-    logic [7:0]sa_word_o[0:9];
+    logic signed [7:0]sa_word_o[0:9];
     logic sawordo_started;
     logic endofregion;
     
@@ -80,7 +80,7 @@ module accelerator_top(
     //    .dout(buff_read_data)
     //);
     
-    logic [7:0]sa_weight_o[0:7];
+    logic signed [7:0]sa_weight_o[0:7];
     buffer_weight weightBuffer(
         .clk(clk),                  
         .rst(rst),
@@ -182,14 +182,7 @@ module accelerator_top(
         endcase
     end
     
-    // assign results_class=result;
-    always_ff @(posedge clk) begin
-        if (rst) begin
-            results_class <= 4'b0000;
-        end else if (infer_done) begin
-            results_class <= result;
-        end
-    end
+    assign results_class=result;
     
     
     assign infer_done=softmax_done;
@@ -249,10 +242,22 @@ buffer_byte_en buffer(
     .din(loader_din),
     .dout(buff_read_data)
 );
+//blk_mem_gen_1 your_instance_name (
+//  .clka(clk),    // input wire clka
+//  .ena(1'b1),      // input wire ena
+//  .wea(loader_we),      // input wire [7 : 0] wea
+//  .addra(loader_addr),  // input wire [9 : 0] addra
+//  .dina(loader_din),    // input wire [63 : 0] dina
+//  .clkb(clk),    // input wire clkb
+//  .enb(1'b1),      // input wire enb
+//  .addrb(buff_read_addr),  // input wire [9 : 0] addrb
+//  .doutb(buff_read_data)  // output wire [63 : 0] doutb
+//);
 
 assign interrupt=write_done;
    
    
 endmodule
+
 
 
