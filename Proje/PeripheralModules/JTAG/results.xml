@@ -1,0 +1,6 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1784680160" />
+    <testcase name="test_idcode" classname="test_dm_jtag" file="/home/orion/cocotb_project/test_dm_jtag.py" lineno="25" time="0.03497004508972168" sim_time_ns="4076.001" ratio_time="116556.92720848134" />
+  </testsuite>
+</testsuites>

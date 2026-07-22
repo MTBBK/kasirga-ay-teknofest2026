@@ -19,7 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 // Comment the line below if you want to deactivate JTAG module so that it can work as normal as before
-//`define ENABLE_JTAG
+`define ENABLE_JTAG
 
 module top(
 

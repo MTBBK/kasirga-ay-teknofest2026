@@ -8,8 +8,6 @@
 // CONDITIONS OF ANY KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations under the License.
 
-// Cells to be used for Xilinx FPGA mappings
-
 module tc_clk_and2 (
   input  logic clk0_i,
   input  logic clk1_i,
@@ -29,22 +27,21 @@ module tc_clk_buffer (
 
 endmodule
 
-// Disable clock gating on FPGA as it behaves differently than expected
-module tc_clk_gating #(
-  /// This paramaeter is a hint for tool/technology specific mappings of this
-  /// tech_cell. It indicates wether this particular clk gate instance is
-  /// required for functional correctness or just instantiated for power
-  /// savings. If IS_FUNCTIONAL == 0, technology specific mappings might
-  /// replace this cell with a feedthrough connection without any gating.
-  parameter bit IS_FUNCTIONAL = 1'b1
-)(
+// Description: Behavioral model of an integrated clock-gating cell (ICG)
+module tc_clk_gating (
    input  logic clk_i,
    input  logic en_i,
    input  logic test_en_i,
    output logic clk_o
 );
 
-  assign clk_o = clk_i;
+  logic clk_en;
+
+  always_latch begin
+    if (clk_i == 1'b0) clk_en <= en_i | test_en_i;
+  end
+
+  assign clk_o = clk_i & clk_en;
 
 endmodule
 
@@ -64,12 +61,7 @@ module tc_clk_mux2 (
   output logic clk_o
 );
 
-  BUFGMUX i_BUFGMUX (
-    .S  ( clk_sel_i ),
-    .I0 ( clk0_i    ),
-    .I1 ( clk1_i    ),
-    .O  ( clk_o     )
-  );
+  assign clk_o = (clk_sel_i) ? clk1_i : clk0_i;
 
 endmodule
 
@@ -83,14 +75,21 @@ module tc_clk_xor2 (
 
 endmodule
 
-module tc_clk_or2 (
-  input logic clk0_i,
-  input logic clk1_i,
-  output logic clk_o
+`ifndef SYNTHESIS
+module tc_clk_delay #(
+  parameter int unsigned Delay = 300ps
+) (
+  input  logic in_i,
+  output logic out_o
 );
 
-  assign clk_o = clk0_i | clk1_i;
+// pragma translate_off
+`ifndef VERILATOR
+  assign #(Delay) out_o = in_i;
+`endif
+// pragma translate_on
 
 endmodule
+`endif
 
 
