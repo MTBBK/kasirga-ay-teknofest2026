@@ -19,7 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 // Comment the line below if you want to deactivate JTAG module so that it can work as normal as before
-`define ENABLE_JTAG
+//`define ENABLE_JTAG
 
 module top(
 
@@ -31,7 +31,8 @@ module top(
     input logic sysclk_p,
     input logic sysclk_n,
     */
-    
+    output logic [15:0] gpio_o,
+    input logic [15:0] gpio_i,
     input logic rst_n_i,
     input logic fetch_enable,
     
@@ -42,8 +43,7 @@ module top(
     
     output logic scl_o,
     inout logic sda_io,
-    
-    output logic sclk_o,
+    output sclk_o,
     output logic cs_o,
     inout wire qspi_io_0,
     inout wire qspi_io_1,
@@ -62,11 +62,12 @@ module top(
     );
 
     parameter uart_baud_rate=921600;
-    parameter clk_freq_Mhz=100;
+    parameter clk_freq_Mhz=50;
     parameter clk_freq_Hz=50_000_000;
         
-    logic [15:0] gpio_o;
-    logic [15:0] gpio_i;
+    
+//    logic rst_n_i;
+//    assign rst_n_i=~rst_i;
     
     logic accelerator_interrupt_1_bit;
     
@@ -625,19 +626,19 @@ module top(
 
     //Peripheral Modules
 
-    //I2C 
-    i2c_axi_wrapper i2c_top_inst(
-        .clk(clk_i),
-        .rst_n(rst_n_i),
-        .o_scl(scl_o),
-        .sda(sda_io),
-        .o_intr(),
-        .AWVALID(awvalid_slv6), .AWREADY(awready_slv6), .AWADDR(awaddr_slv6),
-        .WDATA(wdata_slv6),     .WSTRB(wstrb_slv6),     .WVALID(wvalid_slv6), .WREADY(wready_slv6) ,
-        .BVALID(bvalid_slv6),   .BREADY(bready_slv6),   .BRESP(bresp_slv6),
-        .ARVALID(arvalid_slv6), .ARREADY(arready_slv6), .ARADDR(araddr_slv6),
-        .RVALID(rvalid_slv6),   .RREADY(rready_slv6),   .RDATA(rdata_slv6), .RRESP(rresp_slv6)
-    );
+//    //I2C 
+//    i2c_axi_wrapper i2c_top_inst(
+//        .clk(clk_i),
+//        .rst_n(rst_n_i),
+//        .o_scl(scl_o),
+//        .sda(sda_io),
+//        .o_intr(),
+//        .AWVALID(awvalid_slv6), .AWREADY(awready_slv6), .AWADDR(awaddr_slv6),
+//        .WDATA(wdata_slv6),     .WSTRB(wstrb_slv6),     .WVALID(wvalid_slv6), .WREADY(wready_slv6) ,
+//        .BVALID(bvalid_slv6),   .BREADY(bready_slv6),   .BRESP(bresp_slv6),
+//        .ARVALID(arvalid_slv6), .ARREADY(arready_slv6), .ARADDR(araddr_slv6),
+//        .RVALID(rvalid_slv6),   .RREADY(rready_slv6),   .RDATA(rdata_slv6), .RRESP(rresp_slv6)
+//    );
 
     //QSPI
     qspi_top qspi_top_inst( .S_AXI_ACLK(clk_i),
@@ -657,16 +658,16 @@ module top(
     );
 
     //Timer
-    timer_top timer_top_inst(.clk(clk_i),
-                             .rst_i(rst_n_i),
-                             .AWVALID(awvalid_slv3), .AWREADY(awready_slv3), .AWADDR(awaddr_slv3),
-                             .WDATA(wdata_slv3),     .WSTRB(wstrb_slv3),     .WVALID(wvalid_slv3), .WREADY(wready_slv3) ,
-                             .BVALID(bvalid_slv3),   .BREADY(bready_slv3),   .BRESP(bresp_slv3),
-                             .ARVALID(arvalid_slv3), .ARREADY(arready_slv3), .ARADDR(araddr_slv3),
-                             .RVALID(rvalid_slv3),   .RREADY(rready_slv3),   .RDATA(rdata_slv3), .RRESP(rresp_slv3)
+//    timer_top timer_top_inst(.clk(clk_i),
+//                             .rst_i(rst_n_i),
+//                             .AWVALID(awvalid_slv3), .AWREADY(awready_slv3), .AWADDR(awaddr_slv3),
+//                             .WDATA(wdata_slv3),     .WSTRB(wstrb_slv3),     .WVALID(wvalid_slv3), .WREADY(wready_slv3) ,
+//                             .BVALID(bvalid_slv3),   .BREADY(bready_slv3),   .BRESP(bresp_slv3),
+//                             .ARVALID(arvalid_slv3), .ARREADY(arready_slv3), .ARADDR(araddr_slv3),
+//                             .RVALID(rvalid_slv3),   .RREADY(rready_slv3),   .RDATA(rdata_slv3), .RRESP(rresp_slv3)
     
     
-    );
+//    );
 
     //GPIO
     gpio gpio_top_inst(.clk(clk_i),
@@ -1283,6 +1284,28 @@ module top(
         .AWLEN_DMA(6'd0),
         .WLAST_DMA(1'b1)
         );
+        
+   logic sclk_internal; // QSPI modülünden çıkan saat sinyali
+
+    // STARTUPE2 Makrosu
+    STARTUPE2 #(
+        .PROG_USR("FALSE"),
+        .SIM_CCLK_FREQ(0.0)
+    ) startupe2_inst (
+        .CFGCLK(),
+        .CFGMCLK(),
+        .EOS(),
+        .PREQ(),
+        .CLK(1'b0),
+        .GSR(1'b0),
+        .GTS(1'b0),
+        .KEYCLEARB(1'b1),
+        .PACK(1'b0),
+        .USRCCLKO(sclk_internal), // QSPI Kontrolcünden gelen sclk buraya bağlanır
+        .USRCCLKTS(1'b0),         // Output enable (0 = aktif)
+        .USRDONEO(1'b1),
+        .USRDONETS(1'b1)
+    );
         
 `ifndef ENABLE_JTAG
     assign awready_slv8 = 1'b0;

@@ -5,7 +5,7 @@ module im2col_feeder(
     input logic rst,
     input logic [63:0]buff_read_data,
     output logic [9:0]buff_read_addr,
-    output logic [7:0]sa_word_o[0:9],
+    output logic signed [7:0]sa_word_o[0:9],
     output logic sawordo_started,//diğer besleyici modul için sinyal. ben veri göndermeye başladım diyor
     output logic endofregion,
     input logic start

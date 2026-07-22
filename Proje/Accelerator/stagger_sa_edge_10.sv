@@ -17,7 +17,7 @@ module stagger_sa_edge_10 (
 //    logic [23 :0] buf_q7; //7 çevrim gecikme
 //    logic [15 :0] buf_q8; //8
 //    logic [7 :0] buf_q9;//9
-    
+
 //    assign skew_o[0]  =  word_i[0];
 //    assign skew_o[1]  =  buf_q1[7:0];
 //    assign skew_o[2]  =  buf_q2[7:0];
@@ -28,7 +28,7 @@ module stagger_sa_edge_10 (
 //    assign skew_o[7]  =  buf_q7[7:0];
 //    assign skew_o[8]  =  buf_q8[7:0];
 //    assign skew_o[9]  =  buf_q9[7:0];
-    
+
 //    always_ff @(posedge clk) begin
 //        if (rst) begin
 //            buf_q1 <= 0;
@@ -40,7 +40,7 @@ module stagger_sa_edge_10 (
 //            buf_q7 <= 0;
 //            buf_q8 <= 0;
 //            buf_q9 <= 0;
-//        end 
+//        end
 //        else begin
 //            if (1'b1) begin//en_i olacak normalde
 //                buf_q1 <= {word_i[4'd9],word_i[4'd8],word_i[3'd7],word_i[3'd6],word_i[3'd5],word_i[3'd4],word_i[3'd3],word_i[3'd2],word_i[3'd1]};
@@ -55,14 +55,22 @@ module stagger_sa_edge_10 (
 //            end
 //        end
 //    end
-    
 
+
+
+    // Her hat için gereken maksimum gecikme matrisi
+    // delay_regs[i][j] -> i: hangi kanal (0-9), j: kaçıncı çevrim gecikme
+    // Kanal 0 için 0 gecikme, Kanal 9 için 9 gecikme gerekiyor.
+
+    // Kanal 0: 0 Çevrim Gecikme (Doğrudan Bağlantı)
     assign skew_o[0] = word_i[0];
 
+    // Kanal 1: 1 Çevrim Gecikme
     logic signed [7:0] d1_ch1;
     always_ff @(posedge clk) d1_ch1 <= word_i[1];
     assign skew_o[1] = d1_ch1;
 
+    // Kanal 2: 2 Çevrim Gecikme
     logic signed [7:0] d1_ch2, d2_ch2;
     always_ff @(posedge clk) begin
         d1_ch2 <= word_i[2];
@@ -70,6 +78,7 @@ module stagger_sa_edge_10 (
     end
     assign skew_o[2] = d2_ch2;
 
+    // Kanal 3: 3 Çevrim Gecikme
     logic signed [7:0] d1_ch3, d2_ch3, d3_ch3;
     always_ff @(posedge clk) begin
         d1_ch3 <= word_i[3];
@@ -78,6 +87,7 @@ module stagger_sa_edge_10 (
     end
     assign skew_o[3] = d3_ch3;
 
+    // Kanal 4: 4 Çevrim Gecikme
     logic signed [7:0] d1_ch4, d2_ch4, d3_ch4, d4_ch4;
     always_ff @(posedge clk) begin
         d1_ch4 <= word_i[4];
@@ -87,6 +97,7 @@ module stagger_sa_edge_10 (
     end
     assign skew_o[4] = d4_ch4;
 
+    // Kanal 5: 5 Çevrim Gecikme
     logic signed [7:0] d1_ch5, d2_ch5, d3_ch5, d4_ch5, d5_ch5;
     always_ff @(posedge clk) begin
         d1_ch5 <= word_i[5];
@@ -97,6 +108,7 @@ module stagger_sa_edge_10 (
     end
     assign skew_o[5] = d5_ch5;
 
+    // Kanal 6: 6 Çevrim Gecikme
     logic signed [7:0] d1_ch6, d2_ch6, d3_ch6, d4_ch6, d5_ch6, d6_ch6;
     always_ff @(posedge clk) begin
         d1_ch6 <= word_i[6];
@@ -108,6 +120,7 @@ module stagger_sa_edge_10 (
     end
     assign skew_o[6] = d6_ch6;
 
+    // Kanal 7: 7 Çevrim Gecikme
     logic signed [7:0] d1_ch7, d2_ch7, d3_ch7, d4_ch7, d5_ch7, d6_ch7, d7_ch7;
     always_ff @(posedge clk) begin
         d1_ch7 <= word_i[7];
@@ -120,6 +133,7 @@ module stagger_sa_edge_10 (
     end
     assign skew_o[7] = d7_ch7;
 
+    // Kanal 8: 8 Çevrim Gecikme
     logic signed [7:0] d1_ch8, d2_ch8, d3_ch8, d4_ch8, d5_ch8, d6_ch8, d7_ch8, d8_ch8;
     always_ff @(posedge clk) begin
         d1_ch8 <= word_i[8];
@@ -133,6 +147,7 @@ module stagger_sa_edge_10 (
     end
     assign skew_o[8] = d8_ch8;
 
+    // Kanal 9: 9 Çevrim Gecikme
     logic signed [7:0] d1_ch9, d2_ch9, d3_ch9, d4_ch9, d5_ch9, d6_ch9, d7_ch9, d8_ch9, d9_ch9;
     always_ff @(posedge clk) begin
         d1_ch9 <= word_i[9];

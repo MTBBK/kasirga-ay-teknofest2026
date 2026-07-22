@@ -2,7 +2,7 @@
 module buffer_byte_en #(
     parameter DATA_WIDTH=64,
     parameter ADDR_WIDTH=10,
-    parameter DEPTH=512   
+    parameter DEPTH=1024   
 )(
     input  logic clk,
     input  logic [7:0] write_enable,

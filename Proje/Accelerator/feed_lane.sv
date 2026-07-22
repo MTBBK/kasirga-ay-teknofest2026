@@ -1,3 +1,4 @@
+
 //`timescale 1ns / 1ps
 
 //module feed_lane #(parameter int LOCAL_OFFSET = 0
@@ -15,7 +16,7 @@
 //output logic fifovalid,
 //output logic [7:0]sendtofifo[0:7]
 //    );
-    
+
 //    typedef enum logic [1:0] {
 //        start = 2'b00,
 //        read = 2'b01,
@@ -23,9 +24,9 @@
 //        set_offset = 2'b11
 //    } state;
 //    state current_state;
-    
+
 //    logic signed [5:0] offset;
-    
+
 //    logic [63:0] lanereg;
 //    logic [3:0]  lrcount; //lanereg e kaç veri koyduk
 //    logic [63:0] part_new;
@@ -44,7 +45,7 @@
 
 //    always_comb begin
 //        part_new = 64'd0; // Varsayılan değer ataması latch oluşumunu engeller
-        
+
 //        if (offset >= 0) begin
 //            // İlk okuma: lrcount her zaman 0'dır, sola kaydırmaya gerek yok!
 //            shift_bits = {offset[2:0], 3'b000}; // offset * 8 işlemine eşdeğer (0 LUT)
@@ -65,7 +66,7 @@
 ////            intermediate_reg <= (buff_read_data >> (offset << 3));
 ////            buffdatavalid_interm <= 1'b1;
 ////        end
-////        if(buffdatavalid_interm)begin 
+////        if(buffdatavalid_interm)begin
 ////            part_new <=(intermediate_reg << (lrcount << 3));
 ////            buffdata_valid_final <= 1'b1;
 ////        end
@@ -80,11 +81,11 @@
 //            offset <= '0;
 //            lanereg_ready <= 1'b1;
 //            fifovalid <= 1'b0;
-//        end 
+//        end
 //        else begin
-//            case(current_state) 
+//            case(current_state)
 //                start:begin
-//                    if(startread)begin 
+//                    if(startread)begin
 //                        current_state <= set_offset;
 //                        lanereg_ready <= 1'b1;
 //                        fifovalid <= 1'b0;
@@ -94,7 +95,7 @@
 //                end
 //                set_offset:begin
 //                    current_state <= read;
-//                    lanereg_ready <= 1'b1; 
+//                    lanereg_ready <= 1'b1;
 //                    fifovalid <= 1'b0;
 //                    lanereg <= 64'd0;
 //                    lrcount <= 4'd0;
@@ -106,14 +107,14 @@
 //                            lanereg <= lanereg | part_new;
 //                            lrcount<= lrcount + num_elements;
 //                            offset <= offset - 4'd8;//signed olacak
-//                            if(lrcount+num_elements == 4'd8)begin 
+//                            if(lrcount+num_elements == 4'd8)begin
 //                                //okuma işlemi bitti bütün gerekli veriyi aldık
 //                                current_state <= finish;
-//                                lanereg_ready <= 1'b0;                    
+//                                lanereg_ready <= 1'b0;
 //                                fifovalid <= 1'b1;
 //                            end
 //                        end
-//                        else begin 
+//                        else begin
 //                            offset <= offset - 4'd8;
 //                        end
 //                    end
@@ -128,7 +129,7 @@
 //            endcase
 //        end
 //    end
-    
+
 //    assign sendtofifo[0] = lanereg[7:0];
 //    assign sendtofifo[1] = lanereg[15:8];
 //    assign sendtofifo[2] = lanereg[23:16];
@@ -137,11 +138,11 @@
 //    assign sendtofifo[5] = lanereg[47:40];
 //    assign sendtofifo[6] = lanereg[55:48];
 //    assign sendtofifo[7] = lanereg[63:56];
-    
-//    //for(int i = 0;i<8;i = i+1)begin 
+
+//    //for(int i = 0;i<8;i = i+1)begin
 //    //    sendtofifo[i] <= lanereg[i*8 +: 8];// bu işlemi assign ile yapalım üst modulde araya wire atalım sinyal validken ve fifofeeder ready iken wiredan kendine alsın fifo feeder
 //    //end
-    
+
 //endmodule
 
 `timescale 1ns / 1ps
@@ -152,16 +153,17 @@ module feed_lane #(
     input logic clk,
     input logic rst,
 
-    input logic [2:0] global_word_offset,
+    input logic [2:0]  global_word_offset,
     input logic [63:0] buff_read_data,
-    input logic buffdata_valid,
-    input logic startread,
-    input logic fifofeeder_ready,
-    output logic lanereg_ready,
-    output logic fifovalid,
+    input logic        buffdata_valid,
+    input logic        startread,
+    input logic        fifofeeder_ready,
+
+    output logic       lanereg_ready,
+    output logic       fifovalid,
     output logic [7:0] sendtofifo[0:7]
 );
-    
+
     typedef enum logic [1:0] {
         start      = 2'b00,
         set_offset = 2'b01,
@@ -169,38 +171,45 @@ module feed_lane #(
         finish     = 2'b11
     } state;
     state current_state;
-    
+
     logic signed [5:0] offset;
     logic [7:0]        lanereg[0:7];
-    logic [3:0]        lrcount; 
+    logic [3:0]        lrcount;
     logic [3:0]        num_elements;
 
+    // Giriş verisini bayt dizisine bölerek işlem kolaylığı sağlıyoruz
     logic [7:0] buff_bytes[0:7];
     logic [7:0] part_new[0:7];
 
     assign buff_bytes[0] = buff_read_data[7:0];
-    assign buff_bytes[1] =buff_read_data[15:8];
-    assign buff_bytes[2] =buff_read_data[23:16];
+    assign buff_bytes[1] = buff_read_data[15:8];
+    assign buff_bytes[2] = buff_read_data[23:16];
     assign buff_bytes[3] = buff_read_data[31:24];
     assign buff_bytes[4] = buff_read_data[39:32];
     assign buff_bytes[5] = buff_read_data[47:40];
     assign buff_bytes[6] = buff_read_data[55:48];
     assign buff_bytes[7] = buff_read_data[63:56];
 
+    // num_elements hesaplama sadeleştirmesi
     assign num_elements = (offset >= 0) ? (4'd8 - offset[4:0]) : (4'd8 + offset[4:0]);
 
+    // Bayt seviyesinde multiplexer (Barrel Shifter yerine çok daha az LUT harcar)
     always_comb begin
+        // Latch önlemek için varsayılan değerler
         for(int i=0; i<8; i++) begin
             part_new[i] = 8'd0;
         end
-        
+
         if (offset >= 0) begin
+            // Sağ kaydırma (Sağdaki elemanları sola yanaştırma)
             for (int i = 0; i < 8; i++) begin
                 if ((i + offset[2:0]) < 8) begin
                     part_new[i] = buff_bytes[i + offset[2:0]];
                 end
             end
         end else begin
+            // Sol kaydırma (Elemanları offset kadar ileri öteleme)
+            // Negatif offset durumunda lrcount kadar sola kayıyor
             for (int i = 0; i < 8; i++) begin
                 if (i >= lrcount[2:0]) begin
                     part_new[i] = buff_bytes[i - lrcount[2:0]];
@@ -209,6 +218,7 @@ module feed_lane #(
         end
     end
 
+    // Ardışıl Devre Mantığı
     always_ff @(posedge clk) begin
         if (rst) begin
             current_state <= start;
@@ -217,11 +227,11 @@ module feed_lane #(
             lanereg_ready <= 1'b1;
             fifovalid     <= 1'b0;
             for(int i=0; i<8; i++) lanereg[i] <= 8'd0;
-        end 
+        end
         else begin
-            case(current_state) 
+            case(current_state)
                 start: begin
-                    if(startread) begin 
+                    if(startread) begin
                         current_state <= set_offset;
                         lanereg_ready <= 1'b1;
                         fifovalid     <= 1'b0;
@@ -229,38 +239,39 @@ module feed_lane #(
                         for(int i=0; i<8; i++) lanereg[i] <= 8'd0;
                     end
                 end
-                
+
                 set_offset: begin
                     current_state <= read;
-                    lanereg_ready <= 1'b1; 
+                    lanereg_ready <= 1'b1;
                     fifovalid     <= 1'b0;
                     lrcount       <= 4'd0;
                     offset        <= global_word_offset + LOCAL_OFFSET;
                     for(int i=0; i<8; i++) lanereg[i] <= 8'd0;
                 end
-                
+
                 read: begin
                     if(buffdata_valid) begin
                         if(offset < 8 && offset > -8) begin
+                            // Bayt bazlı OR işlemi
                             for(int i=0; i<8; i++) begin
                                 lanereg[i] <= lanereg[i] | part_new[i];
                             end
-                            
+
                             lrcount <= lrcount + num_elements;
                             offset  <= offset - 4'd8;
-                            
-                            if((lrcount + num_elements) == 4'd8) begin 
+
+                            if((lrcount + num_elements) == 4'd8) begin
                                 current_state <= finish;
-                                lanereg_ready <= 1'b0;                    
+                                lanereg_ready <= 1'b0;
                                 fifovalid     <= 1'b1;
                             end
                         end
-                        else begin 
+                        else begin
                             offset <= offset - 4'd8;
                         end
                     end
                 end
-                
+
                 finish: begin
                     if(fifofeeder_ready) begin
                         current_state <= start;
@@ -272,7 +283,8 @@ module feed_lane #(
             endcase
         end
     end
-    
+
+    // Çıkış Atamaları
     assign sendtofifo = lanereg;
-    
+
 endmodule

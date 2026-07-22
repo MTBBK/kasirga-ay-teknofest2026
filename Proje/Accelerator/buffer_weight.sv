@@ -6,7 +6,7 @@ module buffer_weight(
     input logic im2colfeeder_started,//im2col feeder dan geliyor veri göndermeden 1 çevrim önce 1 yapıyor
          // biz 1 gördüğümüzde ilk verisini göndermiş oluyor biz de ilk verimizi onunla beraber gönderiyoruz,
          // son verisini gönderirken de 0 a çekiyor biz de sonraki çevrim 0 ı görüp yeni veri göndermiyoruz tekrar 1 olmasını bekliyoruz
-    output logic [7:0]sa_weight_o[0:7]
+    output logic signed [7:0]sa_weight_o[0:7]
     
     //belki çıktı valid sinyali eklenebilir veya girdilere diğer modullere de giren start vs gibi sinyaller eklenebilir, bir araya geldiklerinde belli olur gibi
     
