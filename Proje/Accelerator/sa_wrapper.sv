@@ -15,13 +15,13 @@ output logic alloutputsready
     
     
     logic signed [7:0] solkenarskewed [0:9];
-    //stagger_sa_edge #(.datacount(10)) solkenar_stagger(
-    //.clk(clk),
-    //.rst(rst),
-    //.en_i(1'b1),
-    //.word_i(left_in),
-    //.skew_o(solkenarskewed)
-    //);
+//    stagger_sa_edge #(.datacount(10)) solkenar_stagger(
+//    .clk(clk),
+//    .rst(rst),
+//    .en_i(1'b1),
+//    .word_i(left_in),
+//    .skew_o(solkenarskewed)
+//    );
     stagger_sa_edge_10 solkenar_stagger(
     .clk(clk),
     .rst(rst),
