@@ -1,0 +1,1 @@
+Basys3'te tek UART girişi olduğundan kartın boş pinlerine FT232RL modülü taktık ve UART ve UART_Stream'i aynı kart üzerinde OBI ve AXI4-Lite ile birlikte test ettik. Ufak bir top modül oluşturarak iki farklı bilgisayara bağladığımız UART kabloları ile kablolu mesajlaşma gerçekleştirdik.
