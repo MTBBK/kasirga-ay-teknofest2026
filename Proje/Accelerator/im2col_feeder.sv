@@ -3,9 +3,10 @@
 module im2col_feeder(
     input logic clk,
     input logic rst,
+    input logic infer_done,
     input logic [63:0]buff_read_data,
     output logic [9:0]buff_read_addr,
-    output logic signed [7:0]sa_word_o[0:9],
+    output logic signed[7:0]sa_word_o[0:9],
     output logic sawordo_started,//diğer besleyici modul için sinyal. ben veri göndermeye başladım diyor
     output logic endofregion,
     input logic start
@@ -38,6 +39,7 @@ module im2col_feeder(
     address_generator agu(
     .clk(clk),
     .rst(rst),
+    .infer_done(infer_done),
     .start(startread),
     .laneregsready(lanereg_ready),
     .buff_read_addr(buff_read_addr),
@@ -85,6 +87,7 @@ module im2col_feeder(
             fifofeeder <= '{default: '0};
             fifofeeder_ready <= 1'b1;
             endofregioncount <= '0;
+            endofregion<= 1'b0;
         end
         else begin
             endofregion<= 1'b0;
@@ -123,6 +126,11 @@ module im2col_feeder(
                         fifofeeder_ready <= 1'b1;
                         sawordo_started <= 1'b0;
                         
+//                        endofregioncount <= endofregioncount+1'b1;//yeni kısım
+//                        if(endofregioncount == 4'd9)begin
+//                            endofregioncount<= 5'd0;
+//                            endofregion <= 1'b1;//end of region sinyali yeni feeder verilerinden hemen önce gelip sa da biriken değerleri toparlıyor
+//                        end
                     end
                     
                     ///////////////////
@@ -131,6 +139,17 @@ module im2col_feeder(
                     
                 end
             endcase
+            if(infer_done)begin
+                feeder_state <= waitlanes;
+                for (int i = 0; i < 10; i=i+1) begin
+                     sa_word_o[i] <= '0;
+                end
+                fifofeeder_colcnt <= '0;
+                fifofeeder <= '{default: '0};
+                fifofeeder_ready <= 1'b1;
+                endofregioncount <= '0;
+                endofregion<= 1'b0;
+            end
         end
     end
     

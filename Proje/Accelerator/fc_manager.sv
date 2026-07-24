@@ -1,7 +1,10 @@
 `timescale 1ns / 1ps
+//TODOS:
+//bu modülde lut azaltmak gerekirse buradaki requantization birimi sayısını 1 e düşürüp sonuçları sırayla requantize edebiliriz,(hatta bu direkt daha iyi sadece 3 .çevrim artıyor)
 module fc_manager(
 input logic clk,
 input logic rst,
+input logic infer_done,
 input logic basla,
 input logic [63:0]fc_input_data,
 input logic [3:0]fc_input_data_addr,
@@ -88,13 +91,11 @@ output logic done
     always_ff @(posedge clk)begin//datayı al
         if(rst)begin
             //readaddres_counter <= '0;
-            yataykablo[0] <= '0;       
-            
-            
-            
-            
-            //data <= '{default: '0};
-            //count <= '0;
+            yataykablo[0] <= '0;     
+            yataykablo[1] <= '0;   
+            yataykablo[2] <= '0;   
+            yataykablo[3] <= '0;  
+            yataykablo[4] <= '0;      
             start_send <= 1'b0;
             current_state <= idle;
             //bitti <= 1'b0;
@@ -145,7 +146,18 @@ output logic done
                     sendcount <= '0;             
                     start_send <= 1'b0;          
                 end                              
-            end                                  
+            end           
+            if(infer_done== 1'b1)begin
+                yataykablo[0] <= '0;     
+                yataykablo[1] <= '0;   
+                yataykablo[2] <= '0;   
+                yataykablo[3] <= '0;  
+                yataykablo[4] <= '0;   
+                start_send <= 1'b0;
+                current_state <= idle;
+                //bitti <= 1'b0;
+                sendcount<= '0;
+            end                       
         end    
     end
     
@@ -208,7 +220,16 @@ output logic done
                 bitti_stagger <= bitti_stagger << 1;
             end
             
-            
+            if(infer_done ==1'b1)begin
+                we <= 0;
+                din <= '0;
+                bitti_stagger <= '0;
+                weight_buffer_addr <= '0;
+                dikeykablo[0][0] <='0;     
+                stagger1 <= '0;            
+                stagger2 <= '{default: '0};
+                stagger3 <= '{default: '0};
+            end
         end
     end
     

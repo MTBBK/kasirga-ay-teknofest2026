@@ -3,6 +3,7 @@
 module sa_wrapper(
 input logic clk,
 input logic rst,
+input logic infer_done,
 input logic signed [7:0]left_in[0:9],
 input logic signed [7:0]top_in[0:7],
 input logic interestregionfinished,
@@ -43,6 +44,7 @@ output logic alloutputsready
     systolic_array sa(
         .clk(clk),
         .rst(rst),
+        .infer_done(infer_done),
         .left_in(solkenarskewed),
         .top_in(ustkenarskewed),
         .interestregionfinished(interestregionfinished),

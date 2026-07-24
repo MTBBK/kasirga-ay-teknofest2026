@@ -3,6 +3,7 @@
 module systolic_array(
 input logic clk,
 input logic rst,
+input logic infer_done,
 input logic signed [7:0]left_in[0:9],
 input logic signed [7:0]top_in[0:7],
 input logic interestregionfinished,
@@ -57,6 +58,10 @@ output logic alloutputsready
             alloutputsready<=1'b0;
             sa_send_outputs_counter <= '0;
         end
+        else if(infer_done==1'b1)begin 
+            alloutputsready<=1'b0;
+            sa_send_outputs_counter <= '0;
+        end
         else begin 
             if(endofregionkablo[10][7])begin 
                 alloutputsready<= 1'b1;
@@ -100,6 +105,7 @@ output logic alloutputsready
                 processing_element #(.bias(i+1'b1)) processyapanelement //#(.bias(i+1'b1))bunu ekleyince biaslar oturmalı
                 (.clk(clk),
                 .rst(rst),
+                .infer_done(infer_done),
                 .bati_in(yataykablo[i][j]),
                 .kuzey_in(dikeykablo[i][j]),
                 .interestregionfinished_i(endofregionkablo[i][j]), 

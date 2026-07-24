@@ -1,8 +1,10 @@
 `timescale 1ns / 1ps
-//conv kernel weightlerinin saklanması için sram                                                            
+//TODOS                                                        
+//gereksiz idle durumu ve durum makinesi temizlenebilir
 module buffer_weight(
     input logic clk,
     input logic rst,
+    input logic infer_done,
     input logic im2colfeeder_started,//im2col feeder dan geliyor veri göndermeden 1 çevrim önce 1 yapıyor
          // biz 1 gördüğümüzde ilk verisini göndermiş oluyor biz de ilk verimizi onunla beraber gönderiyoruz,
          // son verisini gönderirken de 0 a çekiyor biz de sonraki çevrim 0 ı görüp yeni veri göndermiyoruz tekrar 1 olmasını bekliyoruz
@@ -24,19 +26,6 @@ module buffer_weight(
     
     initial begin
         $readmemh("conv_weights.mem", conv_weights);
-        //for(int i = 0;i<8;i=i+1)begin 
-        //    for(int j= 0;j<80;j=j+1)begin 
-        //        if(i>4)begin 
-        //            conv_weights[i][j] = 15*i-j;
-        //        end
-        //        else if(j>40)begin 
-        //            conv_weights[i][j] = j-3*i;
-        //        end
-        //        else begin 
-        //            conv_weights[i][j] = i+j;                
-        //        end
-        //    end
-        //end
     end
     
     always_ff @(posedge clk)begin
@@ -80,6 +69,13 @@ module buffer_weight(
                     end
                 end
             endcase
+            if(infer_done==1'b1)begin 
+                count <= '0;
+                current_state <= idle;
+                for(int i = 0;i<8 ;i=i+1)begin
+                    sa_weight_o[i] <= '0;
+                end
+            end
         end
     end
     

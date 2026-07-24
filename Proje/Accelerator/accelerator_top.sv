@@ -60,7 +60,8 @@ module accelerator_top(
 
     im2col_feeder im2colFeeder(
         .clk(clk),
-        .rst(rst),
+        .rst(rst),          
+        .infer_done(infer_done),
         .buff_read_data(buff_read_data),
         .buff_read_addr(buff_read_addr),
         .sa_word_o(sa_word_o),
@@ -83,7 +84,8 @@ module accelerator_top(
     logic signed [7:0]sa_weight_o[0:7];
     buffer_weight weightBuffer(
         .clk(clk),                  
-        .rst(rst),
+        .rst(rst),          
+        .infer_done(infer_done),
         .im2colfeeder_started(sawordo_started),
         .sa_weight_o(sa_weight_o)
     );
@@ -92,7 +94,8 @@ module accelerator_top(
     logic alloutputsready;
     sa_wrapper sa_wrapper(
         .clk(clk),
-        .rst(rst),
+        .rst(rst),          
+        .infer_done(infer_done),
         .left_in(sa_word_o),
         .top_in(sa_weight_o),
         .interestregionfinished(endofregion),
@@ -122,7 +125,8 @@ module accelerator_top(
     logic fc_manager_done;
     fc_manager fullyconnected_manager(//feederdan çok manager gibi oldu bu hali
         .clk(clk),                
-        .rst(rst),                
+        .rst(rst),           
+        .infer_done(infer_done),               
         .basla(fcfeederbasla),        
         .fc_input_data(omanager_buffwritedata),
         .fc_input_data_addr(omanager_buffwritaddress),

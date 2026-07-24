@@ -2,7 +2,7 @@
 module address_generator(
 input logic clk,
 input logic rst,
-
+input logic infer_done,
 input logic start,
 input logic [9:0] laneregsready,
 output logic [9:0]buff_read_addr,
@@ -63,7 +63,7 @@ output logic addressvalid
                             indexx <= 6'd0;
                             indexy <= 6'd0;
                             row_count <= 4'd1;//row count değerini, index y ye bir sonraki startta vereceğimiz için şimdi 1 yapıyoruz  
-                            if(interestregion_indexx == 6'd0)begin//sıradaki 10 pencere aynı satırda mı alta mı geçiyoruz?
+                            if(interestregion_indexx == 6'd0)begin//sıradaki 10 pencere aynı satırda mı alta mı geçiyoruz?//BU KISIM İNDEKSLEMEYİ 10 AR 10 AR A SABİTLİYOR
                                 interestregion_indexx <= interestregion_indexx + 5'd20;
                             end
                             else begin 
@@ -71,24 +71,53 @@ output logic addressvalid
                                 interestregion_indexy <= interestregion_indexy + 2'd2;
                             end
                         end
-                        
                     end
                 end
                 readrow:begin
                     if(|laneregsready)begin 
                         indexx <= indexx + 4'd8;
                         addressvalid <= 1'b1;
+                        if(buff_read_addr >= 9'd333)begin
+                            interestregion_indexx <= '0; 
+                            interestregion_indexy <= '0; 
+                            indexx <= '0;                
+                            indexy <= '0;                
+                            row_count <= '0;
+                        end                              
                     end
                     else begin 
                         agu_state <= idle;
                         addressvalid <= 1'b0;
+//                        if(buff_read_addr >= 9'd334)begin 
+//                            interestregion_indexx <= '0;
+//                            interestregion_indexy <= '0;  
+//                            indexx <= '0;
+//                            indexy <= '0;
+//                            row_count <= '0;
+//                            agu_state <= finish;
+//                            addressvalid <= 1'b0;
+//                        end
+                        //burada okumamız bitti mi kontrol edebiliriz gibi
                     end
                 end
                 
                 finish:begin
                     //sonuncu interest regionun indekslerini hesaplayıp oraya geldiysek bir şey yapma diyebiliriz şimdilik gerek yok gibi
+                    //ileri görüşlülük ya artık gerek var :) ;)
+                    addressvalid <= 1'b0;
+                    
                 end
             endcase
+            
+            if(infer_done==1'b1)begin  
+                interestregion_indexx <= '0;
+                interestregion_indexy <= '0;   
+                indexx <= '0;
+                indexy <= '0;
+                row_count <= '0;
+                agu_state <= idle;
+                addressvalid <= 1'b0;
+            end
         end
     end
     

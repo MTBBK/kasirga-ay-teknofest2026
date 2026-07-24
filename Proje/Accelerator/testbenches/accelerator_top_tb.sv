@@ -34,6 +34,7 @@ module accelerator_top_tb(
     im2col_feeder im2colFeeder(
         .clk(clk),
         .rst(rst),
+        .infer_done(infer_done),
         .buff_read_data(buff_read_data),
         .buff_read_addr(buff_read_addr),
         .sa_word_o(sa_word_o),
@@ -49,6 +50,7 @@ module accelerator_top_tb(
     buffer_weight weightBuffer(
         .clk(clk),                  
         .rst(rst),
+        .infer_done(infer_done),
         .im2colfeeder_started(sawordo_started),
         .sa_weight_o(sa_weight_o)
     );
@@ -58,6 +60,7 @@ module accelerator_top_tb(
     sa_wrapper sa_wrapper(
         .clk(clk),
         .rst(rst),
+        .infer_done(infer_done),
         .left_in(sa_word_o),
         .top_in(sa_weight_o),
         .interestregionfinished(endofregion),
@@ -96,7 +99,8 @@ module accelerator_top_tb(
     logic fc_manager_done;
     fc_manager fullyconnected_manager(//feederdan çok manager gibi oldu bu hali
         .clk(clk),                
-        .rst(rst),                
+        .rst(rst),          
+        .infer_done(infer_done),      
         .basla(fcfeederbasla),        
         .fc_input_data(omanager_buffwritedata),
         .fc_input_data_addr(omanager_buffwritaddress),
@@ -174,21 +178,82 @@ module accelerator_top_tb(
     initial begin
         $readmemh("input_data.mem", buffer.ram);
     end
+
+    integer i;
+    integer wait_cycles;
     
     initial begin 
         rst = 1; 
-        #20; 
-        rst = 0;
-        loader_done = 1'b1;
-        #10;
         loader_done = 1'b0;
-        #1135;//ilk çıktılar
-        #4645;//14x46 lık giriş matrisine göre 6 interest regionun tamamı bitti 
-        //58x46 nın tamamını yapması 5000 çevrim civarı sürüyor gibi görünüyor
-       
-        //45075te biterse bütün girdi verisini göndermiş oluyor feeder, simulasyonu finishten 39275ns daha çalıştırmak demek bu.
-       #40785
+        
+        repeat(5) @(posedge clk); 
+        rst = 0;
+        repeat(2) @(posedge clk);
+    
+        for (i = 0; i < 10; i++) begin
+            $display("test %0d ", i);
+            
+            run_and_check();
+            wait_cycles = $urandom_range(0, 50);
+            
+            if (wait_cycles == 0)begin
+                $display("sifir gecikem testi");
+            end
+            else begin
+                $display("%0d cevrim bosta bekle", wait_cycles);
+            end
+            repeat(wait_cycles) @(posedge clk);
+        end
+        
+        $display("tum testler basarili");
         $finish;
     end
+    
+    task run_and_check();
+        begin
+            @(posedge clk);
+            loader_done = 1'b1;
+            @(posedge clk);
+            loader_done = 1'b0;
+            
+            wait(infer_done == 1'b1);
+            
+            @(posedge clk);
+            
+            if (fc_results[0] !== 8'sh80) $error("hata 80 != %0h",fc_results[0]);
+            if (fc_results[1] !== 8'sh61) $error("hata 61 != %0h",fc_results[1]);
+            if (fc_results[2] !== 8'sh59) $error("hata 59 != %0h",fc_results[2]);
+            if (fc_results[3] !== 8'sh67) $error("hata 67 != %0h",fc_results[3]);
+            else  $display("sonuc doğru");
+
+            fc_results = '{default:'0};
+        end
+    endtask
+//    initial begin 
+//        rst = 1; 
+//        #20; 
+//        rst = 0;
+//        loader_done = 1'b1;
+//        #10;
+//        loader_done = 1'b0;
+//        #1135;//ilk çıktılar
+//        #4645;//14x46 lık giriş matrisine göre 6 interest regionun tamamı bitti 
+//        //58x46 nın tamamını yapması 5000 çevrim civarı sürüyor gibi görünüyor
+       
+//        //45075te biterse bütün girdi verisini göndermiş oluyor feeder, simulasyonu finishten 39275ns daha çalıştırmak demek bu.
+//       #40755
+//       fc_results = '{default:'0};
+//       #30
+//       loader_done = 1'b1;
+//       #10;
+//       loader_done = 1'b0;
+       
+//       wait(infer_done == 1'b1);
+       
+//       $finish;
+//    end
+    
+//    assert property (@(posedge clk) !$isunknown(buff_read_data)) 
+//    else $error("Assertion Başarısız: Sinyal X oldu!");
 
 endmodule
