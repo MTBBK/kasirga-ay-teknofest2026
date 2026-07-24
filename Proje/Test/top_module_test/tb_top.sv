@@ -35,7 +35,7 @@ module tb_top();
     pullup(qspi_io_3);
     
     // İşlemci ve Çevre Birimlerini İçeren Top Modül
-    top dut_top (
+    sim_top dut_top (
         .clk_i(clk_i),
         .rst_n_i(rst_n_i),
         .fetch_enable(fetch_enable),

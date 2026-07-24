@@ -1,0 +1,14 @@
+python3 send_ai_data.py 
+[PC] Dosyadan 1960 bayt veri okundu.
+[PC] FPGA'den 'READY' tetigi bekleniyor...
+[FPGA Log]: READY
+[PC] Tetik alindi! Stream UART uzerinden veri basiliyor...
+[PC] Veri aktarimi bitti! FPGA isleme basliyor...
+
+[PC] --- KRONOMETRE SONUCU ---
+[PC] Gecen Toplam Sure (READY -> Ilk Sonuc): 0.1441 saniye
+
+[FPGA Sonuc]: interrupt basarili
+[FPGA Sonuc]: Sonuc:0x00000007
+
+

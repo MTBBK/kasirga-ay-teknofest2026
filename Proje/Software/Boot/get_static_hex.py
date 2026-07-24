@@ -10,9 +10,10 @@ with open(binFile, "rb") as f:
     binData = f.read()
     
     # --- Eklenen Padding (4'un katina tamamlama) Kismi ---
-    #remainder = len(binData) % 4
-    #if remainder != 0:
-     #   binData += b'\x00' * (4 - remainder)
+    # Bu kısmı aktif ediyoruz ki son buyruklar (örn. 8082 gibi 16-bit buyruklar) dışarıda kalmasın.
+    remainder = len(binData) % 4
+    if remainder != 0:
+        binData += b'\x00' * (4 - remainder)
     # ----------------------------------------------------
 
     word_count = len(binData) // 4
@@ -24,6 +25,8 @@ with open(binFile, "rb") as f:
     hexFileName = binFile[:-4] + "_static.hex"
     hexFile = open(hexFileName, 'w')
 
+    # Dosyanın en başına istenen bellek adresi başlığını yazdırıyoruz
+    hexFile.write("@00000000\n")
 
     for i in range(word_count):
         w = binData[4*i : 4*i+4]

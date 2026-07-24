@@ -83,7 +83,7 @@ assign ARREADY_DMA = axi_rready_dma;
 wire axi_write_ready_dma,axi_read_ready_dma;
 
 assign axi_write_ready_dma = axi_wready_dma;
-assign axi_read_ready_dma = (ARVALID_DMA === 1) && (ARREADY_DMA === 1);
+assign axi_read_ready_dma = (ARVALID_DMA == 1) && (ARREADY_DMA == 1);
 
 wire [31:0] correct_read_address_dma = (ARADDR_DMA - BASE_ADDRESS) >> 2;
 wire [31:0] correct_write_address_dma = (AWADDR_DMA -BASE_ADDRESS) >> 2 ;

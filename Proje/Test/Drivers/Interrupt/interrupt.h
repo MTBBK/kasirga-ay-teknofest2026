@@ -11,6 +11,6 @@
 
 
 
-void __attribute__((interrupt("machine"), aligned(4))) interr(void);
+void __attribute__((interrupt("machine"), aligned(4))) interrupt(void);
 
 void setup_interrupt(void);

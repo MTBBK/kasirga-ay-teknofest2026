@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 module uart_top #(
-    parameter integer baud_rate = 921600, //(bps) Safe default for 115200 at 100MHz
+    parameter integer baud_rate = 115200, //(bps) Safe default for 115200 at 100MHz
     parameter integer clock_frequency = 100 //Mhz
 ) (
     // Physical UART Ports

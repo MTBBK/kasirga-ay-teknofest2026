@@ -16,113 +16,113 @@ Disassembly of section .text:
 00000008 <main>:
    8:	1141                	c.addi	x2,-16 # 4ff0 <_end+0x1ff0>
    a:	6585                	c.lui	x11,0x1
-   c:	6505                	c.lui	x10,0x1
-   e:	c606                	c.swsp	x1,12(x2)
-  10:	2081                	c.jal	50 <copy_memory_block>
-  12:	658d                	c.lui	x11,0x3
-  14:	650d                	c.lui	x10,0x3
-  16:	282d                	c.jal	50 <copy_memory_block>
-  18:	678d                	c.lui	x15,0x3
-  1a:	17f1                	c.addi	x15,-4 # 2ffc <config_addr+0x2f12>
-  1c:	4705                	c.li	x14,1
-  1e:	c398                	c.sw	x14,0(x15)
-  20:	6785                	c.lui	x15,0x1
-  22:	9782                	c.jalr	x15
-  24:	a001                	c.j	24 <main+0x1c>
+   c:	00301537          	lui	x10,0x301
+  10:	c606                	c.swsp	x1,12(x2)
+  12:	2089                	c.jal	54 <copy_memory_block>
+  14:	658d                	c.lui	x11,0x3
+  16:	00303537          	lui	x10,0x303
+  1a:	282d                	c.jal	54 <copy_memory_block>
+  1c:	678d                	c.lui	x15,0x3
+  1e:	17f1                	c.addi	x15,-4 # 2ffc <config_addr+0x2f0e>
+  20:	4705                	c.li	x14,1
+  22:	c398                	c.sw	x14,0(x15)
+  24:	6785                	c.lui	x15,0x1
+  26:	9782                	c.jalr	x15
+  28:	a001                	c.j	28 <main+0x20>
 
-00000026 <read_qspi_word>:
-  26:	1141                	c.addi	x2,-16
-  28:	c606                	c.swsp	x1,12(x2)
-  2a:	20c1                	c.jal	ea <config_addr>
-  2c:	4711                	c.li	x14,4
-  2e:	4801                	c.li	x16,0
-  30:	4781                	c.li	x15,0
-  32:	4681                	c.li	x13,0
-  34:	4601                	c.li	x12,0
-  36:	4585                	c.li	x11,1
-  38:	450d                	c.li	x10,3
-  3a:	28a9                	c.jal	94 <config_qspi>
-  3c:	6725                	c.lui	x14,0x9
-  3e:	0731                	c.addi	x14,12 # 900c <_end+0x600c>
-  40:	431c                	c.lw	x15,0(x14)
-  42:	8b89                	c.andi	x15,2
-  44:	fff5                	c.bnez	x15,40 <read_qspi_word+0x1a>
-  46:	40b2                	c.lwsp	x1,12(x2)
-  48:	67a5                	c.lui	x15,0x9
-  4a:	4788                	c.lw	x10,8(x15)
-  4c:	0141                	c.addi	x2,16
-  4e:	8082                	c.jr	x1
+0000002a <read_qspi_word>:
+  2a:	1141                	c.addi	x2,-16
+  2c:	c606                	c.swsp	x1,12(x2)
+  2e:	20c1                	c.jal	ee <config_addr>
+  30:	4711                	c.li	x14,4
+  32:	4801                	c.li	x16,0
+  34:	4781                	c.li	x15,0
+  36:	4681                	c.li	x13,0
+  38:	4601                	c.li	x12,0
+  3a:	4585                	c.li	x11,1
+  3c:	450d                	c.li	x10,3
+  3e:	28a9                	c.jal	98 <config_qspi>
+  40:	6725                	c.lui	x14,0x9
+  42:	0731                	c.addi	x14,12 # 900c <_end+0x600c>
+  44:	431c                	c.lw	x15,0(x14)
+  46:	8b89                	c.andi	x15,2
+  48:	fff5                	c.bnez	x15,44 <read_qspi_word+0x1a>
+  4a:	40b2                	c.lwsp	x1,12(x2)
+  4c:	67a5                	c.lui	x15,0x9
+  4e:	4788                	c.lw	x10,8(x15)
+  50:	0141                	c.addi	x2,16
+  52:	8082                	c.jr	x1
 
-00000050 <copy_memory_block>:
-  50:	1101                	c.addi	x2,-32
-  52:	cc22                	c.swsp	x8,24(x2)
-  54:	c64e                	c.swsp	x19,12(x2)
-  56:	ce06                	c.swsp	x1,28(x2)
-  58:	ca26                	c.swsp	x9,20(x2)
-  5a:	c84a                	c.swsp	x18,16(x2)
-  5c:	842a                	c.mv	x8,x10
-  5e:	89ae                	c.mv	x19,x11
-  60:	37d9                	c.jal	26 <read_qspi_word>
-  62:	fff50713          	addi	x14,x10,-1 # 2fff <config_addr+0x2f15>
-  66:	57f5                	c.li	x15,-3
-  68:	00e7ef63          	bltu	x15,x14,86 <copy_memory_block+0x36>
-  6c:	892a                	c.mv	x18,x10
-  6e:	0411                	c.addi	x8,4
-  70:	4481                	c.li	x9,0
-  72:	8522                	c.mv	x10,x8
-  74:	3f4d                	c.jal	26 <read_qspi_word>
-  76:	00249793          	slli	x15,x9,0x2
-  7a:	97ce                	c.add	x15,x19
-  7c:	c388                	c.sw	x10,0(x15)
-  7e:	0485                	c.addi	x9,1
-  80:	0411                	c.addi	x8,4
-  82:	fe9918e3          	bne	x18,x9,72 <copy_memory_block+0x22>
-  86:	40f2                	c.lwsp	x1,28(x2)
-  88:	4462                	c.lwsp	x8,24(x2)
-  8a:	44d2                	c.lwsp	x9,20(x2)
-  8c:	4942                	c.lwsp	x18,16(x2)
-  8e:	49b2                	c.lwsp	x19,12(x2)
-  90:	6105                	c.addi16sp	x2,32
-  92:	8082                	c.jr	x1
+00000054 <copy_memory_block>:
+  54:	1101                	c.addi	x2,-32
+  56:	cc22                	c.swsp	x8,24(x2)
+  58:	c64e                	c.swsp	x19,12(x2)
+  5a:	ce06                	c.swsp	x1,28(x2)
+  5c:	ca26                	c.swsp	x9,20(x2)
+  5e:	c84a                	c.swsp	x18,16(x2)
+  60:	842a                	c.mv	x8,x10
+  62:	89ae                	c.mv	x19,x11
+  64:	37d9                	c.jal	2a <read_qspi_word>
+  66:	fff50713          	addi	x14,x10,-1 # 302fff <_end+0x2fffff>
+  6a:	57f5                	c.li	x15,-3
+  6c:	00e7ef63          	bltu	x15,x14,8a <copy_memory_block+0x36>
+  70:	892a                	c.mv	x18,x10
+  72:	0411                	c.addi	x8,4
+  74:	4481                	c.li	x9,0
+  76:	8522                	c.mv	x10,x8
+  78:	3f4d                	c.jal	2a <read_qspi_word>
+  7a:	00249793          	slli	x15,x9,0x2
+  7e:	97ce                	c.add	x15,x19
+  80:	c388                	c.sw	x10,0(x15)
+  82:	0485                	c.addi	x9,1
+  84:	0411                	c.addi	x8,4
+  86:	fe9918e3          	bne	x18,x9,76 <copy_memory_block+0x22>
+  8a:	40f2                	c.lwsp	x1,28(x2)
+  8c:	4462                	c.lwsp	x8,24(x2)
+  8e:	44d2                	c.lwsp	x9,20(x2)
+  90:	4942                	c.lwsp	x18,16(x2)
+  92:	49b2                	c.lwsp	x19,12(x2)
+  94:	6105                	c.addi16sp	x2,32
+  96:	8082                	c.jr	x1
 
-00000094 <config_qspi>:
-  94:	88aa                	c.mv	x17,x10
-  96:	6541                	c.lui	x10,0x10
-  98:	80050513          	addi	x10,x10,-2048 # f800 <_end+0xc800>
-  9c:	06ae                	c.slli	x13,0xb
-  9e:	05a2                	c.slli	x11,0x8
-  a0:	062a                	c.slli	x12,0xa
-  a2:	8ee9                	c.and	x13,x10
-  a4:	07e2                	c.slli	x15,0x18
-  a6:	1f000537          	lui	x10,0x1f000
-  aa:	3005f593          	andi	x11,x11,768
-  ae:	40067613          	andi	x12,x12,1024
-  b2:	8fe9                	c.and	x15,x10
-  b4:	c701                	c.beqz	x14,bc <config_qspi+0x28>
-  b6:	177d                	c.addi	x14,-1
-  b8:	0ff77713          	andi	x14,x14,255
-  bc:	0742                	c.slli	x14,0x10
-  be:	001f0537          	lui	x10,0x1f0
-  c2:	8d79                	c.and	x10,x14
-  c4:	0866                	c.slli	x16,0x19
-  c6:	7e000737          	lui	x14,0x7e000
-  ca:	00e87833          	and	x16,x16,x14
-  ce:	01056533          	or	x10,x10,x16
-  d2:	8d5d                	c.or	x10,x15
-  d4:	8d55                	c.or	x10,x13
-  d6:	01156533          	or	x10,x10,x17
-  da:	8d51                	c.or	x10,x12
-  dc:	800007b7          	lui	x15,0x80000
-  e0:	8d4d                	c.or	x10,x11
-  e2:	8d5d                	c.or	x10,x15
-  e4:	67a5                	c.lui	x15,0x9
-  e6:	c388                	c.sw	x10,0(x15)
-  e8:	8082                	c.jr	x1
+00000098 <config_qspi>:
+  98:	88aa                	c.mv	x17,x10
+  9a:	6541                	c.lui	x10,0x10
+  9c:	80050513          	addi	x10,x10,-2048 # f800 <_end+0xc800>
+  a0:	06ae                	c.slli	x13,0xb
+  a2:	05a2                	c.slli	x11,0x8
+  a4:	062a                	c.slli	x12,0xa
+  a6:	8ee9                	c.and	x13,x10
+  a8:	07e2                	c.slli	x15,0x18
+  aa:	1f000537          	lui	x10,0x1f000
+  ae:	3005f593          	andi	x11,x11,768
+  b2:	40067613          	andi	x12,x12,1024
+  b6:	8fe9                	c.and	x15,x10
+  b8:	c701                	c.beqz	x14,c0 <config_qspi+0x28>
+  ba:	177d                	c.addi	x14,-1
+  bc:	0ff77713          	andi	x14,x14,255
+  c0:	0742                	c.slli	x14,0x10
+  c2:	001f0537          	lui	x10,0x1f0
+  c6:	8d79                	c.and	x10,x14
+  c8:	0866                	c.slli	x16,0x19
+  ca:	7e000737          	lui	x14,0x7e000
+  ce:	00e87833          	and	x16,x16,x14
+  d2:	01056533          	or	x10,x10,x16
+  d6:	8d5d                	c.or	x10,x15
+  d8:	8d55                	c.or	x10,x13
+  da:	01156533          	or	x10,x10,x17
+  de:	8d51                	c.or	x10,x12
+  e0:	800007b7          	lui	x15,0x80000
+  e4:	8d4d                	c.or	x10,x11
+  e6:	8d5d                	c.or	x10,x15
+  e8:	67a5                	c.lui	x15,0x9
+  ea:	c388                	c.sw	x10,0(x15)
+  ec:	8082                	c.jr	x1
 
-000000ea <config_addr>:
-  ea:	67a5                	c.lui	x15,0x9
-  ec:	c3c8                	c.sw	x10,4(x15)
-  ee:	8082                	c.jr	x1
+000000ee <config_addr>:
+  ee:	67a5                	c.lui	x15,0x9
+  f0:	c3c8                	c.sw	x10,4(x15)
+  f2:	8082                	c.jr	x1
 
 Disassembly of section .comment:
 
@@ -145,12 +145,12 @@ Disassembly of section .comment:
 Disassembly of section .riscv.attributes:
 
 00000000 <.riscv.attributes>:
-   0:	2e41                	c.jal	390 <config_addr+0x2a6>
+   0:	4341                	c.li	x6,16
    2:	0000                	c.unimp
    4:	7200                	.insn	2, 0x7200
    6:	7369                	c.lui	x6,0xffffa
    8:	01007663          	bgeu	x0,x16,14 <main+0xc>
-   c:	0024                	c.addi4spn	x9,x2,8
+   c:	0039                	c.addi	x0,14
    e:	0000                	c.unimp
   10:	1004                	c.addi4spn	x9,x2,32
   12:	7205                	c.lui	x4,0xfffe1
@@ -161,8 +161,12 @@ Disassembly of section .riscv.attributes:
   1c:	326d                	c.jal	fffff9c6 <_end+0xffffc9c6>
   1e:	3070                	.insn	2, 0x3070
   20:	635f 7032 5f30      	.insn	6, 0x5f307032635f
-  26:	6d7a                	.insn	2, 0x6d7a
-  28:	756d                	c.lui	x10,0xffffb
-  2a:	316c                	.insn	2, 0x316c
+  26:	697a                	.insn	2, 0x697a
+  28:	32727363          	bgeu	x4,x7,34e <config_addr+0x260>
   2c:	3070                	.insn	2, 0x3070
-	...
+  2e:	7a5f 6669 6e65      	.insn	6, 0x6e6566697a5f
+  34:	32696563          	bltu	x18,x6,35e <config_addr+0x270>
+  38:	3070                	.insn	2, 0x3070
+  3a:	7a5f 6d6d 6c75      	.insn	6, 0x6c756d6d7a5f
+  40:	7031                	c.lui	x0,0xfffec
+  42:	0030                	c.addi4spn	x12,x2,8

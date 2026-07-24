@@ -18,7 +18,7 @@ set_property include_dirs $INCLUDE_PATHS [get_filesets sim_1]
 # 1. Tek tek eklenecek ana tasarım dosyaları
 set my_files [list \
     "${PROJE_DIR}/top.sv" \
-    "${PROJE_DIR}/cv32e40p_clock_gate.sv" \
+    "${PROJE_DIR}/Core/cv32e40p_clock_gate.sv" \
     "${PROJE_DIR}/PeripheralModules/GPIO/gpio.v" \
     "${PROJE_DIR}/PeripheralModules/I2C/sources/new/I2C_master.sv" \
     "${PROJE_DIR}/PeripheralModules/I2C/sources/new/i2c_axi_wrapper.sv" \

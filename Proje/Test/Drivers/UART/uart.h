@@ -7,7 +7,7 @@
 #define UART_TDR_ADDR 0x0000500C  // Transmit data
 #define UART_CFG_ADDR 0x00005010  // Config
 
-#define CLK_FREQ 100000000
+#define CLK_FREQ 45
 
 
 

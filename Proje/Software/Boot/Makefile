@@ -5,25 +5,30 @@ OBJDUMP = $(RISCVTYPE)-objdump
 
 # Yollar Boot klasörünün içinden dışarıya göre ayarlandı
 DRIVERS_DIR = ../../Test/Drivers
-QSPI_DIR = $(DRIVERS_DIR)/QSPI
+QSPI_DIR   = $(DRIVERS_DIR)/QSPI
+UART_DIR   = $(DRIVERS_DIR)/UART
+UART_STREAM_DIR = $(DRIVERS_DIR)/UART_Stream
+I2C_DIR    = $(DRIVERS_DIR)/I2C
+TIMER_DIR  = $(DRIVERS_DIR)/Timer
+GPIO_DIR   = $(DRIVERS_DIR)/GPIO
 
-# Sadece QSPI klasörünün header (.h) yolunu dahil ediyoruz
-INCLUDES = -I$(QSPI_DIR)
+# Tüm sürücü klasörlerinin header (.h) yollarını dahil ediyoruz
+INCLUDES = -I$(QSPI_DIR) -I$(UART_DIR) -I$(UART_STREAM_DIR) -I$(I2C_DIR) -I$(TIMER_DIR) -I$(GPIO_DIR)
 
-# Sadece qspi.c kaynak dosyasını ve onun üreteceği objeyi seçiyoruz
-DRIVER_SRCS = $(QSPI_DIR)/qspi.c
-DRIVER_OBJS = qspi.o
+# Tüm kaynak dosyaları ve üretecekleri obje dosyaları
+DRIVER_SRCS = $(QSPI_DIR)/qspi.c $(UART_DIR)/uart.c $(UART_STREAM_DIR)/uart_stream.c $(I2C_DIR)/i2c.c $(TIMER_DIR)/timer.c $(GPIO_DIR)/gpio.c
+DRIVER_OBJS = qspi.o uart.o uart_stream.o i2c.o timer.o gpio.o
 
-# Kaynak dosyaları arama yolları (Sadece QSPI, mevcut dizin ve üst dizindeki startup.S)
-VPATH = $(QSPI_DIR) . ../
+# Kaynak dosyaları arama yolları
+VPATH = $(QSPI_DIR) $(UART_DIR) $(UART_STREAM_DIR) $(I2C_DIR) $(TIMER_DIR) $(GPIO_DIR) . ../
 
 CFILE = bootloader
 LINKER_SCRIPT = bootloader.ld
 
-CFLAGS = -Os -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -ffunction-sections -march=rv32imc -mabi=ilp32 $(INCLUDES)
+CFLAGS = -Os -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -ffunction-sections -march=rv32imc_zicsr_zifencei -mabi=ilp32 $(INCLUDES)
 LDFLAGS = -T $(LINKER_SCRIPT) -nostartfiles -Wl,--gc-sections -lgcc
 
-# Artık burada sadece bootloader.o, startup.o ve qspi.o birleştirilecek
+# Tüm sürücü objeleri projeye dahil ediliyor
 OBJS = $(CFILE).o startup.o $(DRIVER_OBJS)
 OUTNAME = $(CFILE).riscv
 

@@ -1,4 +1,5 @@
 #!/bin/bash
+clear
 make -C MainProgram clean
 
 make -C MainProgram compile
@@ -8,5 +9,6 @@ riscv64-unknown-elf-objcopy -O verilog -j .data -j .rodata MainProgram/main.risc
 
 cd MainProgram
 python3 convert_to_flash.py
+python3 f.py mem_Q512.mem
 cd ..
 
