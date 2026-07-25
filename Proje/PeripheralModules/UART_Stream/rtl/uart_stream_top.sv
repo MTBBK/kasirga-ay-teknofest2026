@@ -44,7 +44,9 @@ module uart_stream_top #(
     input  logic        fsm_stream_done_i,
     
     input  logic        hw_rx_clear_i,   // YENİ EKLENDİ
-    output logic        stream_enable_o  // YENİ EKLENDİ
+    output logic        stream_enable_o,  // YENİ EKLENDİ
+    input  logic        accelerator_started,
+    input  logic        accelerator_done
 );
 
     // User Registers (Memory Map)
@@ -69,7 +71,7 @@ module uart_stream_top #(
     assign fsm_tx_start_addr_o = tx_dump_adr;
     assign fsm_tx_trigger_o    = uart_cfg[3]; 
     
-    assign stream_enable_o = uart_cfg[5]; 
+    assign stream_enable_o = uart_cfg[5];
     
     // Set Unused Channels
     assign S_AXI_BRESP = 2'b00;
@@ -166,7 +168,8 @@ module uart_stream_top #(
             if (rx_clear_trigger) begin
                 uart_cfg[1] <= 1'b0;
             end
-            
+            if (accelerator_started) uart_cfg[6] <= 1'b1;
+            if (accelerator_done)    uart_cfg[7] <= 1'b1;
             if (fsm_tx_dump_done_i) uart_cfg[3] <= 1'b0;
             
             if (fsm_stream_done_i) begin

@@ -19,9 +19,9 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 // Comment the line below if you want to deactivate JTAG module so that it can work as normal as before
-`define ENABLE_JTAG
+//`define ENABLE_JTAG
 
-module top(
+module sim_top(
 
     // Clock Pin for default clock
     input logic clk_i,
@@ -31,7 +31,8 @@ module top(
     input logic sysclk_p,
     input logic sysclk_n,
     */
-    
+    output logic [15:0] gpio_o,
+    input logic [15:0] gpio_i,
     input logic rst_n_i,
     input logic fetch_enable,
     
@@ -42,13 +43,12 @@ module top(
     
     output logic scl_o,
     inout logic sda_io,
-    
-    output logic sclk_o,
-    output logic cs_o,
-    inout wire qspi_io_0,
-    inout wire qspi_io_1,
-    inout wire qspi_io_2,
-    inout wire qspi_io_3
+    output sclk_o,
+    output logic    cs_o,
+    inout wire      qspi_io_0,
+    inout wire      qspi_io_1,
+    inout wire      qspi_io_2,
+    inout wire      qspi_io_3
     
 `ifdef ENABLE_JTAG
     ,
@@ -62,11 +62,10 @@ module top(
     );
 
     parameter uart_baud_rate=921600;
-    parameter clk_freq_Mhz=100;
-    parameter clk_freq_Hz=50_000_000;
+    parameter clk_freq_Mhz=45;
         
-    logic [15:0] gpio_o;
-    logic [15:0] gpio_i;
+    
+
     
     logic accelerator_interrupt_1_bit;
     
@@ -118,6 +117,8 @@ module top(
     );
     // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
     */
+    
+
     
     //Data Memory obi-axi
     logic obi_req_data;        
@@ -513,7 +514,7 @@ module top(
     .dm_exception_addr_i      (dbg_exception_addr_from_jtag),
 `else
     .dm_halt_addr_i           (32'd0),
-    .dm_exception_addr_i      (32'd0),
+    .dm_exception_addr_i      (32'h16),
 `endif
     .hart_id_i                (32'd0),
 
@@ -625,7 +626,7 @@ module top(
 
     //Peripheral Modules
 
-    //I2C 
+//    //I2C 
     i2c_axi_wrapper i2c_top_inst(
         .clk(clk_i),
         .rst_n(rst_n_i),
@@ -734,7 +735,8 @@ module top(
     logic stream_done;
     logic stream_enable;
     logic hw_clear;
-
+    logic accelerator_done;
+    logic accelerator_started;
     uart_stream_top #(.baud_rate(uart_baud_rate),.clock_frequency(clk_freq_Mhz)) uart_stream_inst(   
               .S_AXI_ACLK(clk_i),     
               .S_AXI_ARESETN(rst_n_i), 
@@ -756,7 +758,9 @@ module top(
               .fsm_read_data_i(read_data) ,
               .fsm_stream_done_i(stream_done),
               .hw_rx_clear_i(hw_clear),   
-              .stream_enable_o(stream_enable)
+              .stream_enable_o(stream_enable),
+              .accelerator_started (accelerator_started),
+               .accelerator_done    (accelerator_done)
                        
     );
     
@@ -837,25 +841,27 @@ module top(
     accelerator_top accelerator_top_inst (
        .clk(clk_i),
        .rst(!rst_n_i),          
-       .M_AXI_ARADDR    (dma_araddr ), 
-       .M_AXI_ARLEN     (dma_arlen  ),  
-       .M_AXI_ARVALID   (dma_arvalid),
-       .M_AXI_ARREADY   (dma_arready),             
-       .M_AXI_RDATA     (dma_rdata  ),    
-       .M_AXI_RLAST     (dma_rlast  ),  
-       .M_AXI_RVALID    (dma_rvalid ), 
-       .M_AXI_RREADY    (dma_rready ),
-       .M_AXI_AWADDR    (dma_awaddr ),
-       .M_AXI_AWVALID   (dma_awvalid),
-       .M_AXI_AWREADY   (dma_awready),
-       .M_AXI_WDATA     (dma_wdata  ),
-       .M_AXI_WSTRB     (dma_wstrb  ),
-       .M_AXI_WVALID    (dma_wvalid ),
-       .M_AXI_WREADY    (dma_wready ),
-       .M_AXI_BVALID    (dma_bvalid ),
-       .M_AXI_BREADY    (dma_bready ),
-       .start_loader    (stream_done),
-       .interrupt       (accelerator_interrupt_1_bit)
+       .M_AXI_ARADDR        (dma_araddr ), 
+       .M_AXI_ARLEN         (dma_arlen  ),  
+       .M_AXI_ARVALID       (dma_arvalid),
+       .M_AXI_ARREADY       (dma_arready),             
+       .M_AXI_RDATA         (dma_rdata  ),    
+       .M_AXI_RLAST         (dma_rlast  ),  
+       .M_AXI_RVALID        (dma_rvalid ), 
+       .M_AXI_RREADY        (dma_rready ),
+       .M_AXI_AWADDR        (dma_awaddr ),
+       .M_AXI_AWVALID       (dma_awvalid),
+       .M_AXI_AWREADY       (dma_awready),
+       .M_AXI_WDATA         (dma_wdata  ),
+       .M_AXI_WSTRB         (dma_wstrb  ),
+       .M_AXI_WVALID        (dma_wvalid ),
+       .M_AXI_WREADY        (dma_wready ),
+       .M_AXI_BVALID        (dma_bvalid ),
+       .M_AXI_BREADY        (dma_bready ),
+       .start_loader        (stream_done),
+       .accelerator_started (accelerator_started),
+       .accelerator_done    (accelerator_done),
+       .interrupt           (accelerator_interrupt_1_bit)
     );
 
 
@@ -893,7 +899,7 @@ module top(
             .wstrb_slv0(wstrb_slv0),
             .bvalid_slv0(bvalid_slv0),
             .bready_slv0(bready_slv0),
-            .bresp_slv0(),
+            .bresp_slv0(bresp_slv0),
             //read is done from r/o xbar
             .arvalid_slv0(),
             .arready_slv0(),
@@ -1171,7 +1177,7 @@ module top(
    //ROM
    memory_axi_readonly #(
         .SIZE(1024),
-        .MEMFILE("boot.mem"),
+        .MEMFILE("sim_boot.mem"),
         .BASE_ADDRESS(32'h0000_0000)
     ) ROM (
         .clk(clk_i),
@@ -1207,6 +1213,7 @@ module top(
         .BVALID(bvalid_slv1),
         .BREADY(bready_slv1),
         .WVALID(wvalid_slv1),
+        .BRESP(bresp_slv1),
         
         // DMA GİRİŞLERİ (INPUT) -> Kesinlikle 0'a bağlanmalı
         .AWVALID_DMA(1'b0),
@@ -1284,6 +1291,10 @@ module top(
         .WLAST_DMA(1'b1)
         );
         
+    // QSPI modülünden çıkan saat sinyali
+    
+    
+    
 `ifndef ENABLE_JTAG
     assign awready_slv8 = 1'b0;
     assign wready_slv8  = 1'b0;
@@ -1304,5 +1315,30 @@ module top(
     assign rdata_slv9   = 32'd0;
     assign rresp_slv9   = 2'b00;
     
+    
+    
+//    ila_0 ila (
+//	.clk(clk_i), // input wire clk
+
+
+//	.probe0(obi_req_data), // input wire [0:0]  probe0  
+//	.probe1(obi_gnt_data), // input wire [0:0]  probe1 
+//	.probe2(obi_rvalid_data), // input wire [0:0]  probe2 
+//	.probe3(obi_addr_data), // input wire [31:0]  probe3 
+//	.probe4(obi_wdata_data), // input wire [31:0]  probe4 
+//	.probe5(obi_we_data), // input wire [0:0]  probe5 
+//	.probe6(obi_be_data), // input wire [3:0]  probe6 
+//	.probe7(obi_rdata_data), // input wire [31:0]  probe7 
+//	.probe8(obi_req_instr_i), // input wire [0:0]  probe8 
+//	.probe9(obi_gnt_instr_o), // input wire [0:0]  probe9 
+//	.probe10(obi_rvalid_instr_o), // input wire [0:0]  probe10 
+//	.probe11(obi_addr_instr_i), // input wire [31:0]  probe11 
+//	.probe12(obi_rdata_instr_o) // input wire [31:0]  probe12 
+//);
+
+
+                       
+    
+
 endmodule
 

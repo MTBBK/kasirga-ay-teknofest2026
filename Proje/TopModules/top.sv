@@ -21,10 +21,10 @@
 // Comment the line below if you want to deactivate JTAG module so that it can work as normal as before
 //`define ENABLE_JTAG
 
-module sim_top(
+module top(
 
     // Clock Pin for default clock
-    input logic clk_i,
+    input logic clk_i_100mHz,
     
     // Clock Pins for P and N
     /*
@@ -33,7 +33,7 @@ module sim_top(
     */
     output logic [15:0] gpio_o,
     input logic [15:0] gpio_i,
-    input logic rst_n_i,
+    input logic rst_i,
     input logic fetch_enable,
     
     input  logic uart_rx_i,
@@ -43,7 +43,7 @@ module sim_top(
     
     output logic scl_o,
     inout logic sda_io,
-    output sclk_o,
+//    output sclk_o,
     output logic    cs_o,
     inout wire      qspi_io_0,
     inout wire      qspi_io_1,
@@ -60,12 +60,34 @@ module sim_top(
 `endif
 
     );
+    logic locked;
+    logic clk_i;
+    logic a;
+    logic b;
+    logic sclk_internal;
+    
+    clk_wiz_0 clock_div
+   (
+    // Clock out ports
+    .clk_out_100(b),     // output clk_out_100
+    .clk_out_50(a),     // output clk_out_50
+    .clk_out3(clk_i),     // output clk_out3
+    // Status and control signals
+    .reset(rst_i), // input reset
+    .locked(locked),       // output locked
+   // Clock in ports
+    .clk_in1(clk_i_100mHz)      // input clk_in1
+);
 
     parameter uart_baud_rate=921600;
     parameter clk_freq_Mhz=45;
         
     
-
+    logic rst_n_i;
+    logic rst_n_raw;
+    assign rst_n_raw=~rst_i;
+    
+    assign rst_n_i=rst_n_raw&locked;
     
     logic accelerator_interrupt_1_bit;
     
@@ -643,7 +665,7 @@ module sim_top(
     //QSPI
     qspi_top qspi_top_inst( .S_AXI_ACLK(clk_i),
                             .S_AXI_ARESETN(rst_n_i),
-                            .sclk(sclk_o),
+                            .sclk(sclk_internal),
                             .cs(cs_o),
                             .qspi_io_0(qspi_io_0),
                             .qspi_io_1(qspi_io_1),
@@ -735,7 +757,8 @@ module sim_top(
     logic stream_done;
     logic stream_enable;
     logic hw_clear;
-
+    logic accelerator_done;
+    logic accelerator_started;
     uart_stream_top #(.baud_rate(uart_baud_rate),.clock_frequency(clk_freq_Mhz)) uart_stream_inst(   
               .S_AXI_ACLK(clk_i),     
               .S_AXI_ARESETN(rst_n_i), 
@@ -757,7 +780,9 @@ module sim_top(
               .fsm_read_data_i(read_data) ,
               .fsm_stream_done_i(stream_done),
               .hw_rx_clear_i(hw_clear),   
-              .stream_enable_o(stream_enable)
+              .stream_enable_o(stream_enable),
+              .accelerator_started (accelerator_started),
+               .accelerator_done    (accelerator_done)
                        
     );
     
@@ -838,25 +863,27 @@ module sim_top(
     accelerator_top accelerator_top_inst (
        .clk(clk_i),
        .rst(!rst_n_i),          
-       .M_AXI_ARADDR    (dma_araddr ), 
-       .M_AXI_ARLEN     (dma_arlen  ),  
-       .M_AXI_ARVALID   (dma_arvalid),
-       .M_AXI_ARREADY   (dma_arready),             
-       .M_AXI_RDATA     (dma_rdata  ),    
-       .M_AXI_RLAST     (dma_rlast  ),  
-       .M_AXI_RVALID    (dma_rvalid ), 
-       .M_AXI_RREADY    (dma_rready ),
-       .M_AXI_AWADDR    (dma_awaddr ),
-       .M_AXI_AWVALID   (dma_awvalid),
-       .M_AXI_AWREADY   (dma_awready),
-       .M_AXI_WDATA     (dma_wdata  ),
-       .M_AXI_WSTRB     (dma_wstrb  ),
-       .M_AXI_WVALID    (dma_wvalid ),
-       .M_AXI_WREADY    (dma_wready ),
-       .M_AXI_BVALID    (dma_bvalid ),
-       .M_AXI_BREADY    (dma_bready ),
-       .start_loader    (stream_done),
-       .interrupt       (accelerator_interrupt_1_bit)
+       .M_AXI_ARADDR        (dma_araddr ), 
+       .M_AXI_ARLEN         (dma_arlen  ),  
+       .M_AXI_ARVALID       (dma_arvalid),
+       .M_AXI_ARREADY       (dma_arready),             
+       .M_AXI_RDATA         (dma_rdata  ),    
+       .M_AXI_RLAST         (dma_rlast  ),  
+       .M_AXI_RVALID        (dma_rvalid ), 
+       .M_AXI_RREADY        (dma_rready ),
+       .M_AXI_AWADDR        (dma_awaddr ),
+       .M_AXI_AWVALID       (dma_awvalid),
+       .M_AXI_AWREADY       (dma_awready),
+       .M_AXI_WDATA         (dma_wdata  ),
+       .M_AXI_WSTRB         (dma_wstrb  ),
+       .M_AXI_WVALID        (dma_wvalid ),
+       .M_AXI_WREADY        (dma_wready ),
+       .M_AXI_BVALID        (dma_bvalid ),
+       .M_AXI_BREADY        (dma_bready ),
+       .start_loader        (stream_done),
+       .accelerator_started (accelerator_started),
+       .accelerator_done    (accelerator_done),
+       .interrupt           (accelerator_interrupt_1_bit)
     );
 
 
@@ -1172,7 +1199,7 @@ module sim_top(
    //ROM
    memory_axi_readonly #(
         .SIZE(1024),
-        .MEMFILE("sim_boot.mem"),
+        .MEMFILE("boot.mem"),
         .BASE_ADDRESS(32'h0000_0000)
     ) ROM (
         .clk(clk_i),
@@ -1289,7 +1316,30 @@ module sim_top(
     // QSPI modülünden çıkan saat sinyali
     
     
-    
+    wire aa;
+    wire aaa;
+    wire aaaa;
+    wire aaaaa;
+    // STARTUPE2 Makrosu
+    STARTUPE2 #(
+        .PROG_USR("FALSE"),
+        .SIM_CCLK_FREQ(0.0)
+    ) startupe2_inst (
+        .CFGCLK(aa),
+        .CFGMCLK(aaa),
+        .EOS(aaaa),
+        .PREQ(aaaaa),
+        .CLK(1'b0),
+        .GSR(1'b0),
+        .GTS(1'b0),
+        .KEYCLEARB(1'b1),
+        .PACK(1'b0),
+        .USRCCLKO(sclk_internal), // QSPI Kontrolcünden gelen sclk buraya bağlanır
+        .USRCCLKTS(1'b0),         // Output enable (0 = aktif)
+        .USRDONEO(1'b1),
+        .USRDONETS(1'b1)
+    );
+        
 `ifndef ENABLE_JTAG
     assign awready_slv8 = 1'b0;
     assign wready_slv8  = 1'b0;

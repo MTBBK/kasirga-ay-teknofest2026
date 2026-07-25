@@ -22,5 +22,5 @@
 #define UART_READ_DATA       (*(volatile char*)UART_RDR_ADDR)
 
 void uart_stream_wait_for_data(void);
-
+void start_uart_stream(void);
 uint32_t uart_stream_read_ai_memory(uint32_t target_address);

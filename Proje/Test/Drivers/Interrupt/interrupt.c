@@ -4,11 +4,11 @@
 
 void __attribute__((interrupt("machine"), aligned(256))) interrupt(void){
     REG_WRITE(UART_STREAM_CFG_ADDR, REG_READ(UART_STREAM_CFG_ADDR) & ~0x30);
-    uart_send_string("\r\ninterrupt basarili");
+    uart_send_string("\ninterrupt basarili");
     uint32_t data= uart_stream_read_ai_memory(RESULT_ADDR);
-    uart_send_string("\r\nSonuc:");
+    uart_send_string("\nSonuc:");
     uart_send_hex32(data);
-    uart_send_string("\r\n");
+    uart_send_string("\n");
     
 
 

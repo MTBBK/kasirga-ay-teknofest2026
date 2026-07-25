@@ -27,12 +27,15 @@ module accelerator_top(
     input  logic M_AXI_BVALID,
     output logic M_AXI_BREADY,
     input  logic start_loader,
+    output logic accelerator_started,
+    output logic accelerator_done,
     
     
     
     output logic interrupt
     );
-    
+    assign accelerator_started = start_accelerator;
+    assign accelerator_done = infer_done;
     logic [63:0]buff_read_data;
     
     logic [9:0]buff_read_addr;
