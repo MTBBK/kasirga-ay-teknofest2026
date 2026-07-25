@@ -133,6 +133,6 @@ lappend sim_files {*}[glob -nocomplain "${PROJE_DIR}/Test/top_module_test/Flash_
 import_files -force -fileset sim_1 $sim_files
 
 
-import_files -fileset constrs_1 "${PROJE_DIR}/Bitstreams/basys3.xdc"
+import_files -force -fileset constrs_1 "${PROJE_DIR}/Bitstreams/basys3.xdc"
 
 puts "Tüm Modül, Yz Hızlandırıcı, CV32E40P kaynak dosyaları ve Flash Simülasyon Modeli başarıyla projeye import edildi!"

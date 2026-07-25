@@ -1,6 +1,10 @@
+#ifndef INTERRUPT_H
+#define INTERRUPT_H
+
+#include <stdint.h>
+
 #define write_csr(csr, val) \
     __asm__ __volatile__ ("csrw " #csr ", %0" :: "r"(val))
-
 
 #define set_csr_bits(csr, mask) \
     __asm__ __volatile__ ("csrs " #csr ", %0" :: "r"(mask))
@@ -14,8 +18,11 @@
 #define MIE_MTIE (1 << 16)
 #define MSTATUS_MIE (1<<3)
 
+// YENİ: Main.c ve interrupt.c arasında paylaşılacak değişkenler
+extern volatile uint32_t cycle_l;
+extern volatile uint8_t is_ai_done;
 
-
-void __attribute__((interrupt("machine"), aligned(4))) interrupt(void);
-
+void __attribute__((interrupt("machine"), aligned(256))) interrupt(void);
 void setup_interrupt(void);
+
+#endif
