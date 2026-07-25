@@ -31,7 +31,7 @@ Disassembly of section .text:
     111c:	22d5                	c.jal	1300 <uart_stream_wait_for_data>
     111e:	401c                	c.lw	x15,0(x8)
     1120:	0807f793          	andi	x15,x15,128
-    1124:	ffed                	c.bnez	x15,111e <main+0x1e>
+    1124:	dfed                	c.beqz	x15,111e <main+0x1e>
     1126:	b7dd                	c.j	110c <main+0xc>
 
 00001128 <gpio_read_pin>:
