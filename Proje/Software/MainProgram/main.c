@@ -12,6 +12,7 @@ int main(void) {
     while (gpio_read_pin(15))
     {
         start_uart_stream();
+        uart_stream_wait_for_data();
     }
     
     
