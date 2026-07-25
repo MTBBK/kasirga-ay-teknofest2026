@@ -15,24 +15,31 @@ Disassembly of section .text:
 
 00001100 <main>:
     1100:	1141                	c.addi	x2,-16 # 4ff0 <_end+0x1fb7>
-    1102:	c606                	c.swsp	x1,12(x2)
-    1104:	22c5                	c.jal	12e4 <setup_interrupt>
-    1106:	453d                	c.li	x10,15
-    1108:	2801                	c.jal	1118 <gpio_read_pin>
-    110a:	e501                	c.bnez	x10,1112 <main+0x12>
-    110c:	40b2                	c.lwsp	x1,12(x2)
-    110e:	0141                	c.addi	x2,16
-    1110:	8082                	c.jr	x1
-    1112:	2409                	c.jal	1314 <start_uart_stream>
-    1114:	22f5                	c.jal	1300 <uart_stream_wait_for_data>
-    1116:	bfc5                	c.j	1106 <main+0x6>
+    1102:	c422                	c.swsp	x8,8(x2)
+    1104:	6419                	c.lui	x8,0x6
+    1106:	c606                	c.swsp	x1,12(x2)
+    1108:	0441                	c.addi	x8,16 # 6010 <_end+0x2fd7>
+    110a:	2ae9                	c.jal	12e4 <setup_interrupt>
+    110c:	453d                	c.li	x10,15
+    110e:	2829                	c.jal	1128 <gpio_read_pin>
+    1110:	e509                	c.bnez	x10,111a <main+0x1a>
+    1112:	40b2                	c.lwsp	x1,12(x2)
+    1114:	4422                	c.lwsp	x8,8(x2)
+    1116:	0141                	c.addi	x2,16
+    1118:	8082                	c.jr	x1
+    111a:	2aed                	c.jal	1314 <start_uart_stream>
+    111c:	22d5                	c.jal	1300 <uart_stream_wait_for_data>
+    111e:	401c                	c.lw	x15,0(x8)
+    1120:	0807f793          	andi	x15,x15,128
+    1124:	ffed                	c.bnez	x15,111e <main+0x1e>
+    1126:	b7dd                	c.j	110c <main+0xc>
 
-00001118 <gpio_read_pin>:
-    1118:	679d                	c.lui	x15,0x7
-    111a:	439c                	c.lw	x15,0(x15)
-    111c:	00a7d533          	srl	x10,x15,x10
-    1120:	8905                	c.andi	x10,1
-    1122:	8082                	c.jr	x1
+00001128 <gpio_read_pin>:
+    1128:	679d                	c.lui	x15,0x7
+    112a:	439c                	c.lw	x15,0(x15)
+    112c:	00a7d533          	srl	x10,x15,x10
+    1130:	8905                	c.andi	x10,1
+    1132:	8082                	c.jr	x1
 	...
 
 00001200 <interrupt>:

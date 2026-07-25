@@ -13,6 +13,8 @@ int main(void) {
     {
         start_uart_stream();
         uart_stream_wait_for_data();
+        while (REG_READ(UART_STREAM_CFG_ADDR)&0x80){}
+        
     }
     
     
