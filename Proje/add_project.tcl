@@ -1,5 +1,5 @@
 # Temel Proje Dizini (Tek Değişken)
-set PROJE_DIR "/mnt/disk2/Gtihub_Projects/kasirga/kasirga-ay-teknofest2026/Proje"
+set PROJE_DIR "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje"
 
 # Include yollarını PROJE_DIR üzerinden dinamik olarak ayarlıyoruz
 set INCLUDE_PATHS [list \
@@ -83,6 +83,7 @@ set my_files [list \
     "${PROJE_DIR}/Core/rtl/cv32e40p_fp_wrapper.sv" \
     "${PROJE_DIR}/Core/rtl/cv32e40p_top.sv" \
     "${PROJE_DIR}/Test/top_module_test/boot.mem" \
+    "${PROJE_DIR}/Test/top_module_test/sim_boot.mem" \
     "${PROJE_DIR}/Test/top_module_test/audio_input.mem" \
     "${PROJE_DIR}/Software/MainProgram/mem_Q512.mem" \
     "${PROJE_DIR}/Test/top_module_test/sfdp.mem" \

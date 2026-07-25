@@ -5,24 +5,24 @@ import subprocess
 import serial
 import time
 
-# UART configurations matching your environment
+# UART configurations
 MAIN_UART_PORT = '/dev/ttyUSB2'
 STREAM_UART_PORT = '/dev/ttyUSB0'
 BAUD_RATE = 921600
 
 def test_fpga_accelerator():
     try:
-        # Open serial connections outside the loop to avoid resetting the FPGA
+        # Open serial connections outside the loop
         main_serial = serial.Serial(MAIN_UART_PORT, BAUD_RATE, timeout=1)
         stream_serial = serial.Serial(STREAM_UART_PORT, BAUD_RATE, timeout=1)
     except Exception as e:
         print(f"[SYSTEM ERROR] Could not open serial ports: {e}")
         return
 
-    # Define the expected binary and hex outputs for each category
+    # Define the EXACT expected hexadecimal outputs for each category
     categories = {
-        "yes": {"bin": "0111", "hex": "7"},
-        "no":  {"bin": "1011", "hex": "B"}
+        "yes": "0x00000007",
+        "no":  "0x0000000B" # Assumes 1011 translates to 0x0000000B
     }
 
     # Tracking dictionaries for true/false counts
@@ -31,7 +31,7 @@ def test_fpga_accelerator():
         "no":  {"true": 0, "false": 0}
     }
 
-    for category, expected in categories.items():
+    for category, expected_hex in categories.items():
         wav_files = glob.glob(f"{category}/*.wav")
         print(f"\n{'='*40}")
         print(f"--- Starting tests for '{category}' folder ({len(wav_files)} files) ---")
@@ -42,11 +42,10 @@ def test_fpga_accelerator():
 
             # 1. Generate mem file using the tflm script
             try:
-                # Calls: python tflm_wav_to_mem.py <input.wav> <output.mem>
                 subprocess.run(
                     [sys.executable, "tflm_wav_to_mem.py", wav_file, mem_file],
                     check=True,
-                    stdout=subprocess.DEVNULL # Keeps the console clean from script prints
+                    stdout=subprocess.DEVNULL
                 )
             except subprocess.CalledProcessError:
                 print(f"[ERROR] Failed to generate mem file for {wav_file}")
@@ -73,18 +72,18 @@ def test_fpga_accelerator():
                 chunk = data_bytes[i : i + chunk_size]
                 stream_serial.write(chunk)
                 stream_serial.flush()
-                time.sleep(0.002)  # FPGA digestion buffer
+                time.sleep(0.002)
 
-            # 5. Await and evaluate the result
+            # 5. Await and evaluate the exact 0x... result
             result_received = False
             while not result_received:
                 result_line = main_serial.readline().decode('utf-8', errors='ignore').strip()
 
                 if result_line:
-                    # Check if the result line contains any of the known valid outputs
-                    if any(val in result_line.upper() for val in ["0111", "1011", "7", "B"]):
-                        # Verify if it matches the EXPECTED output
-                        if expected["bin"] in result_line or expected["hex"] in result_line.upper():
+                    # Specifically look for the line containing "Sonuc:"
+                    if "Sonuc:0x" in result_line:
+                        # Convert both to upper case to safely handle '0x0000000b' vs '0x0000000B'
+                        if expected_hex.upper() in result_line.upper():
                             results[category]["true"] += 1
                             print(f"[PASS] {wav_file} -> Recognized as '{category}' ({result_line})")
                         else:
@@ -93,7 +92,7 @@ def test_fpga_accelerator():
 
                         result_received = True
 
-                    # Edge case: FPGA resets or misses sending a result and loops back to READY
+                    # If FPGA resets unexpectedly
                     elif "READY" in result_line:
                         print(f"[WARN] Got unexpected READY instead of result for {wav_file}")
                         break
