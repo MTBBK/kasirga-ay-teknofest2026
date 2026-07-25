@@ -2,8 +2,8 @@ import serial
 import time
 
 # Portları senin ayarladığın şekilde bıraktım
-MAIN_UART_PORT = '/dev/ttyUSB1'   
-STREAM_UART_PORT = '/dev/ttyUSB0' 
+MAIN_UART_PORT = '/dev/ttyUSB4'   
+STREAM_UART_PORT = '/dev/ttyUSB1' 
 BAUD_RATE = 921600                
 
 def main():

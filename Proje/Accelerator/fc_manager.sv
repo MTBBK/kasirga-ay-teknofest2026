@@ -70,7 +70,8 @@ output logic done
                 .guney_out(dikeykablo[1][i]),
                 .sendoutputs(1'b0),                                                                      
                 .reserve_in(outputkablo[0][i]),//bunlar kendi aralarında bağlanacak artık veri akış kabloları gibi  
-                .reserve_out(outputs[i])//bunlar kendi aralarında bağlanacak artık veri akış kabloları gibi        
+                .reserve_out(outputs[i]),//bunlar kendi aralarında bağlanacak artık veri akış kabloları gibi
+                .infer_done(infer_done)       
             );
         end
     endgenerate
@@ -91,11 +92,7 @@ output logic done
     always_ff @(posedge clk)begin//datayı al
         if(rst)begin
             //readaddres_counter <= '0;
-            yataykablo[0] <= '0;     
-            yataykablo[1] <= '0;   
-            yataykablo[2] <= '0;   
-            yataykablo[3] <= '0;  
-            yataykablo[4] <= '0;      
+            yataykablo[0] <= '0;       
             start_send <= 1'b0;
             current_state <= idle;
             //bitti <= 1'b0;
@@ -148,11 +145,7 @@ output logic done
                 end                              
             end           
             if(infer_done== 1'b1)begin
-                yataykablo[0] <= '0;     
-                yataykablo[1] <= '0;   
-                yataykablo[2] <= '0;   
-                yataykablo[3] <= '0;  
-                yataykablo[4] <= '0;   
+                yataykablo[0] <= '0;    
                 start_send <= 1'b0;
                 current_state <= idle;
                 //bitti <= 1'b0;

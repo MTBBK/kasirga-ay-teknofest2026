@@ -47,14 +47,14 @@ module processing_element #(
     
     always_ff @(posedge clk) begin 
         if(rst) begin 
-            dogu_out <= 8'd0;
+            dogu_out <= 9'd0;
             guney_out <= 8'd0;
             reserveValue <= '0;
             outputValue <= biasval;
             interestregionfinished_o <= 1'b0;
         end
         else if(infer_done==1'b1)begin
-            dogu_out <= 8'd0;
+            dogu_out <= 9'd0;
             guney_out <= 8'd0;
             reserveValue <= '0;
             outputValue <= biasval;

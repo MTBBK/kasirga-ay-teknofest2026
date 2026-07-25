@@ -219,7 +219,7 @@ axi4_dma_loader axi4_dma_loader_inst (
    .loader_din         (loader_din),
    .loader_we          (loader_we),  
    .M_AXI_ARADDR       (M_AXI_ARADDR[31:0]),
-   .M_AXI_ARLEN        (M_AXI_ARLEN[7:0])
+   .M_AXI_ARLEN        (M_AXI_ARLEN[4:0])
    // InOut Ports - Single Bit
    // InOut Ports - Busses
 );
