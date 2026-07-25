@@ -1,5 +1,5 @@
 # Temel Proje Dizini (Tek Değişken)
-set PROJE_DIR "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje"
+set PROJE_DIR "/mnt/disk2/Gtihub_Projects/kasirga/kasirga-ay-teknofest2026/Proje"
 
 # Include yollarını PROJE_DIR üzerinden dinamik olarak ayarlıyoruz
 set INCLUDE_PATHS [list \
@@ -17,7 +17,8 @@ set_property include_dirs $INCLUDE_PATHS [get_filesets sim_1]
 
 # 1. Tek tek eklenecek ana tasarım dosyaları
 set my_files [list \
-    "${PROJE_DIR}/top.sv" \
+    "${PROJE_DIR}/TopModules/top.sv" \
+    "${PROJE_DIR}/TopModules/sim_top.sv" \
     "${PROJE_DIR}/Core/cv32e40p_clock_gate.sv" \
     "${PROJE_DIR}/PeripheralModules/GPIO/gpio.v" \
     "${PROJE_DIR}/PeripheralModules/I2C/sources/new/I2C_master.sv" \
@@ -129,5 +130,8 @@ lappend sim_files {*}[glob -nocomplain "${PROJE_DIR}/Test/top_module_test/Flash_
 
 # Simülasyon dosyalarını sim_1 fileset'ine içe aktar
 import_files -force -fileset sim_1 $sim_files
+
+
+import_files -fileset constrs_1 "${PROJE_DIR}/Bitstreams/basys3.xdc"
 
 puts "Tüm Modül, Yz Hızlandırıcı, CV32E40P kaynak dosyaları ve Flash Simülasyon Modeli başarıyla projeye import edildi!"
