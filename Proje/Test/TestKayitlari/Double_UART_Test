@@ -1,1 +1,19 @@
 Basys3'te tek UART girişi olduğundan kartın boş pinlerine FT232RL modülü taktık ve UART ve UART_Stream'i aynı kart üzerinde OBI ve AXI4-Lite ile birlikte test ettik. Ufak bir top modül oluşturarak iki farklı bilgisayara bağladığımız UART kabloları ile kablolu mesajlaşma gerçekleştirdik.
+
+Voltaj değiştirme bağlantısını orta pin ve 3.3V pinine takmanız önemli.
+
+FT232RL -> Basys3
+GND (Siyah) -> JA5 (GND)
+VCC (Kırmızı) -> JA6 (PWR)3.3V
+RX (Turuncu) -> JA1 
+TX (Yeşil) -> JA2
+
+FPGA'de kontrol ederken modülün RX'i FPGA'in TX'ine karşılık gelecek ve modülün TX'i FPGA'in RX'ine karşılık gelecek.
+
+# JA2 pin (FT232RL TX -> FPGA RX)
+set_property PACKAGE_PIN L2 [get_ports uart_rx_i]
+set_property IOSTANDARD LVCMOS33 [get_ports uart_rx_i]
+
+# JA1 pin (FPGA TX -> FT232RL RX)
+set_property PACKAGE_PIN J1 [get_ports uart_tx_o]
+set_property IOSTANDARD LVCMOS33 [get_ports uart_tx_o]
