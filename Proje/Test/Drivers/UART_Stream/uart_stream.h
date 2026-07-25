@@ -25,3 +25,5 @@ void uart_stream_wait_for_data(void);
 void start_uart_stream(void);
 void start_uart_stream_for_sim(void);
 uint32_t uart_stream_read_ai_memory(uint32_t target_address);
+void uart_stream_wait_for_accelerator_start(void);
+void uart_stream_wait_for_accelerator_end(void);

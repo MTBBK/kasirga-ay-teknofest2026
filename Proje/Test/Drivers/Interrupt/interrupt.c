@@ -1,6 +1,8 @@
 #include "uart.h"
 #include "interrupt.h"
 #include "uart_stream.h"
+extern volatile uint8_t ai_done; 
+
 
 void __attribute__((interrupt("machine"), aligned(256))) interrupt(void){
     REG_WRITE(UART_STREAM_CFG_ADDR, REG_READ(UART_STREAM_CFG_ADDR) & ~0x30);
@@ -9,7 +11,8 @@ void __attribute__((interrupt("machine"), aligned(256))) interrupt(void){
     uart_send_string("\nSonuc:");
     uart_send_hex32(data);
     uart_send_string("\n");
-    
+    ai_done = 1;
+
 
 
 }
@@ -22,3 +25,4 @@ void setup_interrupt(){
     set_csr_bits(mstatus,MSTATUS_MIE);
  
 }
+

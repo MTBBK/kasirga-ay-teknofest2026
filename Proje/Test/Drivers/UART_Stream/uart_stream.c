@@ -34,6 +34,12 @@ uint32_t uart_stream_read_ai_memory(uint32_t target_address) {
     return REG_READ(UART_STREAM_DUMP_DATA_ADDR);
 }
 
+void uart_stream_wait_for_accelerator_start(void){
+    while((REG_READ(UART_STREAM_CFG_ADDR) & 0x40) == 0) {}
+}
+void uart_stream_wait_for_accelerator_end(void){
+    while((REG_READ(UART_STREAM_CFG_ADDR) & 0x80) == 0) {}
+}
 
 
 
