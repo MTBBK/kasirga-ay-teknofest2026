@@ -84,7 +84,7 @@ module tb_top();
     // ---------------------------------------------------------
     initial begin
         clk_i = 0;
-        forever #5 clk_i = ~clk_i; 
+        forever #11.111 clk_i = ~clk_i; 
     end
 
     initial begin

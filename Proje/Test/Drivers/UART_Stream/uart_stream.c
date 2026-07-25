@@ -1,5 +1,6 @@
 #include "uart_stream.h"
 #include "uart.h"
+#include "gpio.h"
 
 void uart_stream_wait_for_data(void) {
     // CFG yazmacının 4. biti (0x10) stream_done_o sinyaline bağlıdır.
@@ -13,6 +14,10 @@ void uart_stream_wait_for_data(void) {
 }
 void start_uart_stream(void){
     uart_send_string("READY\n");
+    REG_WRITE(UART_STREAM_CFG_ADDR, REG_READ(UART_STREAM_CFG_ADDR) | 0x20);
+}
+void start_uart_stream_for_sim(void){
+    gpio_write_pin(15, 1); // "Veri göndermeye başlayabilirsin, hazırım" sinyali
     REG_WRITE(UART_STREAM_CFG_ADDR, REG_READ(UART_STREAM_CFG_ADDR) | 0x20);
 }
 uint32_t uart_stream_read_ai_memory(uint32_t target_address) {

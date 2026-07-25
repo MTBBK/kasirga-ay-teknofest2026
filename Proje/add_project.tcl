@@ -83,6 +83,7 @@ set my_files [list \
     "${PROJE_DIR}/Core/rtl/cv32e40p_fp_wrapper.sv" \
     "${PROJE_DIR}/Core/rtl/cv32e40p_top.sv" \
     "${PROJE_DIR}/Test/top_module_test/boot.mem" \
+    "${PROJE_DIR}/Test/top_module_test/sim_boot.mem" \
     "${PROJE_DIR}/Test/top_module_test/audio_input.mem" \
     "${PROJE_DIR}/Software/MainProgram/mem_Q512.mem" \
     "${PROJE_DIR}/Test/top_module_test/sfdp.mem" \
@@ -132,6 +133,6 @@ lappend sim_files {*}[glob -nocomplain "${PROJE_DIR}/Test/top_module_test/Flash_
 import_files -force -fileset sim_1 $sim_files
 
 
-import_files -fileset constrs_1 "${PROJE_DIR}/Bitstreams/basys3.xdc"
+import_files -force -fileset constrs_1 "${PROJE_DIR}/Bitstreams/basys3.xdc"
 
 puts "Tüm Modül, Yz Hızlandırıcı, CV32E40P kaynak dosyaları ve Flash Simülasyon Modeli başarıyla projeye import edildi!"
