@@ -1,0 +1,82 @@
+RISCVTYPE = /home/taha/xpack-riscv-none-elf-gcc-14.2.0-3/bin/riscv-none-elf
+CC = $(RISCVTYPE)-gcc
+CXX = $(RISCVTYPE)-g++
+OBJCOPY = $(RISCVTYPE)-objcopy
+OBJDUMP = $(RISCVTYPE)-objdump
+
+# Yollar MainProgram klasörünün içinden dışarıya göre ayarlandı
+DRIVERS_DIR = ../../Drivers
+DRIVER_SUBDIRS = $(wildcard $(DRIVERS_DIR)/*)
+
+# --- TFLite Micro Entegrasyonu ---
+# TFLite Micro bağımsız (standalone) proje klasörünüzün yolunu buraya yazın
+TFLM_DIR = ./tflite_micro_project
+TFLM_INCLUDES = -I$(TFLM_DIR) -I$(TFLM_DIR)/third_party/flatbuffers/include -I$(TFLM_DIR)/third_party/gemmlowp -I$(TFLM_DIR)/third_party/ruy
+
+# Sadece TFLite Micro'nun ihtiyacı olan 3 ana dizini tarar (Büyük TFLite dosyalarını atlar)
+TFLM_CC_SRCS = $(shell find $(TFLM_DIR)/tensorflow/lite/micro $(TFLM_DIR)/tensorflow/lite/core $(TFLM_DIR)/tensorflow/lite/kernels/internal -type f -name "*.cc")
+TFLM_CC_SRCS += $(TFLM_DIR)/tensorflow/compiler/mlir/lite/schema/schema_utils.cc
+TFLM_CC_SRCS += $(TFLM_DIR)/tensorflow/lite/kernels/kernel_util.cc
+TFLM_C_SRCS = $(shell find $(TFLM_DIR)/tensorflow/lite/micro $(TFLM_DIR)/tensorflow/lite/core $(TFLM_DIR)/tensorflow/lite/kernels/internal -type f -name "*.c")
+
+# Dosya yollarını koruyarak VPATH karmaşasını (No rule to make target hatasını) önler
+TFLM_OBJS = $(TFLM_CC_SRCS:.cc=.o) $(TFLM_C_SRCS:.c=.o)
+# ---------------------------------
+
+INCLUDES = $(addprefix -I, $(DRIVER_SUBDIRS)) $(TFLM_INCLUDES) -I.
+DRIVER_SRCS = $(wildcard $(DRIVERS_DIR)/*/*.c)
+DRIVER_OBJS = $(notdir $(DRIVER_SRCS:.c=.o))
+
+# Kaynak dosyaları arama yolları (TFLM klasörleri eklendi)
+VPATH = $(DRIVER_SUBDIRS) . ../ \
+        $(TFLM_DIR)/tensorflow/lite/micro \
+        $(TFLM_DIR)/tensorflow/lite/micro/kernels \
+        $(TFLM_DIR)/tensorflow/lite/core/api
+
+# Ana dosya uzantısı artık .cc (C++) oldu
+CFILE = main
+# Script ile ürettiğiniz model dosyasını buraya ekleyin (örn: model_data.cc)
+MODEL_SRC = micro_speech_quantized_model_data.cc
+MODEL_OBJ = $(MODEL_SRC:.cc=.o)
+
+LINKER_SCRIPT = main.ld
+
+# Ortak bayraklar (Hem C hem C++ için geçerli mimari ayarları)
+ARCH_FLAGS = -mcmodel=medany -static -fno-common --specs=nano.specs --specs=nosys.specs -ffunction-sections -march=rv32imc_zicsr_zifencei -mabi=ilp32
+
+# C için bayraklar (Mevcut ayarlarınız korundu)
+CFLAGS = -Os -std=gnu99 $(ARCH_FLAGS) $(INCLUDES)
+
+# C++ (TFLite) için bayraklar
+CXXFLAGS = -O3 -std=c++17 -fno-rtti -fno-exceptions -fno-threadsafe-statics $(ARCH_FLAGS) $(INCLUDES)
+
+LDFLAGS = -T $(LINKER_SCRIPT) -nostartfiles -Wl,--gc-sections -lgcc -lstdc++ -lc -lm
+
+# Nesne dosyaları listesine C++ ve TFLite dosyaları eklendi
+OBJS = $(CFILE).o $(MODEL_OBJ) startup.o $(DRIVER_OBJS) $(TFLM_OBJS)
+OUTNAME = $(CFILE).riscv
+
+compile: hex
+
+$(OUTNAME): $(OBJS) $(LINKER_SCRIPT)
+	$(CXX) $(ARCH_FLAGS) $(OBJS) -o $(OUTNAME) $(LDFLAGS)
+
+# C dosyalarını derleme kuralı
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# C++ (ve TFLite) dosyalarını derleme kuralı
+%.o: %.cc
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+%.o: %.S
+	$(CC) $(CFLAGS) -c $< -o $@
+
+hex: $(OUTNAME)
+	$(OBJCOPY) -O binary $(OUTNAME) $(CFILE).bin
+	$(OBJCOPY) -O verilog $(OUTNAME) $(CFILE).vh
+	$(OBJDUMP) -D -M numeric,no-aliases $(OUTNAME) > $(CFILE)_disassembled.txt
+	python3 get_static_hex.py --binfile=$(CFILE).bin
+
+clean:
+	rm -f *.o *.riscv *.bin *.vh *.txt *.hex *.mem
