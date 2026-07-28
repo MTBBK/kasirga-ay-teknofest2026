@@ -38,13 +38,11 @@ output logic done
     end
     
     
-    //logic [9:0]readaddres_counter;
-    
     logic bitti;
     logic [3:0] outputready;
     logic [8:0] yataykablo[0:4];
     logic [7:0] dikeykablo[0:1][0:3];
-    logic signed [31:0] outputkablo [0:1][0:3];
+    //logic signed [31:0] outputkablo [0:1][0:3];
     
     logic signed [31:0] outputs[0:3];
     
@@ -64,37 +62,25 @@ output logic done
                 .rst(rst),
                 .bati_in(yataykablo[i]),
                 .kuzey_in(dikeykablo[0][i]),
-                .interestregionfinished_i(bitti), 
+                .interestregionfinished_i(bitti_stagger[i+1'b1]), 
                 .interestregionfinished_o(outputready[i]),
                 .dogu_out(yataykablo[i+1'b1]),
                 .guney_out(dikeykablo[1][i]),
                 .sendoutputs(1'b0),                                                                      
-                .reserve_in(outputkablo[0][i]),//bunlar kendi aralarında bağlanacak artık veri akış kabloları gibi  
+                .reserve_in(32'd0),//bunlar kendi aralarında bağlanacak artık veri akış kabloları gibi  
                 .reserve_out(outputs[i]),//bunlar kendi aralarında bağlanacak artık veri akış kabloları gibi
                 .infer_done(infer_done)       
             );
         end
     endgenerate
     
-    
-    //logic [7:0] data [0:79];
-    //ogic [6:0] count;
     logic start_send;
     logic [6:0] sendcount;
     
-    typedef enum logic [1:0] {
-        idle = 2'b00,
-        gecicioku = 2'b10,
-        read = 2'b01
-    } state;
-    state current_state;
-    
-    always_ff @(posedge clk)begin//datayı al
+    always_ff @(posedge clk)begin//datayı ver
         if(rst)begin
-            //readaddres_counter <= '0;
             yataykablo[0] <= '0;       
             start_send <= 1'b0;
-            current_state <= idle;
             //bitti <= 1'b0;
             sendcount<= '0;
         end
@@ -102,39 +88,6 @@ output logic done
             if(basla)begin ///olur gibi
                 start_send <= 1'b1;
             end
-            //case(current_state)
-            //    idle:begin 
-            //        if(basla)begin 
-            //            current_state <= gecicioku;
-            //        end
-            //    end
-            //    gecicioku:begin
-            //        current_state <= read;
-            //        readaddres_counter <= readaddres_counter + 1'b1;
-            //    end
-            //    read:begin
-            //        
-            //        data[count]      <= buff_read_data[7:0];
-            //        data[count+3'd1] <= buff_read_data[15:8];
-            //        data[count+3'd2] <= buff_read_data[23:16];
-            //        data[count+3'd3] <= buff_read_data[31:24];
-            //        data[count+3'd4] <= buff_read_data[39:32];
-            //        data[count+3'd5] <= buff_read_data[47:40];
-            //        data[count+3'd6] <= buff_read_data[55:48];
-            //        data[count+3'd7] <= buff_read_data[63:56];
-            //        count <= count +4'd8;
-            //        start_send <= 1'b1;
-            //        if(count == 7'd72)begin 
-            //            current_state <= idle;
-            //            count <= '0;
-            //        end
-            //        else begin
-            //            readaddres_counter <= readaddres_counter + 1'b1;
-            //        end
-            //        
-            //    end
-            //endcase
-            //veri gönderme kısmı
             yataykablo[0] <= '0;                 
             if(start_send == 1'b1)begin          
                 yataykablo[0] <= fc_inputs[sendcount] + 10'sd128;
@@ -147,7 +100,6 @@ output logic done
             if(infer_done== 1'b1)begin
                 yataykablo[0] <= '0;    
                 start_send <= 1'b0;
-                current_state <= idle;
                 //bitti <= 1'b0;
                 sendcount<= '0;
             end                       
@@ -155,9 +107,9 @@ output logic done
     end
     
     
-    logic we;
-    logic [31:0]din;
-    logic [3:0] bitti_stagger;
+    //logic we;
+    //logic [31:0]din;//!!dikkat
+    logic [4:0] bitti_stagger;
     assign bitti = bitti_stagger[3];
     
     always_ff @(posedge clk)begin//ağırlıkları ver
@@ -173,8 +125,8 @@ output logic done
         dikeykablo[0][3] <= stagger3[2];
         
         if(rst)begin
-            we <= 0;
-            din <= '0;
+            //we <= 0;
+            //din <= '0;
             bitti_stagger <= '0;
             weight_buffer_addr <= '0;
             dikeykablo[0][0] <='0;     
@@ -214,8 +166,8 @@ output logic done
             end
             
             if(infer_done ==1'b1)begin
-                we <= 0;
-                din <= '0;
+                //we <= 0;
+                //din <= '0;
                 bitti_stagger <= '0;
                 weight_buffer_addr <= '0;
                 dikeykablo[0][0] <='0;     
@@ -226,36 +178,81 @@ output logic done
         end
     end
     
-    //logic signed [7:0]resultvals[0:3];
-    logic signed [7:0]requantization_outputs[0:3];
-    logic [3:0]req_output_valid;
-    genvar j;
-    generate
-        for(j = 0; j< 4 ;j = j+1)begin: req_unit
-            relu_req #(.scale(32'sd1932201080),.shift(6'd42),.zero_point(4'd14)) fc_requantization(
-                .clk(clk),
-                .rst(rst),
+//    logic signed [7:0]requantization_outputs[0:3];
+//    logic [3:0]req_output_valid;
+//    genvar j;
+//    generate
+//        for(j = 0; j< 4 ;j = j+1)begin: req_unit
+//            relu_req #(.scale(32'sd1932201080),.shift(6'd42),.zero_point(4'd14)) fc_requantization(
+//                .clk(clk),
+//                .rst(rst),
                
-                .input_valid(&outputready),
+//                .input_valid(&outputready),
                 
-                .data_in(outputs[j]),
-                .data_out(requantization_outputs[j]),
-                .output_valid(req_output_valid[j])
-            );        
-        end
-    endgenerate
-    
-    always_ff @(posedge clk) begin 
+//                .data_in(outputs[j]),
+//                .data_out(requantization_outputs[j]),
+//                .output_valid(req_output_valid[j])
+//            );        
+//        end
+//    endgenerate
+    logic [31:0] req_input;
+    logic [7:0] req_output;
+    logic req_o_valid;
+    logic req_i_valid;
+    relu_req #(.scale(32'sd1932201080),.shift(6'd42),.zero_point(4'd14)) fc_requantization( 
+        .clk(clk),                                                                          
+        .rst(rst),                                                                          
+                                                                                            
+        .input_valid(req_i_valid),                                                         
+                                                                                            
+        .data_in(req_input),                                                               
+        .data_out(req_output),                                               
+        .output_valid(req_o_valid)                                                  
+    );    
+                        
+    logic [1:0] resultvaluecount;                 
+    always_ff @(posedge clk) begin //req çıktısını topla bittiğini bildir 
         if(rst)begin 
             resultvals <= '{default:'0}; 
             done<=1'b0;  
         end
         else begin
-            //
-            done<=1'b0;
-            if(&req_output_valid)begin
-                resultvals <= requantization_outputs;
-                done<=1'b1;
+//            done<=1'b0;
+//            if(&req_output_valid)begin
+//                resultvals <= requantization_outputs;
+//                done<=1'b1;
+//            end
+            done <= 1'b0;
+            if(outputready[0]==1'b1)begin
+                req_input <= outputs[0];
+                req_i_valid <= 1'b1;
+            end
+            else if(outputready[1]==1'b1)begin
+                req_input <= outputs[1];
+                req_i_valid <= 1'b1;
+            end
+            else if(outputready[2]==1'b1)begin
+                req_input <= outputs[2];
+                req_i_valid <= 1'b1;
+            end
+            else if(outputready[3]==1'b1)begin
+                req_input <= outputs[3];
+                req_i_valid <= 1'b1;
+            end
+            else begin
+                req_input <= 32'd0;
+                req_i_valid <= 1'b0;
+            end
+            
+            if(req_o_valid ==1'b1)begin
+                resultvals[resultvaluecount] <= req_output;
+                resultvaluecount <= resultvaluecount+1'b1;
+                if(resultvaluecount==2'b11)begin 
+                    done <= 1'b1;
+                end
+            end
+            else begin 
+                resultvaluecount <= '0;
             end
         end
     end
@@ -266,9 +263,9 @@ output logic done
     .FCWEIGHTS(1)) fcweights
     (
         .clk(clk),
-        .write_enable(we),
+        .write_enable(1'b0),//we yerine sıfır bağladım
         .addr(weight_buffer_addr),
-        .din(din),
+        .din(32'd0),
         .dout(weight_buffer_data)
     );
     

@@ -53,7 +53,7 @@ module im2col_feeder(
             feed_lane #(.LOCAL_OFFSET(2*i)) lane(
             .clk(clk),
             .rst(rst),
-            
+            .infer_done(infer_done),
             .global_word_offset(global_word_offset),
             .buff_read_data(buff_read_data),
             .buffdata_valid(datavalid),

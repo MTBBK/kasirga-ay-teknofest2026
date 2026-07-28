@@ -26,6 +26,7 @@ output logic alloutputsready
     stagger_sa_edge_10 solkenar_stagger(
     .clk(clk),
     .rst(rst),
+    .infer_done(infer_done),
     .en_i(1'b1),
     .word_i(left_in),
     .skew_o(solkenarskewed)
@@ -35,6 +36,7 @@ output logic alloutputsready
     stagger_sa_edge #(.datacount(8)) ustkenar_stagger(
     .clk(clk),
     .rst(rst),
+    .infer_done(infer_done),
     .en_i(1'b1),
     .word_i(top_in),
     .skew_o(ustkenarskewed)

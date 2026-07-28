@@ -1,0 +1,6 @@
+venv
+venv/*
+.venv
+.venv/*
+katman_cikti
+katman_cikti/*

@@ -3,6 +3,7 @@
 module stagger_sa_edge_10 (
   input  clk,
   input  rst,
+  input infer_done,
   input  en_i, //aç kapa örnek tasarımda vardı ama kullanmıyoruz şuan ama belki de kullanırız silmeyim şimdilik
 
   input   signed [7:0] word_i [0:9],
@@ -41,6 +42,17 @@ module stagger_sa_edge_10 (
             buf_q8 <= '0;
             buf_q9 <= '0;
         end 
+        else if(infer_done==1'b1)begin
+            buf_q1 <= '0;
+            buf_q2 <= '0;
+            buf_q3 <= '0;
+            buf_q4 <= '0;
+            buf_q5 <= '0;
+            buf_q6 <= '0;
+            buf_q7 <= '0;
+            buf_q8 <= '0;
+            buf_q9 <= '0;
+        end
         else begin
             if (1'b1) begin//en_i olacak normalde
                 buf_q1 <= {word_i[4'd9],word_i[4'd8],word_i[3'd7],word_i[3'd6],word_i[3'd5],word_i[3'd4],word_i[3'd3],word_i[3'd2],word_i[3'd1]};
@@ -147,3 +159,4 @@ module stagger_sa_edge_10 (
 //    end
 //    assign skew_o[9] = d9_ch9;
 endmodule
+

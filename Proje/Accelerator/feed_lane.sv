@@ -151,7 +151,7 @@ module feed_lane #(
 )(
     input logic clk,
     input logic rst,
-
+    input logic infer_done,
     input logic [2:0] global_word_offset,
     input logic [63:0] buff_read_data,
     input logic buffdata_valid,
@@ -218,6 +218,14 @@ module feed_lane #(
             fifovalid     <= 1'b0;
             for(int i=0; i<8; i++) lanereg[i] <= 8'd0;
         end 
+        else if(infer_done==1'b1)begin
+            current_state <= start;
+            lrcount       <= '0;
+            offset        <= '0;
+            lanereg_ready <= 1'b1;
+            fifovalid     <= 1'b0;
+            for(int i=0; i<8; i++) lanereg[i] <= 8'd0;
+        end
         else begin
             case(current_state) 
                 start: begin
