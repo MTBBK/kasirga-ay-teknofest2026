@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPGA Audio Accelerator</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #2d2d2d; color: #ffffff; text-align: center; padding-top: 50px; }
+        .container { max-width: 700px; margin: 0 auto; background: #000000; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { color: #4CAF50; }
+        button { background-color: #4f0137; color: white; border: none; padding: 15px 32px; text-align: center; font-size: 18px; margin: 20px 2px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        button:active { transform: scale(0.95); }
+        button:disabled { background-color: #555; cursor: not-allowed; }
+        #status { margin-top: 20px; font-size: 1.2em; color: #aaa; }
+
+        .result-container { display: flex; justify-content: space-between; gap: 20px; margin-top: 30px; display: none; }
+        .card { flex: 1; padding: 20px; border: 2px solid #333; border-radius: 8px; background: #252525; }
+        .card h3 { margin-top: 0; color: #aaa; font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px; }
+        .big-word { font-size: 2.5em; font-weight: bold; margin: 15px 0; }
+        .stats { color: #888; font-family: monospace; font-size: 0.95em; }
+
+        .match-status { margin-top: 25px; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.2em; display: none; }
+        .speedup-badge { display: inline-block; background: #e91e63; color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85em; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Accelerator</h1>
+        <p>Press the button and speak for 1 second.</p>
+        <p>You can say "YES" or "NO" (or undefined words)</p>
+        <button id="recordBtn">Start Recording</button>
+        <div id="status">Ready.</div>
+
+        <div class="result-container" id="resultContainer">
+            <div class="card">
+                <h3>PC Software</h3>
+                <h4>(Original Model)</h4>
+                <div class="big-word" id="swWord">--</div>
+                <div class="stats">Hex: <span id="swHex">--</span></div>
+                <div class="stats">Time: <span id="swTime">--</span> ms</div>
+            </div>
+
+            <div class="card">
+                <h3>FPGA Hardware</h3>
+                <div class="big-word" id="fpgaWord">--</div>
+                <div class="stats">Hex: <span id="fpgaHex">--</span></div>
+                <div class="stats">Time: <span id="fpgaTime">--</span> ms</div>
+            </div>
+        </div>
+
+        <div class="match-status" id="matchStatus"></div>
+    </div>
+
+    <script>
+        const recordBtn = document.getElementById('recordBtn');
+        const statusText = document.getElementById('status');
+        const resultContainer = document.getElementById('resultContainer');
+        const matchStatus = document.getElementById('matchStatus');
+
+        function updateColor(element, word) {
+            if(word === "YES") element.style.color = "#4CAF50";
+            else if(word === "NO") element.style.color = "#F44336";
+            else element.style.color = "#FFC107";
+        }
+
+        recordBtn.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const mediaRecorder = new MediaRecorder(stream);
+                const audioChunks = [];
+
+                mediaRecorder.addEventListener("dataavailable", event => {
+                    audioChunks.push(event.data);
+                });
+
+                mediaRecorder.addEventListener("stop", async () => {
+                    statusText.innerText = "Processing on both models...";
+                    const audioBlob = new Blob(audioChunks);
+
+                    const formData = new FormData();
+                    formData.append("audio", audioBlob, "recording.webm");
+
+                    try {
+                        const response = await fetch('/api/infer', { method: 'POST', body: formData });
+                        const data = await response.json();
+
+                        if (data.error) {
+                            statusText.innerText = "Error: " + data.error;
+                            return;
+                        }
+
+                        resultContainer.style.display = "flex";
+                        matchStatus.style.display = "block";
+
+                        // Software Data
+                        document.getElementById('swWord').innerText = data.software.word;
+                        document.getElementById('swHex').innerText = data.software.hex;
+                        document.getElementById('swTime').innerText = data.software.time_ms;
+                        updateColor(document.getElementById('swWord'), data.software.word);
+
+                        // FPGA Data
+                        document.getElementById('fpgaWord').innerText = data.fpga.word;
+                        document.getElementById('fpgaHex').innerText = data.fpga.hex;
+                        document.getElementById('fpgaTime').innerText = data.fpga.time_ms;
+                        updateColor(document.getElementById('fpgaWord'), data.fpga.word);
+
+                        // Comparison Data
+                        document.getElementById('speedBadge').innerText = `${data.speedup}x Faster`;
+
+                        if (data.match) {
+                            matchStatus.innerText = "Systems Agree (Perfect Match)";
+                            matchStatus.style.backgroundColor = "rgba(76, 175, 80, 0.2)";
+                            matchStatus.style.color = "#4CAF50";
+                        } else {
+                            matchStatus.innerText = "Divergence Detected";
+                            matchStatus.style.backgroundColor = "rgba(244, 67, 54, 0.2)";
+                            matchStatus.style.color = "#F44336";
+                        }
+
+                        statusText.innerText = "Inference complete.";
+
+                    } catch (err) {
+                        statusText.innerText = "Server communication failed.";
+                    }
+
+                    // Cleanup microphone tracks
+                    stream.getTracks().forEach(track => track.stop());
+                    recordBtn.disabled = false;
+                });
+
+                // Start recording and force stop after exactly 1000ms
+                mediaRecorder.start();
+                recordBtn.disabled = true;
+                statusText.innerText = "Recording (1 sec)... SPEAK NOW!";
+                resultContainer.style.display = "none";
+                matchStatus.style.display = "none";
+
+                setTimeout(() => {
+                    mediaRecorder.stop();
+                }, 1000);
+
+            } catch (err) {
+                statusText.innerText = "Microphone access denied or unavailable.";
+            }
+        });
+    </script>
+</body>
+</html>

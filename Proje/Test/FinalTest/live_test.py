@@ -11,8 +11,8 @@ warnings.filterwarnings('ignore')
 
 from tflite_micro.python.tflite_micro.runtime import Interpreter as PreprocessorInterpreter
 
-MAIN_UART_PORT = '/dev/ttyUSB2'
-STREAM_UART_PORT = '/dev/ttyUSB0'
+MAIN_UART_PORT = '/dev/ttyUSB1'
+STREAM_UART_PORT = '/dev/ttyUSB2'
 BAUD_RATE = 921600
 
 PREPROCESSOR_MODEL_PATH = '/home/mtbbk/Uygulamalar/tflite-micro/tensorflow/lite/micro/examples/micro_speech/models/audio_preprocessor_int8.tflite'
