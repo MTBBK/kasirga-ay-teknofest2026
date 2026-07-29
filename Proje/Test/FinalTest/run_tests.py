@@ -20,8 +20,8 @@ MAIN_UART_PORT = '/dev/ttyUSB1'
 STREAM_UART_PORT = '/dev/ttyUSB2'
 BAUD_RATE = 921600
 
-PREPROCESSOR_MODEL_PATH = '/home/mtbbk/Uygulamalar/tflite-micro/tensorflow/lite/micro/examples/micro_speech/models/audio_preprocessor_int8.tflite'
-QUANTIZED_MODEL_PATH = '/home/mtbbk/Uygulamalar/tflite-micro/tensorflow/lite/micro/examples/micro_speech/models/micro_speech_quantized.tflite'
+PREPROCESSOR_MODEL_PATH = '/ModelFiles/audio_preprocessor_int8.tflite'
+QUANTIZED_MODEL_PATH = '/ModelFiles/micro_speech_quantized.tflite'
 
 def process_wav_to_features(wav_path, preprocessor):
     """Processes audio and returns both the bytearray (for FPGA) and the NumPy array (for Software)."""

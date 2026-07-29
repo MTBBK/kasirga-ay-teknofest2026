@@ -17,8 +17,8 @@ STREAM_UART_PORT = '/dev/ttyUSB2'
 BAUD_RATE = 921600
 LOG_FILE = "fpga_uart_log.txt"
 
-PREPROCESSOR_MODEL_PATH = '/home/mtbbk/Uygulamalar/tflite-micro/tensorflow/lite/micro/examples/micro_speech/models/audio_preprocessor_int8.tflite'
-QUANTIZED_MODEL_PATH = '/home/mtbbk/Uygulamalar/tflite-micro/tensorflow/lite/micro/examples/micro_speech/models/micro_speech_quantized.tflite'
+PREPROCESSOR_MODEL_PATH = '/ModelFiles/audio_preprocessor_int8.tflite'
+QUANTIZED_MODEL_PATH = '/ModelFiles/micro_speech_quantized.tflite'
 
 # Reverse dictionary to easily print the word instead of the hex code
 HEX_TO_WORD = {
