@@ -65,6 +65,6 @@ if __name__ == '__main__':
 
     wav_file = sys.argv[1]
     mem_file = sys.argv[2]
-    model = '/ModelFiles/audio_preprocessor_int8.tflite'
+    model = 'ModelFiles/audio_preprocessor_int8.tflite'
 
     generate_mem(wav_file, mem_file, model)
