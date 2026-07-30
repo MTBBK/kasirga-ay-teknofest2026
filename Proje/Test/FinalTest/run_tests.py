@@ -4,7 +4,6 @@ import glob
 import time
 import warnings
 
-# Suppress warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 warnings.filterwarnings('ignore')
 
@@ -16,8 +15,8 @@ import librosa
 from tflite_micro.python.tflite_micro.runtime import Interpreter as PreprocessorInterpreter
 from ai_edge_litert.interpreter import Interpreter as EdgeInterpreter
 
-MAIN_UART_PORT = '/dev/ttyUSB1'
-STREAM_UART_PORT = '/dev/ttyUSB2'
+MAIN_UART_PORT = '/dev/ttyUSB4'
+STREAM_UART_PORT = '/dev/ttyUSB0'
 BAUD_RATE = 921600
 
 PREPROCESSOR_MODEL_PATH = 'ModelFiles/audio_preprocessor_int8.tflite'

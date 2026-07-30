@@ -1,5 +1,0 @@
-# Bind to your local network IP (replace with your actual Mint PC IP)
-10.5.75.13 {
-    tls internal
-    reverse_proxy localhost:5000
-}
