@@ -2,8 +2,8 @@ import serial
 import time
 
 # Portları senin ayarladığın şekilde bıraktım
-MAIN_UART_PORT = '/dev/ttyUSB4'   
-STREAM_UART_PORT = '/dev/ttyUSB1' 
+MAIN_UART_PORT = '/dev/ttyUSB2'   
+STREAM_UART_PORT = '/dev/ttyUSB0' 
 BAUD_RATE = 921600                
 
 def main():
@@ -44,7 +44,7 @@ def main():
             chunk = data_bytes[i : i + chunk_size]
             stream_serial.write(chunk)
             stream_serial.flush()
-            time.sleep(0.002) # FPGA'in veriyi hazmetmesi için 2 milisaniye nefes payı
+            #time.sleep(0.002) # FPGA'in veriyi hazmetmesi için 2 milisaniye nefes payı
             
         print("[PC] Veri aktarimi bitti! FPGA isleme basliyor...")
         # --------------------------------------------

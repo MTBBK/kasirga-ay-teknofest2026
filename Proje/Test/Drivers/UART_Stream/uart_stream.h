@@ -27,3 +27,14 @@ void start_uart_stream_for_sim(void);
 uint32_t uart_stream_read_ai_memory(uint32_t target_address);
 void uart_stream_wait_for_accelerator_start(void);
 void uart_stream_wait_for_accelerator_end(void);
+
+void uart_stream_wait_for_loader_start(void);
+
+// bit9 (0x200): loader_done_i
+void uart_stream_wait_for_loader_end(void);
+
+// bit11 (0x800): infer_done_i
+void uart_stream_wait_for_write_start(void);
+
+// bit8 (0x100): write_done_i
+void uart_stream_wait_for_write_end(void);

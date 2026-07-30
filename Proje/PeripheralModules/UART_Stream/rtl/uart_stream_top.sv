@@ -46,7 +46,11 @@ module uart_stream_top #(
     input  logic        hw_rx_clear_i,   // YENİ EKLENDİ
     output logic        stream_enable_o,  // YENİ EKLENDİ
     input  logic        accelerator_started,
-    input  logic        accelerator_done
+    input  logic        accelerator_done,
+    input logic write_done_i,
+    input logic loader_done_i,
+    input logic loader_started_i,
+    input logic infer_done_i
 );
 
     // User Registers (Memory Map)
@@ -169,7 +173,11 @@ module uart_stream_top #(
                 uart_cfg[1] <= 1'b0;
             end
             if (accelerator_started) uart_cfg[6] <= 1'b1;
-            if (accelerator_done)    uart_cfg[7] <= 1'b1;
+            if (accelerator_done )    uart_cfg[7] <= 1'b1;
+            if (write_done_i    ) uart_cfg[8] <= 1'b1;
+            if (loader_done_i   )    uart_cfg[9] <= 1'b1;
+            if (loader_started_i) uart_cfg[10] <= 1'b1;
+            if (infer_done_i     )    uart_cfg[11] <= 1'b1;
             if (fsm_tx_dump_done_i) uart_cfg[3] <= 1'b0;
             
             if (fsm_stream_done_i) begin
@@ -245,3 +253,5 @@ module uart_stream_top #(
     assign stream_rx_byte_valid_o = rx_done;
 
 endmodule
+
+

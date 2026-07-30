@@ -19,7 +19,7 @@
 #define MSTATUS_MIE (1<<3)
 
 // YENİ: Main.c ve interrupt.c arasında paylaşılacak değişkenler
-extern volatile uint32_t cycle_l;
+extern volatile uint32_t last_ai_result;
 extern volatile uint8_t is_ai_done;
 
 void __attribute__((interrupt("machine"), aligned(256))) interrupt(void);

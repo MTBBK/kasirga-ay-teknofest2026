@@ -20,3 +20,4 @@ void reset_timer();
 void enable_timer();
 void disable_timer();
 void timer_init(uint32_t frequency, uint8_t mode,uint32_t auto_reload);
+uint32_t read_timer(void);

@@ -43,7 +43,11 @@ module top(
     
     output logic scl_o,
     inout logic sda_io,
-//    output sclk_o,
+    `ifndef SYNTHESIS
+    output sclk_o,
+    `else
+    // output sclk_o,
+    `endif
     output logic    cs_o,
     inout wire      qspi_io_0,
     inout wire      qspi_io_1,
@@ -665,7 +669,11 @@ module top(
     //QSPI
     qspi_top qspi_top_inst( .S_AXI_ACLK(clk_i),
                             .S_AXI_ARESETN(rst_n_i),
+                            `ifdef SYNTHESIS
                             .sclk(sclk_internal),
+                            `else
+                            .sclk(sclk_o),
+                            `endif 
                             .cs(cs_o),
                             .qspi_io_0(qspi_io_0),
                             .qspi_io_1(qspi_io_1),
@@ -753,7 +761,10 @@ module top(
     logic [1:0]  uart_to_axi_RRESP;  
     logic        uart_to_axi_RVALID; 
     logic        uart_to_axi_RREADY;
-    
+    logic write_done;
+    logic loader_done;
+    logic loader_start;
+    logic write_start;
     logic stream_done;
     logic stream_enable;
     logic hw_clear;
@@ -782,7 +793,11 @@ module top(
               .hw_rx_clear_i(hw_clear),   
               .stream_enable_o(stream_enable),
               .accelerator_started (accelerator_started),
-               .accelerator_done    (accelerator_done)
+              .accelerator_done    (accelerator_done),
+              .write_done_i       (write_done),
+              .loader_done_i     (loader_done),
+              .loader_started_i   (loader_start),
+              .infer_done_i       (write_start) 
                        
     );
     
@@ -883,6 +898,10 @@ module top(
        .start_loader        (stream_done),
        .accelerator_started (accelerator_started),
        .accelerator_done    (accelerator_done),
+       .write_done_o       (write_done),
+       .loader_done_o      (loader_done),
+       .loader_started_o   (loader_start),
+       .infer_done_o       (write_start),    
        .interrupt           (accelerator_interrupt_1_bit)
     );
 
@@ -1199,7 +1218,11 @@ module top(
    //ROM
    memory_axi_readonly #(
         .SIZE(1024),
+        `ifdef SYNTHESIS
         .MEMFILE("boot.mem"),
+        `else
+        .MEMFILE("sim_boot.mem"),
+        `endif
         .BASE_ADDRESS(32'h0000_0000)
     ) ROM (
         .clk(clk_i),
@@ -1315,7 +1338,7 @@ module top(
         
     // QSPI modülünden çıkan saat sinyali
     
-    
+    `ifdef SYNTHESIS
     wire aa;
     wire aaa;
     wire aaaa;
@@ -1339,6 +1362,7 @@ module top(
         .USRDONEO(1'b1),
         .USRDONETS(1'b1)
     );
+    `endif
         
 `ifndef ENABLE_JTAG
     assign awready_slv8 = 1'b0;
@@ -1386,4 +1410,5 @@ module top(
     
 
 endmodule
+
 

@@ -101,7 +101,28 @@ void uart_send_hex32(uint32_t val) {
     uart_send_hex8((val >> 8) & 0xFF);
     uart_send_hex8(val & 0xFF);
 }
+void uart_send_dec32(uint32_t val) {
+    char buffer[12]; // Maksimum 10 hane + null karakter ('\0') (fazladan 1 byte güvenlik)
+    int i = 10;
+    
+    buffer[11] = '\0'; // String sonlandırıcı
 
+    // Sayı 0 ise doğrudan '0' gönder ve çık
+    if (val == 0) {
+        uart_send_char('0');
+        return;
+    }
+
+    // Sayıyı sondan başa doğru rakamlarına ayır
+    while (val > 0) {
+        buffer[i] = (val % 10) + '0'; // Son rakamı ASCII karaktere çevir
+        val /= 10;                    // Sayıyı 10'a bölerek son rakamı at
+        i--;
+    }
+
+    // i, son yazılan rakamın bir öncesini gösterdiği için i+1'den itibaren gönder
+    uart_send_string(&buffer[i + 1]);
+}
 // Okunan tüm buffer'ı başlık ile birlikte ekrana şıkça basar
 void uart_print_buffer(const char* label, uint8_t *buffer, uint32_t length) {
     uart_send_string("\r\n[");
