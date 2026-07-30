@@ -107,7 +107,6 @@ def run_live_inference():
                 chunk = data_bytes[i : i + chunk_size]
                 stream_serial.write(chunk)
                 stream_serial.flush()
-                time.sleep(0.002)
 
             # 5. Wait for the FPGA Result
             fpga_hex = None

@@ -1,0 +1,30 @@
+==================================================
+FINAL ACCURACY, COMPARISON & SPEED RESULTS
+==================================================
+Directory 'yes' (4044 files):
+  - FPGA Correct Answers : 3287
+  - SW Correct Answers   : 3282
+  - Total Mismatches     : 15
+  - Avg SW Speed         : 0.0651102199 ms
+  - Avg SW Cycles        : 179,008 cycles
+  - Avg FPGA (Compute)   : 12.3206590210 ms
+  - Avg FPGA (+ UART)    : 39.1382980539 ms
+  - Performance          : FPGA is 0.0052846378x faster
+
+Directory 'no' (3941 files):
+  - FPGA Correct Answers : 2861
+  - SW Correct Answers   : 2857
+  - Total Mismatches     : 18
+  - Avg SW Speed         : 0.0686426976 ms
+  - Avg SW Cycles        : 188,693 cycles
+  - Avg FPGA (Compute)   : 12.7128560554 ms
+  - Avg FPGA (+ UART)    : 39.5179059452 ms
+  - Performance          : FPGA is 0.0053994710x faster
+
+--------------------------------------------------
+OVERALL SYSTEM ACCELERATION:
+Across 7985 tests, the FPGA accelerator is on average
+0.0053422133x faster than the PC Software Model!
+--------------------------------------------------
+
+30 Temmuz 17.30

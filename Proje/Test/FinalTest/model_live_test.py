@@ -152,7 +152,6 @@ def run_live_inference():
                 chunk = data_bytes[i : i + chunk_size]
                 stream_serial.write(chunk)
                 stream_serial.flush()
-                time.sleep(0.002)
 
             # --- START FPGA TIMER ---
             # Start counting exactly when data finishes sending
@@ -187,9 +186,9 @@ def run_live_inference():
                 print(f"[MISMATCH] Divergence detected in calculation.")
 
             # Print the results with formatting to 2 decimal places
-            print(f"Software TFLite : {sw_word: <7} ({sw_hex}) | Time: {sw_time_ms:>6.2f} ms")
-            print(f"Hardware FPGA   : {fpga_word: <7} ({fpga_hex}) | Time: {fpga_time_ms:>6.2f} ms")
-            print(f"Performance     : FPGA is {speedup:.2f}x faster than PC CPU!")
+            print(f"Software TFLite : {sw_word: <7} ({sw_hex}) | Time: {sw_time_ms:>6.10f} ms")
+            print(f"Hardware FPGA   : {fpga_word: <7} ({fpga_hex}) | Time: {fpga_time_ms:>6.10f} ms")
+            print(f"Performance     : FPGA is {speedup:.10f}x faster than PC CPU!")
             print("--------------------------------------------------")
 
         except KeyboardInterrupt:

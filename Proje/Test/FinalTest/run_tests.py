@@ -3,6 +3,7 @@ import sys
 import glob
 import time
 import warnings
+from hwcounter import count
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 warnings.filterwarnings('ignore')
@@ -16,7 +17,7 @@ from tflite_micro.python.tflite_micro.runtime import Interpreter as Preprocessor
 from ai_edge_litert.interpreter import Interpreter as EdgeInterpreter
 
 MAIN_UART_PORT = '/dev/ttyUSB4'
-STREAM_UART_PORT = '/dev/ttyUSB0'
+STREAM_UART_PORT = '/dev/ttyUSB1'
 BAUD_RATE = 921600
 
 PREPROCESSOR_MODEL_PATH = 'ModelFiles/audio_preprocessor_int8.tflite'
@@ -119,7 +120,7 @@ def test_fpga_and_software():
         "silence": "0x0000000E"  # 1110 in binary
     }
 
-    # Tracking FPGA Accuracy, Software Accuracy, and Cumulative Time[cite: 13]
+    # Tracking FPGA Accuracy, Software Accuracy, and Cumulative Time
     results = {
         cat: {
             "fpga_correct": 0,
@@ -127,7 +128,9 @@ def test_fpga_and_software():
             "mismatches": 0,
             "total_files": 0,
             "fpga_time_total_ms": 0.0,
-            "sw_time_total_ms": 0.0
+            "fpga_uart_time_total_ms": 0.0,
+            "sw_time_total_ms": 0.0,
+            "sw_cycles_total": 0
         } for cat in categories.keys()
     }
 
@@ -159,12 +162,19 @@ def test_fpga_and_software():
 
             # Timer Start: SW
             start_sw = time.perf_counter()
+            start_sw_cycles = count()
+
             software_model.invoke()
+
+            end_sw_cycles = count()
             end_sw = time.perf_counter()
             # Timer End: SW
 
             sw_time_ms = (end_sw - start_sw) * 1000
+            sw_cycles = end_sw_cycles - start_sw_cycles
+
             results[category]["sw_time_total_ms"] += sw_time_ms
+            results[category]["sw_cycles_total"] += sw_cycles
 
             sw_output = software_model.get_tensor(sw_output_details[0]['index'])
             sw_prediction_index = np.argmax(sw_output[0])
@@ -181,7 +191,8 @@ def test_fpga_and_software():
             else:
                 sw_hex = "INVALID"
 
-            # --- 3. FPGA INFERENCE ---
+
+			# --- 3. FPGA INFERENCE ---
             # Wait for FPGA READY
             start_wait = time.time()
             while True:
@@ -189,30 +200,35 @@ def test_fpga_and_software():
                 if "READY" in line or time.time() - start_wait > 1.5:
                     break
 
+            start_fpga_with_uart = time.perf_counter()
+
             # Stream data
             chunk_size = 32
             for i in range(0, len(data_bytes), chunk_size):
                 chunk = data_bytes[i : i + chunk_size]
                 stream_serial.write(chunk)
                 stream_serial.flush()
-                time.sleep(0.002)
 
-            # Timer Start: FPGA (Starts immediately after data finishes sending)
+			# Timer Start: FPGA (Starts immediately after data finishes sending)
             start_fpga = time.perf_counter()
-
-            # Wait for result
             fpga_hex = None
             while True:
                 result_line = main_serial.readline().decode('utf-8', errors='ignore').strip()
-                if "Sonuc:0x" in result_line:
-                    # Timer End: FPGA
+
+                # Make the search tolerant of spaces
+                if "Sonuc:" in result_line and "0x" in result_line:
                     end_fpga = time.perf_counter()
 
-                    fpga_time_ms = (end_fpga - start_fpga) * 1000
-                    results[category]["fpga_time_total_ms"] += fpga_time_ms
-
+                    # This split logic still works perfectly!
                     fpga_hex = "0x" + result_line.split("0x")[1].upper()
                     break
+
+            # Calculate and accumulate both times
+            fpga_time_ms = (end_fpga - start_fpga) * 1000
+            fpga_uart_time_ms = (end_fpga - start_fpga_with_uart) * 1000
+
+            results[category]["fpga_time_total_ms"] += fpga_time_ms
+            results[category]["fpga_uart_time_total_ms"] += fpga_uart_time_ms
 
             # --- 4. COMPARISON & EVALUATION ---
             fpga_pass = (expected_hex == fpga_hex)
@@ -231,13 +247,14 @@ def test_fpga_and_software():
                 results[category]["mismatches"] += 1
                 dump_all_tensors(software_model, file_prefix)
 
-    # --- 5. PRINT FINAL STATISTICS ---
+	# --- 5. PRINT FINAL STATISTICS ---
     print("\n" + "="*50)
     print("FINAL ACCURACY, COMPARISON & SPEED RESULTS")
     print("="*50)
 
     global_total_files = 0
     global_fpga_time = 0.0
+    global_fpga_uart_time = 0.0  # <-- NEW
     global_sw_time = 0.0
 
     for cat in categories.keys():
@@ -251,20 +268,27 @@ def test_fpga_and_software():
 
         global_total_files += total_files
         global_fpga_time += results[cat]['fpga_time_total_ms']
+        global_fpga_uart_time += results[cat]['fpga_uart_time_total_ms']
         global_sw_time += results[cat]['sw_time_total_ms']
 
         avg_fpga_ms = results[cat]['fpga_time_total_ms'] / total_files
+        avg_fpga_uart_ms = results[cat]['fpga_uart_time_total_ms'] / total_files
         avg_sw_ms = results[cat]['sw_time_total_ms'] / total_files
+        avg_sw_cycles = results[cat]['sw_cycles_total'] / total_files
+
         speed_multiplier = avg_sw_ms / avg_fpga_ms if avg_fpga_ms > 0 else 0
 
         print(f"Directory '{cat}' ({total_files} files):")
         print(f"  - FPGA Correct Answers : {f_count}")
         print(f"  - SW Correct Answers   : {s_count}")
         print(f"  - Total Mismatches     : {m_count}")
-        print(f"  - Avg SW Speed         : {avg_sw_ms:.2f} ms")
-        print(f"  - Avg FPGA Speed       : {avg_fpga_ms:.2f} ms")
+        print(f"  - Avg SW Speed         : {avg_sw_ms:.10f} ms")
+        print(f"  - Avg SW Cycles        : {int(avg_sw_cycles):,} cycles")
+        print(f"  - Avg FPGA (Compute)   : {avg_fpga_ms:.10f} ms")
+        print(f"  - Avg FPGA (+ UART)    : {avg_fpga_uart_ms:.10f} ms")
         if speed_multiplier > 0:
-            print(f"  - Performance          : FPGA is {speed_multiplier:.2f}x faster\n")
+            print(f"  - Performance          : FPGA is {speed_multiplier:.10f}x faster\n")
+
 
     if global_total_files > 0:
         overall_avg_fpga = global_fpga_time / global_total_files
@@ -274,7 +298,7 @@ def test_fpga_and_software():
         print("-" * 50)
         print(f"OVERALL SYSTEM ACCELERATION:")
         print(f"Across {global_total_files} tests, the FPGA accelerator is on average")
-        print(f"{overall_speedup:.2f}x faster than the PC Software Model!")
+        print(f"{overall_speedup:.10f}x faster than the PC Software Model!")
         print("-" * 50)
 
 if __name__ == "__main__":
