@@ -27,6 +27,6 @@ void timer_init(uint32_t prescaler, uint8_t mode, uint32_t auto_reload) {
     enable_timer();
 }
 
-uint32_t read_timer(){
+uint32_t read_timer(void){
     return REG_READ(TIM_CNT_ADDR);
 }

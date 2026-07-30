@@ -2,19 +2,13 @@
 #include "interrupt.h"
 #include "uart_stream.h"
 extern volatile uint8_t ai_done; 
+volatile uint32_t last_ai_result;
 
 
 void __attribute__((interrupt("machine"), aligned(256))) interrupt(void){
     REG_WRITE(UART_STREAM_CFG_ADDR, REG_READ(UART_STREAM_CFG_ADDR) & ~0x30);
-    uart_send_string("\ninterrupt basarili");
-    uint32_t data= uart_stream_read_ai_memory(RESULT_ADDR);
-    uart_send_string("\nSonuc:");
-    uart_send_hex32(data);
-    uart_send_string("\n");
+    last_ai_result = uart_stream_read_ai_memory(RESULT_ADDR);
     ai_done = 1;
-
-
-
 }
 
 void setup_interrupt(){

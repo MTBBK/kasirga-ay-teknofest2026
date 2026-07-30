@@ -4,7 +4,7 @@ module tb_top();
 
     // Sinyaller
     logic clk_i;
-    logic rst_n_i;
+    logic rst_i;
     logic fetch_enable;
     
     // Uart sinyalleri
@@ -35,9 +35,9 @@ module tb_top();
     pullup(qspi_io_3);
     
     // İşlemci ve Çevre Birimlerini İçeren Top Modül
-    sim_top dut_top (
-        .clk_i(clk_i),
-        .rst_n_i(rst_n_i),
+    top dut_top (
+        .clk_i_100mHz(clk_i),
+        .rst_i(rst_i),
         .fetch_enable(fetch_enable),
         .uart_rx_i(uart_rx_i),
         .uart_tx_o(uart_tx_o),
@@ -84,19 +84,19 @@ module tb_top();
     // ---------------------------------------------------------
     initial begin
         clk_i = 0;
-        forever #11.111 clk_i = ~clk_i; 
+        forever #5 clk_i = ~clk_i; 
     end
 
     initial begin
-        rst_n_i = 0;
+        rst_i = 1;
         fetch_enable = 0;
         uart_rx_i = 1;
         uart_stream_rx_i = 1; // Başlangıçta UART hattı IDLE (High) olmalı
         
         #200; // Sistemin oturması için bekle
-        rst_n_i = 0;
+        rst_i = 1;
         #200;
-        rst_n_i = 1;
+        rst_i = 0;
         fetch_enable = 1; // İşlemci çalışmaya başlasın
         
         // Simülasyon süresi
@@ -133,7 +133,7 @@ module tb_top();
     integer tb_byte_count = 0;
     initial begin
         // Reset kalkmasını bekle
-        wait (rst_n_i == 1'b1);
+        wait (rst_i == 1'b0);
         
         // Çekirdeğin init işlemlerini bitirmesi için GPIO-15'in 1 olmasını bekle
         wait (gpio_o[15] == 1'b1); 
@@ -261,3 +261,4 @@ module simulated_uart_rx #(
         end
     end
 endmodule
+

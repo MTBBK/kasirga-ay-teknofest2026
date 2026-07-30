@@ -29,13 +29,16 @@ module accelerator_top(
     input  logic start_loader,
     output logic accelerator_started,
     output logic accelerator_done,
+    output logic write_done_o,
+    output logic loader_done_o,
+    output logic loader_started_o,
+    output logic infer_done_o,
     
     
     
     output logic interrupt
     );
-    assign accelerator_started = start_accelerator;
-    assign accelerator_done = infer_done;
+   
     logic [63:0]buff_read_data;
     
     logic [9:0]buff_read_addr;
@@ -262,9 +265,16 @@ buffer_byte_en buffer(
 //);
 
 assign interrupt=write_done;
-   
+assign accelerator_started = start_accelerator;
+assign accelerator_done = infer_done;
+assign write_done_o = write_done;   
+assign loader_done_o =loader_done;  
+assign loader_started_o = start_loader;
+assign infer_done_o = infer_done;
+
    
 endmodule
+
 
 
 
