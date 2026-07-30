@@ -1,0 +1,5 @@
+gpio 7 general while loop must be on before fetch enable
+fetch enable (btnu) starts the core
+reset (btnc) reset
+gpio 15 ai accelrator loop
+gpio 5 i2c loop

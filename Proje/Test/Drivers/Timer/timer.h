@@ -21,3 +21,7 @@ void enable_timer();
 void disable_timer();
 void timer_init(uint32_t frequency, uint8_t mode,uint32_t auto_reload);
 uint32_t read_timer(void);
+
+void delay_us(uint32_t us);
+void delay_ms(uint32_t ms);
+void delay_s(uint32_t s);

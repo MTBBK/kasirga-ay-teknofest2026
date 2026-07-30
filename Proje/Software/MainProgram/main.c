@@ -14,7 +14,38 @@ volatile uint8_t ai_done = 0;
 int main(void) {
     setup_interrupt();
     write_csr(mcountinhibit,0);
+    while (gpio_read_pin(7))
+    {
+        uint32_t i2c_data = 0;  // Senin i2c_READ fonksiyonunun beklediği 32-bit veri tipi
+    uint16_t raw_lux;
+    
+    i2c_WRITE(1, 0x23, 0x10);
+    
+    while(gpio_read_pin(5)){
+        // Sensörün ölçümü tamamlaması için bekle
+        delay_ms(200);
+        
+        // 2 byte veriyi oku
+        i2c_READ(2, 0x23, &i2c_data);
 
+        // YÖNTEM B: Gelen byte'ları doğru sıraya dizme (High ve Low byte birleştirme)
+        // I2C sürücün ilk gelen byte'ı düşük adresli bitlere koyuyorsa:
+        raw_lux = ((i2c_data & 0xFF) << 8) | ((i2c_data >> 8) & 0xFF);
+
+        // Float kullanmadan, tamsayı matematiği ile Lux hesabı (raw_lux / 1.2)
+        uint32_t lux_int = (raw_lux * 10) / 12;
+
+        // Sonuçları UART üzerinden terminale yazdır
+        uart_send_string("Ham(Hex): ");
+        uart_send_hex32(i2c_data);
+        uart_send_string(" | Lux Değeri: ");
+        uart_send_dec32(lux_int);
+        uart_send_string("\n");
+
+    }
+
+
+    
     
 
     while (gpio_read_pin(15)) {
@@ -81,6 +112,14 @@ int main(void) {
         uart_send_hex32(last_ai_result);
         uart_send_string("\n");
     }
+
+    
+    }
+    while (1)
+    {
+        /* code */
+    }
+    
     return 0;
 
 }
