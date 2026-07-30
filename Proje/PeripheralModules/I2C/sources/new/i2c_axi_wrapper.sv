@@ -130,7 +130,7 @@ module i2c_axi_wrapper #(
         end
         else begin
             // Durum Güncellemeleri
-            I2C_CFG[4] <= o_error; // Meþguliyet bilgisi
+            //I2C_CFG[4] <= o_error; // Meþguliyet bilgisi
 
             // Done sinyalleri pulse olduðu için sticky (yapýþkan) bit mantýðý:
             // Yeni bir iþlem (Enable) tetiklendiðinde önceki 'Done' bitleri temizlenir.
@@ -140,6 +140,7 @@ module i2c_axi_wrapper #(
             end else begin
                 if (core_tx_done) I2C_CFG[1] <= 1'b1;
                 if (core_rx_done) I2C_CFG[3] <= 1'b1;
+                if (o_error) I2C_CFG[4] <= 1'b1;
             end
 
             // AXI üzerinden yazma iþlemi
