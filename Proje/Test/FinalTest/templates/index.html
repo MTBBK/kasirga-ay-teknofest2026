@@ -105,15 +105,15 @@
                         updateColor(document.getElementById('fpgaWord'), data.fpga.word);
 
                         // Comparison Data
-                        document.getElementById('speedBadge').innerText = `${data.speedup}x Faster`;
+                        // document.getElementById('speedBadge').innerText = `${data.speedup}x Faster`;
 
                         if (data.match) {
-                            matchStatus.innerText = "Systems Agree (Perfect Match)";
-                            matchStatus.style.backgroundColor = "rgba(76, 175, 80, 0.2)";
+                            matchStatus.innerText = "Systems Agree (Match)";
+                            matchStatus.style.backgroundColor = "rgba(176, 176, 80, 0.2)";
                             matchStatus.style.color = "#4CAF50";
                         } else {
                             matchStatus.innerText = "Divergence Detected";
-                            matchStatus.style.backgroundColor = "rgba(244, 67, 54, 0.2)";
+                            matchStatus.style.backgroundColor = "rgba(67, 244, 54, 0.2)";
                             matchStatus.style.color = "#F44336";
                         }
 
