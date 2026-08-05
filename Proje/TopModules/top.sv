@@ -19,7 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 // Comment the line below if you want to deactivate JTAG module so that it can work as normal as before
-`define ENABLE_JTAG
+//`define ENABLE_JTAG
 
 module top(
 
@@ -43,6 +43,11 @@ module top(
     
     output logic scl_o,
     inout logic sda_io,
+    output logic vga_h_sync_o,
+    output logic vga_v_sync_o,
+    output logic [3:0] vga_r_o,
+    output logic [3:0] vga_g_o,
+    output logic [3:0] vga_b_o,
     `ifndef SYNTHESIS
     output sclk_o,
     `else
@@ -54,19 +59,19 @@ module top(
     inout wire      qspi_io_2,
     inout wire      qspi_io_3
     
-//`ifdef ENABLE_JTAG
-//    ,
-//  input  logic jtag_tck_i,
-//  input  logic jtag_tms_i,
-//  input  logic jtag_trst_ni,
-//  input  logic jtag_tdi_i,
-//  output logic jtag_tdo_o
-//`endif
+`ifdef ENABLE_JTAG
+    ,
+    input  logic jtag_tck_i,
+    input  logic jtag_tms_i,
+    input  logic jtag_trst_ni,
+    input  logic jtag_tdi_i,
+    output logic jtag_tdo_o
+`endif
 
     );
     logic locked;
     logic clk_i;
-    logic a;
+    logic clk_25;
     logic b;
     logic sclk_internal;
     
@@ -74,8 +79,8 @@ module top(
    (
     // Clock out ports
     .clk_out_100(b),     // output clk_out_100
-    .clk_out_50(a),     // output clk_out_50
-    .clk_out3(clk_i),     // output clk_out3
+    .clk_out_50(clk_i),     // output clk_out_50
+    .clk_out3(clk_25),     // output clk_out3
     // Status and control signals
     .reset(rst_i), // input reset
     .locked(locked),       // output locked
@@ -84,7 +89,7 @@ module top(
 );
 
     parameter uart_baud_rate=921600;
-    parameter clk_freq_Mhz=45;
+    parameter clk_freq_Mhz=50;
         
     
     logic rst_n_i;
@@ -95,56 +100,6 @@ module top(
     
     logic accelerator_interrupt_1_bit;
     
-    /*
-    // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    // 200MHz to 100 MHz CLOCK GENERATOR DELETE IF YOU DO NOT WANT OSMAN.
-    logic clk_200mhz;
-    logic clkfb_in, clkfb_out;
-    logic clk_100mhz_unbuf;
-    logic clk_i;
-
-    IBUFGDS #(
-        .DIFF_TERM("FALSE"),
-        .IBUF_LOW_PWR("TRUE")
-    ) u_ibufg_sysclk (
-        .I(sysclk_p),
-        .IB(sysclk_n),
-        .O(clk_200mhz)
-    );
-
-    MMCME2_BASE #(
-        .BANDWIDTH("OPTIMIZED"),
-        .CLKFBOUT_MULT_F(5.0),
-        .CLKFBOUT_PHASE(0.0),
-        .CLKIN1_PERIOD(5.000), // 200 MHz
-        .CLKOUT0_DIVIDE_F(10.0), // 1000 / 10 = 100 MHz
-        .CLKOUT0_DUTY_CYCLE(0.5),
-        .CLKOUT0_PHASE(0.0),
-        .DIVCLK_DIVIDE(1),
-        .REF_JITTER1(0.010)
-    ) u_mmcm (
-        .CLKIN1(clk_200mhz),
-        .CLKFBIN(clkfb_in),
-        .CLKFBOUT(clkfb_out),
-        .CLKOUT0(clk_100mhz_unbuf),
-        .PWRDWN(1'b0),
-        .RST(1'b0),
-        .LOCKED() // You could tie this to reset logic if needed
-    );
-
-    BUFG u_bufg_fb (
-        .I(clkfb_out),
-        .O(clkfb_in)
-    );
-
-    BUFG u_bufg_100m (
-        .I(clk_100mhz_unbuf),
-        .O(clk_i)
-    );
-    // AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-    */
-    
-
     
     //Data Memory obi-axi
     logic obi_req_data;        
@@ -619,13 +574,11 @@ module top(
         .clk_i     (clk_i),
         .rst_ni    (rst_n_i),
 
-        // BSCANE modunda bu portlar dmi_bscane_tap.sv tarafindan
-        // kullanilmiyor -- sabit/bos birakiliyor.
-        .jtag_tck_i   (1'b0),
-        .jtag_tms_i   (1'b0),
-        .jtag_trst_ni (1'b1),
-        .jtag_tdi_i   (1'b0),
-        .jtag_tdo_o   (),
+        .jtag_tck_i   (jtag_tck_i),
+        .jtag_tms_i   (jtag_tms_i),
+        .jtag_trst_ni (jtag_trst_ni),
+        .jtag_tdi_i   (jtag_tdi_i),
+        .jtag_tdo_o   (jtag_tdo_o),
 
         .debug_req_o          (dbg_req_from_jtag),
         .dm_halt_addr_o       (dbg_halt_addr_from_jtag),
@@ -906,10 +859,27 @@ module top(
        .infer_done_o       (write_start),    
        .interrupt           (accelerator_interrupt_1_bit)
     );
-
-
-
-
+    
+    logic [11:0] vga_rgb_o;
+    vga_axi_wrapper vga(
+        .S_AXI_ACLK(clk_i),     
+              .S_AXI_ARESETN(rst_n_i), 
+              .vga_h_sync_o(vga_h_sync_o),
+              .vga_v_sync_o(vga_v_sync_o),
+              .vga_rgb_o(vga_rgb_o),
+              .clk_25(clk_25),
+              .S_AXI_AWVALID(awvalid_slv9), .S_AXI_AWREADY(awready_slv9), .S_AXI_AWADDR(awaddr_slv9),
+              .S_AXI_WDATA(wdata_slv9),     .S_AXI_WSTRB(wstrb_slv9), .S_AXI_WVALID(wvalid_slv9), .S_AXI_WREADY(wready_slv9) ,
+              .S_AXI_BVALID(bvalid_slv9),   .S_AXI_BREADY(bready_slv9), .S_AXI_BRESP(bresp_slv9),
+              
+              .S_AXI_ARVALID(arvalid_slv9), .S_AXI_ARREADY(arready_slv9), .S_AXI_ARADDR(araddr_slv9),
+              .S_AXI_RVALID(rvalid_slv9),   .S_AXI_RREADY(rready_slv9),   .S_AXI_RDATA(rdata_slv9), .S_AXI_RRESP(rresp_slv9)    
+    );
+    
+    assign vga_r_o = vga_rgb_o[11:8];
+    assign vga_g_o = vga_rgb_o[7:4];
+    assign vga_b_o = vga_rgb_o[3:0];
+    
     //XBAR R/W
     xbar xbar_inst(
 
@@ -1376,40 +1346,7 @@ module top(
     assign rdata_slv8   = 32'd0;
     assign rresp_slv8   = 2'b00;
 `endif
-
-    assign awready_slv9 = 1'b0;
-    assign wready_slv9  = 1'b0;
-    assign bvalid_slv9  = 1'b0;
-    assign bresp_slv9   = 2'b00;
-    assign arready_slv9 = 1'b0;
-    assign rvalid_slv9  = 1'b0;
-    assign rdata_slv9   = 32'd0;
-    assign rresp_slv9   = 2'b00;
+                 
     
-    
-    
-//    ila_0 ila (
-//	.clk(clk_i), // input wire clk
-
-
-//	.probe0(obi_req_data), // input wire [0:0]  probe0  
-//	.probe1(obi_gnt_data), // input wire [0:0]  probe1 
-//	.probe2(obi_rvalid_data), // input wire [0:0]  probe2 
-//	.probe3(obi_addr_data), // input wire [31:0]  probe3 
-//	.probe4(obi_wdata_data), // input wire [31:0]  probe4 
-//	.probe5(obi_we_data), // input wire [0:0]  probe5 
-//	.probe6(obi_be_data), // input wire [3:0]  probe6 
-//	.probe7(obi_rdata_data), // input wire [31:0]  probe7 
-//	.probe8(obi_req_instr_i), // input wire [0:0]  probe8 
-//	.probe9(obi_gnt_instr_o), // input wire [0:0]  probe9 
-//	.probe10(obi_rvalid_instr_o), // input wire [0:0]  probe10 
-//	.probe11(obi_addr_instr_i), // input wire [31:0]  probe11 
-//	.probe12(obi_rdata_instr_o) // input wire [31:0]  probe12 
-//);
-
-
-                       
-    
-
 endmodule
 

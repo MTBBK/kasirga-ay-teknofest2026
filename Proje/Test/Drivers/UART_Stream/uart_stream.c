@@ -1,6 +1,7 @@
 #include "uart_stream.h"
 #include "uart.h"
 #include "gpio.h"
+#include "vga.h"
 
 void uart_stream_wait_for_data(void) {
     // CFG yazmacının 4. biti (0x10) stream_done_o sinyaline bağlıdır.

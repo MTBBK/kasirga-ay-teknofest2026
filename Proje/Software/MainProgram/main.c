@@ -5,6 +5,7 @@
 #include "i2c.h"
 #include "interrupt.h"
 #include "uart_stream.h"
+#include "vga.h"
 
 
 
@@ -12,8 +13,42 @@
 
 volatile uint8_t ai_done = 0;
 int main(void) {
+    vga_clear();
+    const char* vga_startup_screen = "+------------------------------------------------------------------------------+\
+|                                                                              |\
+|                                                                              |\
+|                                                                              |\
+|                                KASIRGA - AY                                  |\
+|                                ============                                  |\
+|                                                                              |\
+|                                                                              |\
+|                                                                              |\
+|                                                                              |\
+|                                                                              |\
+|    [ UYGULAMALAR ]                                                           |\
+|    ------------------------------------                                      |\
+|    * GPIO 7  : Fetch-Enable'den evvel genel devre aktif edilmeli             |\
+|    * BTN_U   : Fetch-Enable (Makineyi hareketlendirir)                       |\
+|    * BTN_C   : Yeniden Oynatma                                               |\
+|    * GPIO 15 : Yapay us ivmelendirici                                        |\
+|    * GPIO 5  : I2C fer duyarga gereci                                        |\
+|                                                                              |\
+|                                                                              |\
+|                                                                              |\
+|                                                                              |\
+|                                                                              |\
+|                                                                              |\
+|                                                                              |\
+|                   >>> Talep edilen sinyali tercih edin <<<                   |\
+|                                                                              |\
+|                                                                              |\
+|                                                                              |\
++------------------------------------------------------------------------------+";
+    vga_puts(vga_startup_screen); 
+
     setup_interrupt();
     write_csr(mcountinhibit,0);
+    
     while (gpio_read_pin(7))
     {
         uint32_t i2c_data = 0;  // Senin i2c_READ fonksiyonunun beklediği 32-bit veri tipi
@@ -36,11 +71,9 @@ int main(void) {
         uint32_t lux_int = (raw_lux * 10) / 12;
 
         // Sonuçları UART üzerinden terminale yazdır
-        uart_send_string("Ham(Hex): ");
-        uart_send_hex32(i2c_data);
-        uart_send_string(" | Lux Değeri: ");
-        uart_send_dec32(lux_int);
-        uart_send_string("\n");
+        print_s("Lux Degeri: ");
+        print_d32(lux_int);
+        print_s("\n");
 
     }
 
@@ -88,29 +121,29 @@ int main(void) {
         cycle_l4=read_csr(cycle);
         while(ai_done == 0) {}
         uint32_t time=read_timer();
-        uart_send_string("Ready->Sonuç (mikro saniye):");
-        uart_send_dec32(time);
-        uart_send_string("\n");
+        print_s("Ready->Sonuc (mikro saniye):");
+        print_d32(time);
+        print_s("\n");
         uint32_t result1 = cycle_l1 - cycle_f1;
         uint32_t result2 = cycle_l2 - cycle_f2;
         uint32_t result3 = cycle_l3 - cycle_f3;
         uint32_t result4 = cycle_l4 - cycle_f4;
         uint32_t result5 = cycle_l4 - cycle_f1;
         
-        uart_send_string("\nHizlandirici cevrim sayisi: ");
-        uart_send_dec32(result5);
-        uart_send_string("\nUart_stream cevrim sayisi: ");
-        uart_send_dec32(result1); 
-        uart_send_string("\nLoader cevrim sayisi: ");
-        uart_send_dec32(result2); 
-        uart_send_string("\nInference cevrim sayisi: ");
-        uart_send_dec32(result3); 
-        uart_send_string("\nwrite_back cevrim sayisi: ");
-        uart_send_dec32(result4); 
-        uart_send_string("\n");
-        uart_send_string("\nSonuc: ");
-        uart_send_hex32(last_ai_result);
-        uart_send_string("\n");
+        print_s("\nHizlandirici cevrim sayisi: ");
+        print_d32(result5);
+        print_s("\nUart_stream cevrim sayisi: ");
+        print_d32(result1); 
+        print_s("\nLoader cevrim sayisi: ");
+        print_d32(result2); 
+        print_s("\nInference cevrim sayisi: ");
+        print_d32(result3); 
+        print_s("\nwrite_back cevrim sayisi: ");
+        print_d32(result4); 
+        print_s("\n");
+        print_s("\nSonuc: ");
+        print_h32(last_ai_result);
+        print_s("\n");
     }
 
     
