@@ -61,7 +61,42 @@ set_property -dict { PACKAGE_PIN D19   IOSTANDARD LVCMOS33 } [get_ports {qspi_io
 set_property -dict { PACKAGE_PIN G18   IOSTANDARD LVCMOS33 } [get_ports {qspi_io_2}]
 set_property -dict { PACKAGE_PIN F18   IOSTANDARD LVCMOS33 } [get_ports {qspi_io_3}]
 set_property -dict { PACKAGE_PIN K19   IOSTANDARD LVCMOS33 } [get_ports cs_o]
+## VGA Connector
+# Red
+set_property PACKAGE_PIN G19 [get_ports {vga_r_o[0]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {vga_r_o[0]}]
+set_property PACKAGE_PIN H19 [get_ports {vga_r_o[1]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {vga_r_o[1]}]
+set_property PACKAGE_PIN J19 [get_ports {vga_r_o[2]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {vga_r_o[2]}]
+set_property PACKAGE_PIN N19 [get_ports {vga_r_o[3]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {vga_r_o[3]}]
 
+# Green
+set_property PACKAGE_PIN J17 [get_ports {vga_g_o[0]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {vga_g_o[0]}]
+set_property PACKAGE_PIN H17 [get_ports {vga_g_o[1]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {vga_g_o[1]}]
+set_property PACKAGE_PIN G17 [get_ports {vga_g_o[2]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {vga_g_o[2]}]
+set_property PACKAGE_PIN D17 [get_ports {vga_g_o[3]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {vga_g_o[3]}]
+
+# Blue
+set_property PACKAGE_PIN N18 [get_ports {vga_b_o[0]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {vga_b_o[0]}]
+set_property PACKAGE_PIN L18 [get_ports {vga_b_o[1]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {vga_b_o[1]}]
+set_property PACKAGE_PIN K18 [get_ports {vga_b_o[2]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {vga_b_o[2]}]
+set_property PACKAGE_PIN J18 [get_ports {vga_b_o[3]}]
+set_property IOSTANDARD LVCMOS33 [get_ports {vga_b_o[3]}]
+
+# Sync signals
+set_property PACKAGE_PIN P19 [get_ports vga_h_sync_o]
+set_property IOSTANDARD LVCMOS33 [get_ports vga_h_sync_o]
+set_property PACKAGE_PIN R19 [get_ports vga_v_sync_o]
+set_property IOSTANDARD LVCMOS33 [get_ports vga_v_sync_o]
 ## Configuration options
 set_property CONFIG_VOLTAGE 3.3 [current_design]
 set_property CFGBVS VCCO [current_design]
