@@ -29,32 +29,6 @@ set my_files [list \
     "${PROJE_DIR}/Core/rtl/include/cv32e40p_apu_core_pkg.sv" \
     "${PROJE_DIR}/Core/rtl/include/cv32e40p_fpu_pkg.sv" \
     "${PROJE_DIR}/Core/rtl/include/cv32e40p_pkg.sv" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_common_cells/src/cf_math_pkg.sv" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/src/fpnew_pkg.sv" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_common_cells/src/rr_arb_tree.sv" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_common_cells/src/lzc.sv" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/vendor/opene906/E906_RTL_FACTORY/gen_rtl/clk/rtl/gated_clk_cell.v" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/vendor/opene906/E906_RTL_FACTORY/gen_rtl/fdsu/rtl/pa_fdsu_ctrl.v" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/vendor/opene906/E906_RTL_FACTORY/gen_rtl/fdsu/rtl/pa_fdsu_ff1.v" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/vendor/opene906/E906_RTL_FACTORY/gen_rtl/fdsu/rtl/pa_fdsu_pack_single.v" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/vendor/opene906/E906_RTL_FACTORY/gen_rtl/fdsu/rtl/pa_fdsu_prepare.v" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/vendor/opene906/E906_RTL_FACTORY/gen_rtl/fdsu/rtl/pa_fdsu_round_single.v" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/vendor/opene906/E906_RTL_FACTORY/gen_rtl/fdsu/rtl/pa_fdsu_special.v" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/vendor/opene906/E906_RTL_FACTORY/gen_rtl/fdsu/rtl/pa_fdsu_srt_single.v" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/vendor/opene906/E906_RTL_FACTORY/gen_rtl/fdsu/rtl/pa_fdsu_top.v" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/vendor/opene906/E906_RTL_FACTORY/gen_rtl/fpu/rtl/pa_fpu_dp.v" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/vendor/opene906/E906_RTL_FACTORY/gen_rtl/fpu/rtl/pa_fpu_frbus.v" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/vendor/opene906/E906_RTL_FACTORY/gen_rtl/fpu/rtl/pa_fpu_src_type.v" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/src/fpnew_divsqrt_th_32.sv" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/src/fpnew_classifier.sv" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/src/fpnew_rounding.sv" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/src/fpnew_cast_multi.sv" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/src/fpnew_fma_multi.sv" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/src/fpnew_noncomp.sv" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/src/fpnew_opgroup_fmt_slice.sv" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/src/fpnew_opgroup_multifmt_slice.sv" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/src/fpnew_opgroup_block.sv" \
-    "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_fpnew/src/fpnew_top.sv" \
     "${PROJE_DIR}/Core/rtl/cv32e40p_if_stage.sv" \
     "${PROJE_DIR}/Core/rtl/cv32e40p_cs_registers.sv" \
     "${PROJE_DIR}/Core/rtl/cv32e40p_register_file_ff.sv" \
@@ -79,7 +53,6 @@ set my_files [list \
     "${PROJE_DIR}/Core/rtl/cv32e40p_prefetch_controller.sv" \
     "${PROJE_DIR}/Core/rtl/cv32e40p_sleep_unit.sv" \
     "${PROJE_DIR}/Core/rtl/cv32e40p_core.sv" \
-    "${PROJE_DIR}/Core/rtl/cv32e40p_fp_wrapper.sv" \
     "${PROJE_DIR}/Core/rtl/cv32e40p_top.sv" \
     "${PROJE_DIR}/Test/top_module_test/boot.mem" \
     "${PROJE_DIR}/Test/top_module_test/sim_boot.mem" \

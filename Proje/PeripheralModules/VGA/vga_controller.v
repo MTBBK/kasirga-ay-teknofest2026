@@ -33,7 +33,6 @@ vga_text_render_logic render_logic(clk_pixel_i,rst_i,h_count,v_count,char_data_f
 font_rom font(clk_pixel_i,font_rom_addr,font_data_from_rom);
 text_buffer textbuffer(clk_system,text_buffer_addr_for_cpu_o,text_buffer_data_for_cpu_i,text_buffer_wr_en_i,clk_pixel_i,text_buffer_addr,char_data_from_buffer);
 
-wire video_on;
 vga_timing_generator timing_generator(clk_pixel_i,rst_i,h_count,v_count,h_sync_in,v_sync_in,video_on_in);
 
 always @(posedge clk_pixel_i) begin
