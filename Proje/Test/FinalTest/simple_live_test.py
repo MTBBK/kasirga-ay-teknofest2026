@@ -11,8 +11,8 @@ warnings.filterwarnings('ignore')
 
 from tflite_micro.python.tflite_micro.runtime import Interpreter as PreprocessorInterpreter
 
-MAIN_UART_PORT = '/dev/ttyUSB1'
-STREAM_UART_PORT = '/dev/ttyUSB2'
+MAIN_UART_PORT = '/dev/ttyUSB4'
+STREAM_UART_PORT = '/dev/ttyUSB1'
 BAUD_RATE = 921600
 
 PREPROCESSOR_MODEL_PATH = '/home/mtbbk/Uygulamalar/tflite-micro/tensorflow/lite/micro/examples/micro_speech/models/audio_preprocessor_int8.tflite'
@@ -112,7 +112,9 @@ def run_live_inference():
             fpga_hex = None
             while True:
                 result_line = main_serial.readline().decode('utf-8', errors='ignore').strip()
-                if "Sonuc:0x" in result_line:
+
+                if "Sonuc:" in result_line and "0x" in result_line:
+                    end_fpga = time.perf_counter()
                     fpga_hex = "0x" + result_line.split("0x")[1].upper()
                     break
 
