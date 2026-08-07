@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FPGA Lux Monitor & Logger</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #2d2d2d; color: #ffffff; text-align: center; padding-top: 30px; padding-bottom: 50px; }
+        .container { max-width: 800px; margin: 0 auto; background: #000000; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h1 { color: #FFC107; }
+
+        .card { padding: 30px; border: 2px solid #333; border-radius: 8px; background: #252525; margin-top: 30px; }
+        .card h3 { margin-top: 0; color: #aaa; font-size: 1.1em; text-transform: uppercase; letter-spacing: 1px; }
+        .big-word { font-size: 4em; font-weight: bold; margin: 20px 0; color: #FFC107; }
+        .stats { color: #888; font-family: monospace; font-size: 1.1em; margin-top: 10px; }
+
+        .btn-container { display: flex; justify-content: center; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
+
+        button { background-color: #4CAF50; color: white; border: none; padding: 12px 24px; font-size: 16px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; }
+        button:hover { background-color: #45a049; }
+        button:active { transform: scale(0.95); }
+        button:disabled { background-color: #555; color: #888; cursor: not-allowed; transform: none; }
+
+        .btn-danger { background-color: #F44336; }
+        .btn-danger:hover { background-color: #d32f2f; }
+        .btn-secondary { background-color: #2196F3; }
+        .btn-secondary:hover { background-color: #1e88e5; }
+
+        canvas { background-color: #252525; border-radius: 8px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Light Monitor & Logger</h1>
+        <p>Testing I2C data stream from FPGA (Switch V15)</p>
+
+        <!-- STREAM CONTROL BUTTONS -->
+        <div class="btn-container">
+            <button id="startBtn" onclick="startLogging()" disabled>Start Stream</button>
+            <button id="stopBtn" class="btn-danger" onclick="stopLogging()">Pause Stream</button>
+        </div>
+
+        <div class="card" id="luxContainer">
+            <h3>Ambient Light Sensor</h3>
+            <div class="big-word" id="luxValue">-- lx</div>
+            <div class="stats">Status: <span id="luxStatus">Streaming via I2C</span></div>
+        </div>
+
+        <div class="card">
+            <h3>Live Graph</h3>
+            <canvas id="luxChart" width="400" height="200"></canvas>
+
+            <div class="btn-container" style="margin-top: 25px;">
+                <button class="btn-secondary" onclick="downloadGraph()">Save Graph (PNG)</button>
+                <button class="btn-secondary" onclick="downloadData()">Save Data (CSV)</button>
+                <button class="btn-secondary" onclick="downloadTxt()">Save Data (TXT)</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- LOGGING STATE ---
+        let isLogging = true; // Starts actively logging by default
+
+        // --- DATA LOGGING VARIABLES ---
+        let csvData = [["Timestamp", "Lux Value"]];
+        const MAX_GRAPH_POINTS = 60;
+
+        // --- CHART SETUP ---
+        const ctx = document.getElementById('luxChart').getContext('2d');
+
+        const customCanvasBackgroundColor = {
+            id: 'customCanvasBackgroundColor',
+            beforeDraw: (chart, args, options) => {
+                const {ctx} = chart;
+                ctx.save();
+                ctx.globalCompositeOperation = 'destination-over';
+                ctx.fillStyle = options.color || '#252525';
+                ctx.fillRect(0, 0, chart.width, chart.height);
+                ctx.restore();
+            }
+        };
+
+        const luxChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Lux Level',
+                    data: [],
+                    borderColor: '#FFC107',
+                    backgroundColor: 'rgba(255, 193, 7, 0.2)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 2
+                }]
+            },
+            options: {
+                animation: false,
+                scales: {
+                    x: { ticks: { color: '#aaa' }, grid: { color: '#444' } },
+                    y: { ticks: { color: '#aaa' }, grid: { color: '#444' }, beginAtZero: true }
+                },
+                plugins: {
+                    legend: { labels: { color: '#aaa' } },
+                    customCanvasBackgroundColor: { color: '#252525' }
+                }
+            },
+            plugins: [customCanvasBackgroundColor]
+        });
+
+        // --- UI CONTROL FUNCTIONS ---
+        const luxValue = document.getElementById('luxValue');
+        const luxStatus = document.getElementById('luxStatus');
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+
+        function startLogging() {
+            isLogging = true;
+            startBtn.disabled = true;
+            stopBtn.disabled = false;
+            luxStatus.innerText = "Streaming via I2C";
+            luxStatus.style.color = "#4CAF50";
+        }
+
+        function stopLogging() {
+            isLogging = false;
+            startBtn.disabled = false;
+            stopBtn.disabled = true;
+            luxStatus.innerText = "Paused (Waiting for User)";
+            luxStatus.style.color = "#FFC107";
+        }
+
+        // --- POLLING & UPDATING ---
+        setInterval(async () => {
+            // If the user clicked Pause, skip the entire update cycle
+            if (!isLogging) return;
+
+            try {
+                const response = await fetch('/api/lux');
+                const data = await response.json();
+
+                if (data.lux !== undefined) {
+                    const currentLux = parseInt(data.lux, 10);
+
+                    const now = new Date();
+                    const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}.${now.getMilliseconds().toString().padStart(3, '0')}`;
+
+                    // Update UI Text
+                    luxValue.innerText = currentLux + " lx";
+                    luxStatus.innerText = "Streaming via I2C";
+                    luxStatus.style.color = "#4CAF50";
+
+                    // Update Graph
+                    luxChart.data.labels.push(timeString);
+                    luxChart.data.datasets[0].data.push(currentLux);
+
+                    if (luxChart.data.labels.length > MAX_GRAPH_POINTS) {
+                        luxChart.data.labels.shift();
+                        luxChart.data.datasets[0].data.shift();
+                    }
+                    luxChart.update();
+
+                    // Save to CSV Array
+                    csvData.push([timeString, currentLux]);
+
+                } else {
+                    luxStatus.innerText = "Inactive (Switch V15 is OFF)";
+                    luxStatus.style.color = "#888";
+                }
+            } catch (err) {
+                luxStatus.innerText = "Server Disconnected";
+                luxStatus.style.color = "#F44336";
+            }
+        }, 250);
+
+        // --- EXPORT FUNCTIONS ---
+        function downloadGraph() {
+            const link = document.createElement('a');
+            link.download = `Lux_Graph_${new Date().toISOString().slice(0, 19).replace(/:/g, "-")}.png`;
+            link.href = luxChart.toBase64Image();
+            link.click();
+        }
+
+        function downloadData() {
+            let csvContent = "data:text/csv;charset=utf-8,"
+                + csvData.map(e => e.join(",")).join("\n");
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement('a');
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Lux_Data_${new Date().toISOString().slice(0, 19).replace(/:/g, "-")}.csv`);
+            document.body.appendChild(link);
+
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function downloadTxt() {
+            let txtContent = "data:text/plain;charset=utf-8,";
+
+            // Add a clean header for the text file
+            txtContent += "FPGA Ambient Light Sensor Log\n";
+            txtContent += "=========================================\n\n";
+
+            // Map the array to a tab-spaced text layout
+            txtContent += csvData.map(row => `${row[0]}\t\t|   ${row[1]} lx`).join("\n");
+
+            const encodedUri = encodeURI(txtContent);
+            const link = document.createElement('a');
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Lux_Log_${new Date().toISOString().slice(0, 19).replace(/:/g, "-")}.txt`);
+            document.body.appendChild(link);
+
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>

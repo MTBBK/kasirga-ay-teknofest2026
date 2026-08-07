@@ -218,8 +218,6 @@ def test_fpga_and_software():
                 # Make the search tolerant of spaces
                 if "Sonuc:" in result_line and "0x" in result_line:
                     end_fpga = time.perf_counter()
-
-                    # This split logic still works perfectly!
                     fpga_hex = "0x" + result_line.split("0x")[1].upper()
                     break
 

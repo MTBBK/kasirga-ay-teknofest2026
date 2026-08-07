@@ -12,8 +12,8 @@ warnings.filterwarnings('ignore')
 from tflite_micro.python.tflite_micro.runtime import Interpreter as PreprocessorInterpreter
 from ai_edge_litert.interpreter import Interpreter as EdgeInterpreter
 
-MAIN_UART_PORT = '/dev/ttyUSB1'
-STREAM_UART_PORT = '/dev/ttyUSB2'
+MAIN_UART_PORT = '/dev/ttyUSB4'
+STREAM_UART_PORT = '/dev/ttyUSB1'
 BAUD_RATE = 921600
 LOG_FILE = "fpga_uart_log.txt"
 
@@ -162,9 +162,8 @@ def run_live_inference():
                 result_line = main_serial.readline().decode('utf-8', errors='ignore').strip()
                 log_uart(result_line)
 
-                if "Sonuc:0x" in result_line:
-                    # --- END FPGA TIMER ---
-                    # Stop counting the moment the answer is parsed
+                # Make the search tolerant of spaces
+                if "Sonuc:" in result_line and "0x" in result_line:
                     end_fpga = time.perf_counter()
                     fpga_hex = "0x" + result_line.split("0x")[1].upper()
                     break
