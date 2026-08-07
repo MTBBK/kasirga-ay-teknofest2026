@@ -152,13 +152,14 @@ module feed_lane #(
     input logic clk,
     input logic rst,
     input logic infer_done,
+//    input logic fcready,
     input logic [2:0] global_word_offset,
     input logic [63:0] buff_read_data,
     input logic buffdata_valid,
     input logic startread,
     input logic fifofeeder_ready,
     output logic lanereg_ready,
-    output logic fifovalid,
+    output logic lanereg_data_valid,
     output logic [7:0] sendtofifo[0:7]
 );
     
@@ -215,7 +216,7 @@ module feed_lane #(
             lrcount       <= '0;
             offset        <= '0;
             lanereg_ready <= 1'b1;
-            fifovalid     <= 1'b0;
+            lanereg_data_valid     <= 1'b0;
             for(int i=0; i<8; i++) lanereg[i] <= 8'd0;
         end 
         else if(infer_done==1'b1)begin
@@ -223,7 +224,7 @@ module feed_lane #(
             lrcount       <= '0;
             offset        <= '0;
             lanereg_ready <= 1'b1;
-            fifovalid     <= 1'b0;
+            lanereg_data_valid     <= 1'b0;
             for(int i=0; i<8; i++) lanereg[i] <= 8'd0;
         end
         else begin
@@ -232,7 +233,7 @@ module feed_lane #(
                     if(startread) begin 
                         current_state <= set_offset;
                         lanereg_ready <= 1'b1;
-                        fifovalid     <= 1'b0;
+                        lanereg_data_valid     <= 1'b0;
                         lrcount       <= 4'd0;
                         for(int i=0; i<8; i++) lanereg[i] <= 8'd0;
                     end
@@ -241,7 +242,7 @@ module feed_lane #(
                 set_offset: begin
                     current_state <= read;
                     lanereg_ready <= 1'b1; 
-                    fifovalid     <= 1'b0;
+                    lanereg_data_valid     <= 1'b0;
                     lrcount       <= 4'd0;
                     offset        <= global_word_offset + LOCAL_OFFSET;
                     for(int i=0; i<8; i++) lanereg[i] <= 8'd0;
@@ -260,7 +261,7 @@ module feed_lane #(
                             if((lrcount + num_elements) == 4'd8) begin 
                                 current_state <= finish;
                                 lanereg_ready <= 1'b0;                    
-                                fifovalid     <= 1'b1;
+                                lanereg_data_valid     <= 1'b1;
                             end
                         end
                         else begin 
@@ -270,9 +271,9 @@ module feed_lane #(
                 end
                 
                 finish: begin
-                    if(fifofeeder_ready) begin
+                    if(fifofeeder_ready) begin//&& fcready) begin
                         current_state <= start;
-                        fifovalid     <= 1'b0;
+                        lanereg_data_valid     <= 1'b0;
                         lanereg_ready <= 1'b1;
                     end
                 end

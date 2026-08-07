@@ -1,5 +1,7 @@
 `timescale 1ns / 1ps
-module output_manager(
+module output_manager
+import accelerator_config_pkg::*; 
+(
 input logic clk,
 input logic rst,
 input logic alloutputsready,
@@ -12,16 +14,8 @@ output logic buffwriteenable,
 output logic feederbasla
     );
     
-    //typedef enum logic [1:0] {
-    //    idle = 2'b00,
-    //    sendtopostprocess = 2'b01
-    //} state;
-    //state current_state;
-    
-    //logic signed [31:0] collectedoutputs[0:79];
-    //logic [6:0] linecount;
     logic signed [7:0] bufferdata [0:7];
-    logic [3:0] buffaddress;
+    logic [5:0] buffaddress;//feedlane artarsa artması gerekebilir
      
     //REQ SİNYALLERİ
     logic signed [31:0] postp_in [0:7];
@@ -45,18 +39,13 @@ output logic feederbasla
         end
     endgenerate
     
-    logic [3:0] saoutputlinecount;
     always_ff @(posedge clk)begin
         if(rst)begin
-            //current_state <= idle;
-            //ollectedoutputs <= '{default: '0};
-            //linecount <= '0;
             inputvalid <= 1'b0;
             postp_in <= '{default: '0};
-            saoutputlinecount <= '0;
         end
         else begin             
-                inputvalid <= 1'b0;   
+            inputvalid <= 1'b0;   
             if(alloutputsready==1'b1)begin
                                                    
                 postp_in[0] <= sa_line_outputs[0]; 
@@ -66,76 +55,16 @@ output logic feederbasla
                 postp_in[4] <=  sa_line_outputs[4];
                 postp_in[5] <=  sa_line_outputs[5];
                 postp_in[6] <= sa_line_outputs[6]; 
-                postp_in[7] <= sa_line_outputs[7]; 
-                                                   
+                postp_in[7] <= sa_line_outputs[7];
+                
                 inputvalid <= 1'b1;                
                
             end
             
-            //case(current_state)
-            //    idle:begin
-            //        inputvalid <= 1'b0;
-            //        //collectedoutputs <= '{default: '0};
-            //        if(alloutputsready==1'b1)begin
-            //            //collectedoutputs <= pe_outputs;
-            //            current_state <= sendtopostprocess;
-            //            
-            //            postp_in[0] <= sa_line_outputs[0];
-            //            postp_in[1] <=  sa_line_outputs[1]; 
-            //            postp_in[2] <=  sa_line_outputs[2];
-            //            postp_in[3] <=  sa_line_outputs[3];
-            //            postp_in[4] <=  sa_line_outputs[4];
-            //            postp_in[5] <=  sa_line_outputs[5];
-            //            postp_in[6] <= sa_line_outputs[6];
-            //            postp_in[7] <= sa_line_outputs[7];
-            //            
-            //            inputvalid <= 1'b1;
-            //            //linecount <= linecount + 4'd8;//10 çevrimlik sayaç koyulacak 10 çevrim sonra bitmiş olacak zaten veri gelişi
-            //            saoutputlinecount <= saoutputlinecount +1'b1;
-            //        end
-            //    end
-            //    sendtopostprocess:begin
-            //        //postp_in[0] <= collectedoutputs[linecount];
-            //        //postp_in[1] <= collectedoutputs[linecount+4'd1];
-            //        //postp_in[2] <= collectedoutputs[linecount+4'd2];
-            //        //postp_in[3] <= collectedoutputs[linecount+4'd3];
-            //        //postp_in[4] <= collectedoutputs[linecount+4'd4];
-            //        //postp_in[5] <= collectedoutputs[linecount+4'd5];
-            //        //postp_in[6] <= collectedoutputs[linecount+4'd6];
-            //        //postp_in[7] <= collectedoutputs[linecount+4'd7];
-            //        //
-            //        //inputvalid <= 1'b1;
-            //        //linecount <= linecount + 4'd8;
-            //        //if(linecount == 7'd72)begin
-            //        //    linecount <= '0;
-            //        //    current_state <= idle;
-            //        //end
-            //        ////
-            //        //her çevrim bir line gelse
-            //        
-            //        postp_in[0] <= sa_line_outputs[0];
-            //        postp_in[1] <=  sa_line_outputs[1]; 
-            //        postp_in[2] <=  sa_line_outputs[2];
-            //        postp_in[3] <=  sa_line_outputs[3];
-            //        postp_in[4] <=  sa_line_outputs[4];
-            //        postp_in[5] <=  sa_line_outputs[5];
-            //        postp_in[6] <= sa_line_outputs[6];
-            //        postp_in[7] <= sa_line_outputs[7];
-            //        
-            //        inputvalid <= 1'b1;
-            //        //linecount <= linecount + 4'd8;//10 çevrimlik sayaç koyulacak 10 çevrim sonra bitmiş olacak zaten veri gelişi
-            //        saoutputlinecount <= saoutputlinecount +1'b1;
-            //        if(saoutputlinecount == 9)begin
-            //            saoutputlinecount <= '0;
-            //            current_state <= idle;
-            //        end
-            //        
-            //    end
-            //endcase
         end
     end
     
-    logic [3:0] sayac;
+    logic [5:0] sayac;
     always_ff @(posedge clk)begin
         if(rst)begin
             sayac <= '0;
@@ -155,7 +84,7 @@ output logic feederbasla
                 buffaddress <= buffaddress + 1'b1;
                 
                 sayac <= sayac + 1'b1;
-                if(sayac == 4'd9)begin
+                if(sayac == FEEDLANE_COUNT-1'b1)begin
                     sayac <= '0;
                     feederbasla <= 1'b1;//10x8 lik sa dan 10 farklı conv pencersesinin, 8 farklı kerneldeki sonucunu requantize edip yazdıktan sonra diğerleri gelene kadar fully connecteda başla diyor
                 end

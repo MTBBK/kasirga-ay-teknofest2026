@@ -1,12 +1,16 @@
 `timescale 1ns / 1ps
 
-module im2col_feeder(
+module im2col_feeder
+import accelerator_config_pkg::*;
+(
     input logic clk,
     input logic rst,
     input logic infer_done,
+//    input logic fcready,
     input logic [63:0]buff_read_data,
     output logic [9:0]buff_read_addr,
-    output logic signed[7:0]sa_word_o[0:9],
+    output logic signed[7:0]sa_word_o[0:FEEDLANE_COUNT-1],
+    //output feeder_sa_output_t sa_word_o,
     output logic sawordo_started,//diğer besleyici modul için sinyal. ben veri göndermeye başladım diyor
     output logic endofregion,
     input logic start
@@ -17,14 +21,15 @@ module im2col_feeder(
     logic datavalid;
     
     logic [2:0]fifofeeder_colcnt;
-    logic [7:0] fifofeeder [0:9][0:7];
+    //logic [7:0] fifofeeder [0:9][0:7];
+    feeder_t fifofeeder;
     logic fifofeeder_ready;//fifofeederın veri yüklenmesi için hazır olduğunu(boş olduğunu) gösteriyor, sa yı beslemeye hazır demek değil!!
     
     logic startread;//feedlaneler içindeki lanereglerde biriktirmeye başla sinyali
-    logic [9:0]fifovalid;//feedlanelerden gelen fifoya yüklenecek verinin geçerli olduğunu gösteren sinyal
-    logic [9:0]lanereg_ready;//feedlane içeriisind eki laneregin veri kabul etmeye hazır olduğunu gösteren sinyal, hepsi bir olunca başla sinyali vermeyi düşünüyorum 
-    logic [7:0] laneregs [0:9][0:7];
-
+    logic [FEEDLANE_COUNT-1'b1:0]lanereg_data_valid;//feedlanelerden gelen fifoya yüklenecek verinin geçerli olduğunu gösteren sinyal
+    logic [FEEDLANE_COUNT-1'b1:0]lanereg_ready;//feedlane içeriisind eki laneregin veri kabul etmeye hazır olduğunu gösteren sinyal, hepsi bir olunca başla sinyali vermeyi düşünüyorum 
+    //logic [7:0] laneregs [0:9][0:7];
+    feeder_t laneregs;
     assign startread = start&&(&lanereg_ready); 
     
     always_ff @(posedge clk)begin
@@ -47,21 +52,23 @@ module im2col_feeder(
     .addressvalid(addressvalid)
     );
     
+    logic [4:0]endofregioncount;
     genvar i;
     generate
-        for (i = 0;i<10;i=i+1) begin : feedlane
+        for (i = 0;i<FEEDLANE_COUNT;i=i+1) begin : feedlane
             feed_lane #(.LOCAL_OFFSET(2*i)) lane(
             .clk(clk),
             .rst(rst),
             .infer_done(infer_done),
+            //.fcready(fcready||(endofregioncount != 4'd10)),
             .global_word_offset(global_word_offset),
             .buff_read_data(buff_read_data),
             .buffdata_valid(datavalid),
             .startread(startread),
-            .fifofeeder_ready(fifofeeder_ready && (&fifovalid)),
+            .fifofeeder_ready(fifofeeder_ready && (&lanereg_data_valid)),
             
             .lanereg_ready(lanereg_ready[i]),
-            .fifovalid(fifovalid[i]),//laneregin verisi valid mi yani hazır mı
+            .lanereg_data_valid(lanereg_data_valid[i]),//laneregin verisi valid mi yani hazır mı
             .sendtofifo(laneregs[i])//buraya doğrudan fifofeederı mı bağlasam diye denemeler yaptım şuan araya bu şekilde kablo atıp handshake esnasında fifofeedera almaya karar verdim
             );
         end
@@ -74,13 +81,12 @@ module im2col_feeder(
     } fifofeederstate;
     fifofeederstate feeder_state;
     
-    logic [4:0]endofregioncount;
     
     always_ff @(posedge clk)begin
         if(rst)begin
             //reset işlemleri
             feeder_state <= waitlanes;
-            for (int i = 0; i < 10; i=i+1) begin
+            for (int i = 0; i < FEEDLANE_COUNT; i=i+1) begin
                  sa_word_o[i] <= '0;
             end
             fifofeeder_colcnt <= '0;
@@ -97,10 +103,10 @@ module im2col_feeder(
                 waitlanes:begin
                     fifofeeder_ready <= 1'b1;
                     sawordo_started <= 1'b0;
-                    for (int i = 0; i < 10; i=i+1) begin
+                    for (int i = 0; i < FEEDLANE_COUNT; i=i+1) begin
                         sa_word_o[i] <= '0;
                     end
-                    if(&fifovalid && fifofeeder_ready&&start)begin//valid ready handshake'i
+                    if(&lanereg_data_valid && start)begin//valid ready handshake'i
                         fifofeeder <= laneregs;
                         fifofeeder_ready <= 1'b0;
                         feeder_state <= senddata;
@@ -109,13 +115,24 @@ module im2col_feeder(
                         
                         endofregioncount <= endofregioncount+1'b1;//yeni kısım
                         if(endofregioncount == 4'd10)begin
+//                            if(fcready)begin
                             endofregioncount<= 5'd1;
                             endofregion <= 1'b1;//end of region sinyali yeni feeder verilerinden hemen önce gelip sa da biriken değerleri toparlıyor
+//                            end
+//                            else begin
+////                            fifofeeder <= fifofeeder;
+//                            fifofeeder_ready <= 1'b1;
+//                            feeder_state <=waitlanes;
+//                            fifofeeder_colcnt <= 3'b000;
+//                            sawordo_started <= 1'b0;
+                            
+//                            endofregioncount <= endofregioncount;//yeni kısım
+//                            end
                         end
                     end
                 end
                 senddata:begin
-                    for (int i = 0; i < 10; i=i+1) begin
+                    for (int i = 0; i < FEEDLANE_COUNT; i=i+1) begin
                         sa_word_o[i] <= fifofeeder[i][fifofeeder_colcnt];
                     end
                     if (fifofeeder_colcnt < 3'd7) begin
@@ -141,7 +158,7 @@ module im2col_feeder(
             endcase
             if(infer_done)begin
                 feeder_state <= waitlanes;
-                for (int i = 0; i < 10; i=i+1) begin
+                for (int i = 0; i < FEEDLANE_COUNT; i=i+1) begin
                      sa_word_o[i] <= '0;
                 end
                 fifofeeder_colcnt <= '0;

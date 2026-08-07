@@ -1,10 +1,12 @@
 `timescale 1ns / 1ps
 
-module sa_wrapper(
+module sa_wrapper
+import accelerator_config_pkg::*;
+(
 input logic clk,
 input logic rst,
 input logic infer_done,
-input logic signed [7:0]left_in[0:9],
+input logic signed [7:0] left_in [0:FEEDLANE_COUNT-1],//logic signed [7:0]left_in[0:9],
 input logic signed [7:0]top_in[0:7],
 input logic interestregionfinished,
 output logic signed [31:0] sa_line_outputs[0:7], 
@@ -15,14 +17,7 @@ output logic alloutputsready
     //onun çıktısını da sa ya takarız
     
     
-    logic signed [7:0] solkenarskewed [0:9];
-//    stagger_sa_edge #(.datacount(10)) solkenar_stagger(
-//    .clk(clk),
-//    .rst(rst),
-//    .en_i(1'b1),
-//    .word_i(left_in),
-//    .skew_o(solkenarskewed)
-//    );
+    logic signed [7:0] solkenarskewed [0:FEEDLANE_COUNT-1'b1];
     stagger_sa_edge_10 solkenar_stagger(
     .clk(clk),
     .rst(rst),

@@ -1,7 +1,8 @@
 `timescale 1ns / 1ps
 //TODOS:
-//bu modülde lut azaltmak gerekirse buradaki requantization birimi sayısını 1 e düşürüp sonuçları sırayla requantize edebiliriz,(hatta bu direkt daha iyi sadece 3 .çevrim artıyor)
-module fc_manager(
+module fc_manager
+import accelerator_config_pkg::*; 
+(
 input logic clk,
 input logic rst,
 input logic infer_done,
@@ -10,21 +11,19 @@ input logic [63:0]fc_input_data,
 input logic [3:0]fc_input_data_addr,
 input logic fc_input_data_valid,//!!burada bir handshake mekanizmadı yok şuan zaten fc sıradaki conv penceresinden önce bitmesi gerekiyor diye ilerdeki değişikliklerde dikkat etmek gerekebilir
 ////////
+//output logic fcready,
 output logic signed [7:0]resultvals[0:3],
 output logic done
     );
     //buradan okunacak artık veriler
-    //logic [63:0] fc_inputs [0:9];
-    logic signed [7:0] fc_inputs [0:79];
+    logic pingpongcounter;
+    logic signed [7:0] fc_inputs [0:8*FEEDLANE_COUNT-1'b1];
     always_ff @(posedge clk)begin 
         if(rst)begin 
             fc_inputs <= '{default:'0};
         end
         else begin 
-            if(fc_input_data_valid)begin 
-                //fc_inputs[fc_input_data_addr] <= fc_input_data;
-                ////alttaki çok daha iyi olacak gibi
-                
+            if(fc_input_data_valid)begin//&&pingpongcounter==0
                 fc_inputs[8*fc_input_data_addr]      <= fc_input_data[7:0];
                 fc_inputs[8*fc_input_data_addr+3'd1] <= fc_input_data[15:8];
                 fc_inputs[8*fc_input_data_addr+3'd2] <= fc_input_data[23:16];
@@ -36,13 +35,31 @@ output logic done
             end
         end
     end
+    ///cigibugulee
     
+//    logic signed [7:0] fc_inputs_pong [0:8*FEEDLANE_COUNT-1'b1];
+//    always_ff @(posedge clk)begin 
+//        if(rst)begin 
+//            fc_inputs_pong <= '{default:'0};
+//        end
+//        else begin 
+//            if(fc_input_data_valid&&pingpongcounter==1)begin
+//                fc_inputs_pong[8*fc_input_data_addr]      <= fc_input_data[7:0];
+//                fc_inputs_pong[8*fc_input_data_addr+3'd1] <= fc_input_data[15:8];
+//                fc_inputs_pong[8*fc_input_data_addr+3'd2] <= fc_input_data[23:16];
+//                fc_inputs_pong[8*fc_input_data_addr+3'd3] <= fc_input_data[31:24];
+//                fc_inputs_pong[8*fc_input_data_addr+3'd4] <= fc_input_data[39:32];
+//                fc_inputs_pong[8*fc_input_data_addr+3'd5] <= fc_input_data[47:40];
+//                fc_inputs_pong[8*fc_input_data_addr+3'd6] <= fc_input_data[55:48];
+//                fc_inputs_pong[8*fc_input_data_addr+3'd7] <= fc_input_data[63:56];
+//            end
+//        end
+//    end
     
     logic bitti;
     logic [3:0] outputready;
     logic [8:0] yataykablo[0:4];
     logic [7:0] dikeykablo[0:1][0:3];
-    //logic signed [31:0] outputkablo [0:1][0:3];
     
     logic signed [31:0] outputs[0:3];
     
@@ -75,32 +92,41 @@ output logic done
     endgenerate
     
     logic start_send;
-    logic [6:0] sendcount;
+    logic [8:0] sendcount;
     
     always_ff @(posedge clk)begin//datayı ver
         if(rst)begin
             yataykablo[0] <= '0;       
             start_send <= 1'b0;
-            //bitti <= 1'b0;
             sendcount<= '0;
+//                    fcready <= 1'b01;
+                    pingpongcounter <= 0;
         end
         else begin
             if(basla)begin ///olur gibi
                 start_send <= 1'b1;
+//                    fcready <= 1'b0;
             end
             yataykablo[0] <= '0;                 
-            if(start_send == 1'b1)begin          
+            if(start_send == 1'b1)begin  
                 yataykablo[0] <= fc_inputs[sendcount] + 10'sd128;
+//                if(pingpongcounter==0)begin    
+//                    yataykablo[0] <= fc_inputs[sendcount] + 10'sd128;
+//                end
+//                else begin 
+//                    yataykablo[0] <= fc_inputs_pong[sendcount] + 10'sd128;
+//                end
                 sendcount <= sendcount + 1'b1;   
-                if(sendcount == 7'd79)begin      
+                if(sendcount == 8*FEEDLANE_COUNT-1'b1)begin      
                     sendcount <= '0;             
-                    start_send <= 1'b0;          
+                    start_send <= 1'b0;  
+//                    fcready <= 1'b1;    
+                    pingpongcounter <= ~pingpongcounter;    
                 end                              
             end           
             if(infer_done== 1'b1)begin
                 yataykablo[0] <= '0;    
                 start_send <= 1'b0;
-                //bitti <= 1'b0;
                 sendcount<= '0;
             end                       
         end    
@@ -150,7 +176,7 @@ output logic done
                 stagger1 <= weight_buffer_data[15:8];
                 stagger2[0] <= weight_buffer_data[23:16];
                 stagger3[0] <= weight_buffer_data[31:24];
-                if(sendcount != 7'd79)begin
+                if(sendcount != 8*FEEDLANE_COUNT-1'b1)begin
                     weight_buffer_addr <= weight_buffer_addr + 1'b1;
                 end
                 
@@ -178,23 +204,6 @@ output logic done
         end
     end
     
-//    logic signed [7:0]requantization_outputs[0:3];
-//    logic [3:0]req_output_valid;
-//    genvar j;
-//    generate
-//        for(j = 0; j< 4 ;j = j+1)begin: req_unit
-//            relu_req #(.scale(32'sd1932201080),.shift(6'd42),.zero_point(4'd14)) fc_requantization(
-//                .clk(clk),
-//                .rst(rst),
-               
-//                .input_valid(&outputready),
-                
-//                .data_in(outputs[j]),
-//                .data_out(requantization_outputs[j]),
-//                .output_valid(req_output_valid[j])
-//            );        
-//        end
-//    endgenerate
     logic [31:0] req_input;
     logic [7:0] req_output;
     logic req_o_valid;
@@ -215,6 +224,7 @@ output logic done
         if(rst)begin 
             resultvals <= '{default:'0}; 
             done<=1'b0;  
+            resultvaluecount <= '0;
         end
         else begin
 //            done<=1'b0;

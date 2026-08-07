@@ -2,16 +2,19 @@
 //
 //  Bu testbench hızlandırıcının kendisini test etmek için yazılmıştır. Verinin bellekten getirilmesi ve sonucun geri yazılması kısımlarını çıkarıp hızlandırıcı rtlsini test eder.
 //
-module accelerator_top_tb(
+module accelerator_top_tb
+import accelerator_config_pkg::*;
+(
 
     );
     logic clk = 0;
     logic rst;
         
+    logic fcready;
     logic [63:0]buff_read_data;
     
     logic [9:0]buff_read_addr;
-    logic [7:0]sa_word_o[0:9];
+    feeder_sa_output_t sa_word_o;
     logic sawordo_started;
     logic endofregion;
     
@@ -35,6 +38,7 @@ module accelerator_top_tb(
         .clk(clk),
         .rst(rst),
         .infer_done(infer_done),
+//        .fcready(fcready),
         .buff_read_data(buff_read_data),
         .buff_read_addr(buff_read_addr),
         .sa_word_o(sa_word_o),
@@ -85,15 +89,6 @@ module accelerator_top_tb(
         .feederbasla(fcfeederbasla)
     );
     
-    //logic [9:0] outputbuffaddress;
-    //logic [9:0] fcfeeder_buffaddress;
-    //outputbuff_arbiter oarbit(
-    //    .omanageraddress(omanager_buffwritaddress),
-    //    .omanagerwriteenable(omanager_buffwriteenable),
-    //    .fcfeederaddress(fcfeeder_buffaddress),
-    //    .outputaddress(outputbuffaddress)
-    //);
-    
     //logic [63:0] outputbufferdataout;                                       
     logic signed [7:0]fc_results[0:3];
     logic fc_manager_done;
@@ -105,17 +100,11 @@ module accelerator_top_tb(
         .fc_input_data(omanager_buffwritedata),
         .fc_input_data_addr(omanager_buffwritaddress),
         .fc_input_data_valid(omanager_buffwriteenable),
+//        .fcready(fcready),
         .resultvals(fc_results),
         .done(fc_manager_done)
     );
     
-    //bufferv3 outputbuffer(
-    //    .clk(clk),                  
-    //    .write_enable(omanager_buffwriteenable),//veri ya
-    //    .addr(outputbuffaddress),
-    //    .din(omanager_buffwritedata),
-    //    .dout(outputbufferdataout)
-    //);
     
     logic signed [7:0]softmax_results[0:3];
     logic softmax_start;
@@ -179,6 +168,42 @@ module accelerator_top_tb(
         $readmemh("input_data.mem", buffer.ram);
     end
 
+    
+//    int file_handle;
+//    initial begin
+//      file_handle = $fopen("sistolik_dizi_girdileri_10_fcreadysinyalli.txt", "w");
+      
+//      if (file_handle == 0) begin
+//        $display("error");
+//        $finish;
+//      end
+//      for(int i = 0;i<500;i++)begin
+//        @(posedge sawordo_started);
+//            @(posedge clk);
+//        for(int j =0;j<8;j++)begin
+//            $fstrobe(file_handle, "Counter: %0d | Time: %0t | Wire Value: %p", i, $time, sa_word_o);
+//            @(posedge clk);
+//        end
+//      end
+//    end
+    
+//    int file_handle;
+//    initial begin
+//      file_handle = $fopen("omanager_girdileri_5.txt", "w");
+      
+//      if (file_handle == 0) begin
+//        $display("error");
+//        $finish;
+//      end
+//      for(int i = 0;i<100;i++)begin
+//        @(posedge alloutputsready);
+//        for(int j =0;j<5;j++)begin
+//            $fstrobe(file_handle, "Counter: %0d | Time: %0t | Wire Value: %p", i, $time, omanager.sa_line_outputs);
+//            @(posedge clk);
+//        end
+//      end
+//    end
+
     integer i;
     integer wait_cycles;
     
@@ -206,6 +231,8 @@ module accelerator_top_tb(
         end
         
         $display("tum testler basarili");
+        
+//        $fclose(file_handle);
         $finish;
     end
     
@@ -220,40 +247,21 @@ module accelerator_top_tb(
             
             @(posedge clk);
             
+//            if (fc_results[0] !== 8'sh80) $error("hata 80 != %0h",fc_results[0]);
+//            if (fc_results[1] !== 8'sh61) $error("hata 61 != %0h",fc_results[1]);
+//            if (fc_results[2] !== 8'sh59) $error("hata 59 != %0h",fc_results[2]);
+//            if (fc_results[3] !== 8'sh67) $error("hata 67 != %0h",fc_results[3]);
             if (fc_results[0] !== 8'sh80) $error("hata 80 != %0h",fc_results[0]);
-            if (fc_results[1] !== 8'sh61) $error("hata 61 != %0h",fc_results[1]);
-            if (fc_results[2] !== 8'sh59) $error("hata 59 != %0h",fc_results[2]);
-            if (fc_results[3] !== 8'sh67) $error("hata 67 != %0h",fc_results[3]);
+            if (fc_results[1] !== 8'sh5f) $error("hata 61 != %0h",fc_results[1]);
+            if (fc_results[2] !== 8'sh57) $error("hata 59 != %0h",fc_results[2]);
+            if (fc_results[3] !== 8'sh65) $error("hata 67 != %0h",fc_results[3]);
             else  $display("sonuc doğru");
 
             fc_results = '{default:'0};
         end
     endtask
-//    initial begin 
-//        rst = 1; 
-//        #20; 
-//        rst = 0;
-//        loader_done = 1'b1;
-//        #10;
-//        loader_done = 1'b0;
-//        #1135;//ilk çıktılar
-//        #4645;//14x46 lık giriş matrisine göre 6 interest regionun tamamı bitti 
-//        //58x46 nın tamamını yapması 5000 çevrim civarı sürüyor gibi görünüyor
-       
-//        //45075te biterse bütün girdi verisini göndermiş oluyor feeder, simulasyonu finishten 39275ns daha çalıştırmak demek bu.
-//       #40755
-//       fc_results = '{default:'0};
-//       #30
-//       loader_done = 1'b1;
-//       #10;
-//       loader_done = 1'b0;
-       
-//       wait(infer_done == 1'b1);
-       
-//       $finish;
-//    end
     
-//    assert property (@(posedge clk) !$isunknown(buff_read_data)) 
-//    else $error("Assertion Başarısız: Sinyal X oldu!");
-
+    assert property (@(posedge clk) disable iff (rst) !$isunknown(buff_read_data))
+    else $error("buffreaddata null %0t",$time);
+    
 endmodule

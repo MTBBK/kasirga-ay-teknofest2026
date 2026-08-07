@@ -43,7 +43,6 @@ module stagger_sa_edge #(parameter int datacount = 8
 //            end
 //        end
 //    endgenerate
-    //generate ile parametrik hale getirmeden önceki hali dursun istedim
     
     logic [55:0] buf_q1; //1 çevrim gecikme
     logic [47:0] buf_q2; //2

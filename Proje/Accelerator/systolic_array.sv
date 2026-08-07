@@ -1,30 +1,31 @@
 `timescale 1ns / 1ps
 
-module systolic_array(
+module systolic_array
+import accelerator_config_pkg::*; 
+(
 input logic clk,
 input logic rst,
 input logic infer_done,
-input logic signed [7:0]left_in[0:9],
+input logic signed [7:0]left_in[0:FEEDLANE_COUNT-1'b1],
 input logic signed [7:0]top_in[0:7],
 input logic interestregionfinished,
-//output logic signed [31:0] pe_outputs[0:79] ,
 output logic signed [31:0] sa_line_outputs[0:7],
 output logic alloutputsready
     );
     
-    logic signed [8:0] yataykablo [0:9][0:8];
-    logic signed [7:0] dikeykablo [0:10][0:7];
-    //logic signed [31:0] outputs [0:79];
+    logic signed [8:0] yataykablo [0:FEEDLANE_COUNT-1'b1][0:8];
+    logic signed [7:0] dikeykablo [0:FEEDLANE_COUNT][0:7];
     
-    logic signed [31:0] outputkablo [0:10][0:7];
-    assign outputkablo[10][0] = '0;//en alttan giren kablolar. biz boşalan veriyi üstten alıcaz, alttan sıfırlar girse olur.
-    assign outputkablo[10][1] = '0;
-    assign outputkablo[10][2] = '0;
-    assign outputkablo[10][3] = '0;
-    assign outputkablo[10][4] = '0;
-    assign outputkablo[10][5] = '0;
-    assign outputkablo[10][6] = '0;
-    assign outputkablo[10][7] = '0;
+    logic signed [31:0] outputkablo [0:FEEDLANE_COUNT][0:7];
+    //en alttan giren kablolar. biz boşalan veriyi üstten alıcaz, alttan sıfırlar girse iyi olur.
+    assign outputkablo[FEEDLANE_COUNT][0] = '0;
+    assign outputkablo[FEEDLANE_COUNT][1] = '0;
+    assign outputkablo[FEEDLANE_COUNT][2] = '0;
+    assign outputkablo[FEEDLANE_COUNT][3] = '0;
+    assign outputkablo[FEEDLANE_COUNT][4] = '0;
+    assign outputkablo[FEEDLANE_COUNT][5] = '0;
+    assign outputkablo[FEEDLANE_COUNT][6] = '0;
+    assign outputkablo[FEEDLANE_COUNT][7] = '0;
     assign sa_line_outputs[0] = outputkablo[0][0];
     assign sa_line_outputs[1] = outputkablo[0][1];
     assign sa_line_outputs[2] = outputkablo[0][2];
@@ -34,7 +35,7 @@ output logic alloutputsready
     assign sa_line_outputs[6] = outputkablo[0][6];
     assign sa_line_outputs[7] = outputkablo[0][7];
     
-    logic endofregionkablo[0:10][0:7];
+    logic endofregionkablo[0:FEEDLANE_COUNT][0:7];
     assign endofregionkablo[0][0] = interestregionfinished;
     always_ff @(posedge clk)begin
         if(rst)begin
@@ -51,8 +52,7 @@ output logic alloutputsready
         end
     end
     
-    //assign alloutputsready = endofregionkablo[10][7];
-    logic [3:0] sa_send_outputs_counter; 
+    logic [5:0] sa_send_outputs_counter; //64 feedlane count a kadar yetiyor bit genişliği
     always_ff@(posedge clk)begin 
         if(rst)begin
             alloutputsready<=1'b0;
@@ -63,31 +63,24 @@ output logic alloutputsready
             sa_send_outputs_counter <= '0;
         end
         else begin 
-            if(endofregionkablo[10][7])begin 
+            if(endofregionkablo[FEEDLANE_COUNT][7])begin 
                 alloutputsready<= 1'b1;
             end
             if(alloutputsready)begin 
                 sa_send_outputs_counter <= sa_send_outputs_counter + 1'b1;
-                if(sa_send_outputs_counter == 4'd9)begin 
+                if(sa_send_outputs_counter == FEEDLANE_COUNT-1'b1)begin 
                     alloutputsready <= 1'b0;
                     sa_send_outputs_counter <= '0;
                 end
             end
         end
     end
-    //assign pe_outputs = outputs;
     
-    //bi initial bloğuna almak lazım çok uzun oldu. ~2 ay sonra~ neyse boşver hoş duruyor 
-    assign yataykablo[0][0] = left_in[0] + 10'sd128;
-    assign yataykablo[1][0] = left_in[1] + 10'sd128;
-    assign yataykablo[2][0] = left_in[2] + 10'sd128;
-    assign yataykablo[3][0] = left_in[3] + 10'sd128;
-    assign yataykablo[4][0] = left_in[4] + 10'sd128;
-    assign yataykablo[5][0] = left_in[5] + 10'sd128;
-    assign yataykablo[6][0] = left_in[6] + 10'sd128;
-    assign yataykablo[7][0] = left_in[7] + 10'sd128;
-    assign yataykablo[8][0] = left_in[8] + 10'sd128;
-    assign yataykablo[9][0] = left_in[9] + 10'sd128;
+    generate
+        for(genvar i = 0;i<FEEDLANE_COUNT;i++)begin:yatay_kablo_bagla
+            assign yataykablo[i][0] = left_in[i] + 10'sd128;
+        end
+    endgenerate
     
     assign dikeykablo[0][0] = top_in[0];
     assign dikeykablo[0][1] = top_in[1];
@@ -99,10 +92,10 @@ output logic alloutputsready
     assign dikeykablo[0][7] = top_in[7];
     
     genvar i,j;
-    generate //parametrize edilebilir ama gereksiz yere karmaşık gösteredebilir
-        for (i = 0;i<10;i=i+1) begin : chains
+    generate
+        for (i = 0;i<FEEDLANE_COUNT;i=i+1) begin : chains
             for (j=0;j<8;j=j+1) begin : pe_ss
-                processing_element #(.bias(i+1'b1)) processyapanelement //#(.bias(i+1'b1))bunu ekleyince biaslar oturmalı
+                processing_element #(.bias(j+1'b1)) processyapanelement//i yerine j :((((
                 (.clk(clk),
                 .rst(rst),
                 .infer_done(infer_done),
@@ -113,8 +106,8 @@ output logic alloutputsready
                 .dogu_out(yataykablo[i][j+1]),
                 .guney_out(dikeykablo[i+1][j]),
                 .sendoutputs(alloutputsready),
-                .reserve_in(outputkablo[i+1][j]),//bunlar kendi aralarında bağlanacak artık veri akış kabloları gibi
-                .reserve_out(outputkablo[i][j])//bunlar kendi aralarında bağlanacak artık veri akış kabloları gibi
+                .reserve_in(outputkablo[i+1][j]),
+                .reserve_out(outputkablo[i][j])
                 );
             end
         end

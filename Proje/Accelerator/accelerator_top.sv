@@ -1,6 +1,8 @@
 `timescale 1ns / 1ps
 
-module accelerator_top(
+module accelerator_top
+import accelerator_config_pkg::*;
+(
     input logic clk,
     input logic rst,
     
@@ -29,26 +31,24 @@ module accelerator_top(
     input  logic start_loader,
     output logic accelerator_started,
     output logic accelerator_done,
-    output logic write_done_o,
-    output logic loader_done_o,
-    output logic loader_started_o,
-    output logic infer_done_o,
     
     
     
     output logic interrupt
     );
-   
     logic [63:0]buff_read_data;
     
     logic [9:0]buff_read_addr;
-    logic signed [7:0]sa_word_o[0:9];
+    //feeder_sa_output_t sa_word_o;
+    logic signed[7:0] sa_word_o [0:FEEDLANE_COUNT-1];
     logic sawordo_started;
     logic endofregion;
     
     logic start_accelerator;
     logic infer_done;
     logic loader_done;
+    assign accelerator_started = start_accelerator;
+    assign accelerator_done = infer_done;
     
     always_ff@(posedge clk)begin 
         if(rst)begin
@@ -265,16 +265,9 @@ buffer_byte_en buffer(
 //);
 
 assign interrupt=write_done;
-assign accelerator_started = start_accelerator;
-assign accelerator_done = infer_done;
-assign write_done_o = write_done;   
-assign loader_done_o =loader_done;  
-assign loader_started_o = start_loader;
-assign infer_done_o = infer_done;
-
+   
    
 endmodule
-
 
 
 
