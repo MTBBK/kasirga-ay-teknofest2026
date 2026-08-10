@@ -7,7 +7,7 @@ import subprocess
 # Update the "file" names below if you saved them under different names
 SCRIPTS = {
     "1": {"name": "Audio Web Dashboard", "file": "app.py"},
-    "2": {"name": "Lux Sensor Monitor", "file": "lux_app.py"},
+    "2": {"name": "Lux Sensor Monitor", "file": "i2c_test.py"},
     "3": {"name": "Live Microphone Tester", "file": "model_live_test.py"},
     "4": {"name": "Many WAV File Tester", "file": "run_tests.py"}
 }

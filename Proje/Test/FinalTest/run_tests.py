@@ -16,8 +16,8 @@ import librosa
 from tflite_micro.python.tflite_micro.runtime import Interpreter as PreprocessorInterpreter
 from ai_edge_litert.interpreter import Interpreter as EdgeInterpreter
 
-MAIN_UART_PORT = '/dev/ttyUSB4'
-STREAM_UART_PORT = '/dev/ttyUSB1'
+MAIN_UART_PORT = '/dev/ttyUSB1'
+STREAM_UART_PORT = '/dev/ttyUSB2'
 BAUD_RATE = 921600
 
 PREPROCESSOR_MODEL_PATH = 'ModelFiles/audio_preprocessor_int8.tflite'
@@ -68,27 +68,6 @@ def process_wav_to_features(wav_path, preprocessor):
 
     return data_bytes, features
 
-def dump_all_tensors(interpreter, file_name_prefix, output_dir="katman_cikti"):
-    """Dumps all tensor layers to text files if a mismatch occurs, based on your logic."""
-    os.makedirs(output_dir, exist_ok=True)
-    print(f"\n[DEBUG] Mismatch detected! Saving tensor outputs for {file_name_prefix}...")
-
-    for detail in interpreter.get_tensor_details():
-        tensor_index = detail["index"]
-        tensor_name = detail["name"].replace("/", "_").replace(":", "_")
-
-        try:
-            tensor_data = interpreter.get_tensor(tensor_index)
-            file_name = f"{file_name_prefix}_tensor_{tensor_index:03d}_{tensor_name}"
-            file_path = os.path.join(output_dir, file_name)
-
-            flat_data = tensor_data.flatten()
-            fmt_type = "%d" if np.issubdtype(tensor_data.dtype, np.integer) else "%.6f"
-            np.savetxt(file_path + ".txt", flat_data, fmt=fmt_type)
-
-        except ValueError:
-            pass # Skip tensors that cannot be read directly
-
 def test_fpga_and_software():
     try:
         main_serial = serial.Serial(MAIN_UART_PORT, BAUD_RATE, timeout=0.5)
@@ -120,12 +99,24 @@ def test_fpga_and_software():
         "silence": "0x0000000E"  # 1110 in binary
     }
 
+	# Reverse lookup to convert Hex back to string categories for the Confusion Matrix
+    hex_to_category = {v: k for k, v in categories.items()}
+    pred_categories = list(categories.keys()) + ["INVALID"]
+
+    fpga_cm = {cat: {p: 0 for p in pred_categories} for cat in categories.keys()}
+    sw_cm = {cat: {p: 0 for p in pred_categories} for cat in categories.keys()}
+
     # Tracking FPGA Accuracy, Software Accuracy, and Cumulative Time
     results = {
         cat: {
             "fpga_correct": 0,
+            "fpga_false": 0,
             "sw_correct": 0,
+            "sw_false": 0,
             "mismatches": 0,
+            "mismatch_fpga_true_sw_false": 0,
+            "mismatch_fpga_false_sw_true": 0,
+            "mismatch_both_false": 0,
             "total_files": 0,
             "fpga_time_total_ms": 0.0,
             "fpga_uart_time_total_ms": 0.0,
@@ -228,76 +219,128 @@ def test_fpga_and_software():
             results[category]["fpga_time_total_ms"] += fpga_time_ms
             results[category]["fpga_uart_time_total_ms"] += fpga_uart_time_ms
 
-            # --- 4. COMPARISON & EVALUATION ---
+			# --- 4. COMPARISON & EVALUATION ---
             fpga_pass = (expected_hex == fpga_hex)
             sw_pass   = (expected_hex == sw_hex)
 
+            # Track Correct/False for FPGA
             if fpga_pass: results[category]["fpga_correct"] += 1
+            else:         results[category]["fpga_false"] += 1
+
+            # Track Correct/False for Software
             if sw_pass:   results[category]["sw_correct"] += 1
+            else:         results[category]["sw_false"] += 1
 
             print_str = f"[{'MATCH' if fpga_hex == sw_hex else 'MISMATCH'}] {file_name} | "
             print_str += f"FPGA: {fpga_hex} {'(Pass)' if fpga_pass else '(Fail)'} | "
             print_str += f"SW: {sw_hex} {'(Pass)' if sw_pass else '(Fail)'}"
             print(print_str)
 
-            # If the hardware and software give different answers, dump the layers for debugging
+            # Map hex back to string for confusion matrix tracking
+            fpga_pred_str = hex_to_category.get(fpga_hex, "INVALID")
+            sw_pred_str = hex_to_category.get(sw_hex, "INVALID")
+
+            fpga_cm[category][fpga_pred_str] += 1
+            sw_cm[category][sw_pred_str] += 1
+
+            # If the hardware and software give different answers, categorize the mismatch
             if fpga_hex != sw_hex:
                 results[category]["mismatches"] += 1
-                dump_all_tensors(software_model, file_prefix)
 
-	# --- 5. PRINT FINAL STATISTICS ---
-    print("\n" + "="*50)
-    print("FINAL ACCURACY, COMPARISON & SPEED RESULTS")
-    print("="*50)
+                if fpga_pass and not sw_pass:
+                    results[category]["mismatch_fpga_true_sw_false"] += 1
+                elif not fpga_pass and sw_pass:
+                    results[category]["mismatch_fpga_false_sw_true"] += 1
+                elif not fpga_pass and not sw_pass:
+                    # Both failed, but they gave different wrong answers
+                    results[category]["mismatch_both_false"] += 1
 
+	# --- 5. GENERATE COMPREHENSIVE REPORT ---
     global_total_files = 0
     global_fpga_time = 0.0
-    global_fpga_uart_time = 0.0  # <-- NEW
+    global_fpga_uart_time = 0.0
     global_sw_time = 0.0
 
+    global_fpga_correct = 0
+    global_fpga_false = 0
+    global_sw_correct = 0
+    global_sw_false = 0
+
+    global_mismatches = 0
+    global_mismatch_fpga_t_sw_f = 0
+    global_mismatch_fpga_f_sw_t = 0
+    global_mismatch_both_f = 0
+
     for cat in categories.keys():
-        f_count = results[cat]['fpga_correct']
-        s_count = results[cat]['sw_correct']
-        m_count = results[cat]['mismatches']
-        total_files = results[cat]['total_files']
-
-        if total_files == 0:
-            continue
-
-        global_total_files += total_files
+        global_total_files += results[cat]['total_files']
         global_fpga_time += results[cat]['fpga_time_total_ms']
         global_fpga_uart_time += results[cat]['fpga_uart_time_total_ms']
         global_sw_time += results[cat]['sw_time_total_ms']
 
-        avg_fpga_ms = results[cat]['fpga_time_total_ms'] / total_files
-        avg_fpga_uart_ms = results[cat]['fpga_uart_time_total_ms'] / total_files
-        avg_sw_ms = results[cat]['sw_time_total_ms'] / total_files
-        avg_sw_cycles = results[cat]['sw_cycles_total'] / total_files
+        global_fpga_correct += results[cat]['fpga_correct']
+        global_fpga_false += results[cat]['fpga_false']
+        global_sw_correct += results[cat]['sw_correct']
+        global_sw_false += results[cat]['sw_false']
 
-        speed_multiplier = avg_sw_ms / avg_fpga_ms if avg_fpga_ms > 0 else 0
+        global_mismatches += results[cat]['mismatches']
+        global_mismatch_fpga_t_sw_f += results[cat]['mismatch_fpga_true_sw_false']
+        global_mismatch_fpga_f_sw_t += results[cat]['mismatch_fpga_false_sw_true']
+        global_mismatch_both_f += results[cat]['mismatch_both_false']
 
-        print(f"Directory '{cat}' ({total_files} files):")
-        print(f"  - FPGA Correct Answers : {f_count}")
-        print(f"  - SW Correct Answers   : {s_count}")
-        print(f"  - Total Mismatches     : {m_count}")
-        print(f"  - Avg SW Speed         : {avg_sw_ms:.10f} ms")
-        print(f"  - Avg SW Cycles        : {int(avg_sw_cycles):,} cycles")
-        print(f"  - Avg FPGA (Compute)   : {avg_fpga_ms:.10f} ms")
-        print(f"  - Avg FPGA (+ UART)    : {avg_fpga_uart_ms:.10f} ms")
-        if speed_multiplier > 0:
-            print(f"  - Performance          : FPGA is {speed_multiplier:.10f}x faster\n")
+    if global_total_files == 0:
+        print("No tests were run.")
+        return
 
+    # Calculate Global Averages
+    avg_fpga_ms = global_fpga_time / global_total_files
+    avg_fpga_uart_ms = global_fpga_uart_time / global_total_files
+    avg_sw_ms = global_sw_time / global_total_files
 
-    if global_total_files > 0:
-        overall_avg_fpga = global_fpga_time / global_total_files
-        overall_avg_sw = global_sw_time / global_total_files
-        overall_speedup = overall_avg_sw / overall_avg_fpga if overall_avg_fpga > 0 else 0
+    uart_overhead_ms = avg_fpga_uart_ms - avg_fpga_ms
+    uart_overhead_pct = (uart_overhead_ms / avg_fpga_uart_ms) * 100 if avg_fpga_uart_ms > 0 else 0
 
-        print("-" * 50)
-        print(f"OVERALL SYSTEM ACCELERATION:")
-        print(f"Across {global_total_files} tests, the FPGA accelerator is on average")
-        print(f"{overall_speedup:.10f}x faster than the PC Software Model!")
-        print("-" * 50)
+    fpga_accuracy = (global_fpga_correct / global_total_files) * 100
+    sw_accuracy = (global_sw_correct / global_total_files) * 100
+    hw_sw_equivalence = ((global_total_files - global_mismatches) / global_total_files) * 100
+    overall_speedup = avg_sw_ms / avg_fpga_ms if avg_fpga_ms > 0 else 0
+
+    print("\n" + "="*60)
+    print(" " * 12 + "FPGA AI ACCELERATOR EVALUATION REPORT")
+    print("="*60)
+
+    print("\n### 1. EXECUTION PERFORMANCE (SPEED & LATENCY)")
+    print("-" * 60)
+    print(f"Software Baseline (TFLite) : {avg_sw_ms:.4f} ms per inference")
+    print(f"FPGA Pure Compute Latency  : {avg_fpga_ms:.4f} ms per inference")
+    print(f"FPGA End-to-End Latency    : {avg_fpga_uart_ms:.4f} ms (Includes UART)")
+    print(f"Hardware Acceleration Ratio: {overall_speedup:.2f}x Faster than PC")
+
+    print("\n### 2. ACCURACY & HARDWARE-SOFTWARE EQUIVALENCE")
+    print("-" * 60)
+    print(f"Absolute FPGA Accuracy     : {fpga_accuracy:.2f}%")
+    print(f"  -> Correct: {global_fpga_correct} | False: {global_fpga_false}")
+    print(f"Absolute PC SW Accuracy    : {sw_accuracy:.2f}%")
+    print(f"  -> Correct: {global_sw_correct} | False: {global_sw_false}")
+
+    print(f"\nBit-Accurate Equivalence   : {hw_sw_equivalence:.2f}% ({global_mismatches} Total Mismatches)")
+    print("Mismatch Breakdown:")
+    print(f"  -> FPGA Correct, SW Wrong     : {global_mismatch_fpga_t_sw_f}")
+    print(f"  -> FPGA Wrong, SW Correct     : {global_mismatch_fpga_f_sw_t}")
+    print(f"  -> Both Wrong (Diff Answers)  : {global_mismatch_both_f}")
+
+    print("\nFPGA Confusion Matrix (Expected vs Predicted):")
+    headers = "".join([f"{p[:7]:>9}" for p in pred_categories])
+    print(f"         {headers}")
+    for actual in categories.keys():
+        row_str = "".join([f"{fpga_cm[actual][p]:>9}" for p in pred_categories])
+        print(f"{actual[:7]:>8} |{row_str}")
+
+    print("\n### 3. SYSTEM & COMMUNICATION OVERHEAD")
+    print("-" * 60)
+    print(f"UART I/O Transfer Time     : {uart_overhead_ms:.4f} ms")
+    print(f"I/O Bottleneck Percentage  : {uart_overhead_pct:.1f}% of total End-to-End time")
+
+    print("\n" + "="*60 + "\n")
 
 if __name__ == "__main__":
     test_fpga_and_software()

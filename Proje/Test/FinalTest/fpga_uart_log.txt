@@ -1,8 +1,0 @@
-=== NEW SESSION STARTED ===
-Ready->Sonuç (mikro saniye):96746257
-Hizlandirici cevrim sayisi: 542339777
-Uart_stream cevrim sayisi: 542339667
-Loader cevrim sayisi: 16
-Inference cevrim sayisi: 16
-write_back cevrim sayisi: 18
-Sonuc: 0x0000000B

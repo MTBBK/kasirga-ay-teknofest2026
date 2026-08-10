@@ -15,8 +15,8 @@ warnings.filterwarnings('ignore')
 
 app = Flask(__name__)
 
-MAIN_UART_PORT = '/dev/ttyUSB4'
-STREAM_UART_PORT = '/dev/ttyUSB1'
+MAIN_UART_PORT = '/dev/ttyUSB1'
+STREAM_UART_PORT = '/dev/ttyUSB2'
 BAUD_RATE = 921600
 
 PREPROCESSOR_MODEL_PATH = 'ModelFiles/audio_preprocessor_int8.tflite'

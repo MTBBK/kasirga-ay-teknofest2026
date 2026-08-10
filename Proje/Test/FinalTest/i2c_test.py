@@ -4,7 +4,7 @@ from flask import Flask, jsonify, render_template
 
 app = Flask(__name__)
 
-MAIN_UART_PORT = '/dev/ttyUSB4'
+MAIN_UART_PORT = '/dev/ttyUSB1'
 BAUD_RATE = 921600
 
 print("[SYSTEM] Initializing Lux Sensor Serial Port...")

@@ -12,8 +12,8 @@ warnings.filterwarnings('ignore')
 from tflite_micro.python.tflite_micro.runtime import Interpreter as PreprocessorInterpreter
 from ai_edge_litert.interpreter import Interpreter as EdgeInterpreter
 
-MAIN_UART_PORT = '/dev/ttyUSB4'
-STREAM_UART_PORT = '/dev/ttyUSB1'
+MAIN_UART_PORT = '/dev/ttyUSB1'
+STREAM_UART_PORT = '/dev/ttyUSB2'
 BAUD_RATE = 921600
 LOG_FILE = "fpga_uart_log.txt"
 
