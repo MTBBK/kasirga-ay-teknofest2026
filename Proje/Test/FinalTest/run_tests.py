@@ -16,12 +16,34 @@ import librosa
 from tflite_micro.python.tflite_micro.runtime import Interpreter as PreprocessorInterpreter
 from ai_edge_litert.interpreter import Interpreter as EdgeInterpreter
 
-MAIN_UART_PORT = '/dev/ttyUSB1'
-STREAM_UART_PORT = '/dev/ttyUSB2'
+MAIN_UART_PORT = '/dev/ttyUSB2'
+STREAM_UART_PORT = '/dev/ttyUSB0'
 BAUD_RATE = 921600
 
 PREPROCESSOR_MODEL_PATH = 'ModelFiles/audio_preprocessor_int8.tflite'
 QUANTIZED_MODEL_PATH = 'ModelFiles/micro_speech_quantized.tflite'
+
+
+def get_pc_specs():
+    """Dynamically fetches CPU model, core count, and RAM from the Linux system."""
+    cpu_model = "Unknown CPU"
+    ram_gb = 0.0
+    try:
+        with open("/proc/cpuinfo", "r") as f:
+            for line in f:
+                if "model name" in line:
+                    cpu_model = line.split(":")[1].strip()
+                    break
+        with open("/proc/meminfo", "r") as f:
+            for line in f:
+                if "MemTotal" in line:
+                    # Convert KB to GB
+                    ram_gb = round(int(line.split()[1]) / (1024**2), 1)
+                    break
+    except Exception:
+        pass
+
+    return cpu_model, os.cpu_count(), ram_gb
 
 def process_wav_to_features(wav_path, preprocessor):
     """Processes audio and returns both the bytearray (for FPGA) and the NumPy array (for Software)."""
@@ -121,7 +143,8 @@ def test_fpga_and_software():
             "fpga_time_total_ms": 0.0,
             "fpga_uart_time_total_ms": 0.0,
             "sw_time_total_ms": 0.0,
-            "sw_cycles_total": 0
+            "sw_cycles_total": 0,
+            "fpga_cycles_total": 0
         } for cat in categories.keys()
     }
 
@@ -203,21 +226,28 @@ def test_fpga_and_software():
 			# Timer Start: FPGA (Starts immediately after data finishes sending)
             start_fpga = time.perf_counter()
             fpga_hex = None
+            hw_inference_cycles = 0 # NEW: Variable to hold actual hardware cycles
+
             while True:
                 result_line = main_serial.readline().decode('utf-8', errors='ignore').strip()
 
-                # Make the search tolerant of spaces
+                # Parse the hardware cycles directly from your C code output
+                if "Inference cevrim sayisi:" in result_line:
+                    hw_inference_cycles = int(result_line.split(":")[1].strip())
+
+                # Parse the final hex result
                 if "Sonuc:" in result_line and "0x" in result_line:
                     end_fpga = time.perf_counter()
                     fpga_hex = "0x" + result_line.split("0x")[1].upper()
                     break
 
-            # Calculate and accumulate both times
-            fpga_time_ms = (end_fpga - start_fpga) * 1000
+			# Calculate and accumulate both times
+            fpga_time_ms = (hw_inference_cycles / 50000.0)
             fpga_uart_time_ms = (end_fpga - start_fpga_with_uart) * 1000
 
             results[category]["fpga_time_total_ms"] += fpga_time_ms
             results[category]["fpga_uart_time_total_ms"] += fpga_uart_time_ms
+            results[category]["fpga_cycles_total"] += hw_inference_cycles
 
 			# --- 4. COMPARISON & EVALUATION ---
             fpga_pass = (expected_hex == fpga_hex)
@@ -255,11 +285,13 @@ def test_fpga_and_software():
                     # Both failed, but they gave different wrong answers
                     results[category]["mismatch_both_false"] += 1
 
-	# --- 5. GENERATE COMPREHENSIVE REPORT ---
+# --- 5. GENERATE COMPREHENSIVE REPORT ---
     global_total_files = 0
     global_fpga_time = 0.0
     global_fpga_uart_time = 0.0
     global_sw_time = 0.0
+    global_sw_cycles = 0
+    global_fpga_cycles = 0
 
     global_fpga_correct = 0
     global_fpga_false = 0
@@ -276,6 +308,8 @@ def test_fpga_and_software():
         global_fpga_time += results[cat]['fpga_time_total_ms']
         global_fpga_uart_time += results[cat]['fpga_uart_time_total_ms']
         global_sw_time += results[cat]['sw_time_total_ms']
+        global_sw_cycles += results[cat]['sw_cycles_total']
+        global_fpga_cycles += results[cat]['fpga_cycles_total']
 
         global_fpga_correct += results[cat]['fpga_correct']
         global_fpga_false += results[cat]['fpga_false']
@@ -291,10 +325,20 @@ def test_fpga_and_software():
         print("No tests were run.")
         return
 
-    # Calculate Global Averages
+	# Calculate Global Averages & Throughput
     avg_fpga_ms = global_fpga_time / global_total_files
     avg_fpga_uart_ms = global_fpga_uart_time / global_total_files
     avg_sw_ms = global_sw_time / global_total_files
+
+    avg_sw_cycles = global_sw_cycles / global_total_files
+
+    avg_fpga_cycles = global_fpga_cycles / global_total_files
+
+    # Calculate how many cycles the PC uses compared to the FPGA
+    cycle_ratio = avg_sw_cycles / avg_fpga_cycles if avg_fpga_cycles > 0 else 0
+
+    fpga_ips = 1000.0 / avg_fpga_uart_ms if avg_fpga_uart_ms > 0 else 0
+    sw_ips = 1000.0 / avg_sw_ms if avg_sw_ms > 0 else 0
 
     uart_overhead_ms = avg_fpga_uart_ms - avg_fpga_ms
     uart_overhead_pct = (uart_overhead_ms / avg_fpga_uart_ms) * 100 if avg_fpga_uart_ms > 0 else 0
@@ -308,14 +352,43 @@ def test_fpga_and_software():
     print(" " * 12 + "FPGA AI ACCELERATOR EVALUATION REPORT")
     print("="*60)
 
-    print("\n### 1. EXECUTION PERFORMANCE (SPEED & LATENCY)")
-    print("-" * 60)
-    print(f"Software Baseline (TFLite) : {avg_sw_ms:.4f} ms per inference")
-    print(f"FPGA Pure Compute Latency  : {avg_fpga_ms:.4f} ms per inference")
-    print(f"FPGA End-to-End Latency    : {avg_fpga_uart_ms:.4f} ms (Includes UART)")
-    print(f"Hardware Acceleration Ratio: {overall_speedup:.2f}x Faster than PC")
+    cpu_model, cores, ram_gb = get_pc_specs()
 
-    print("\n### 2. ACCURACY & HARDWARE-SOFTWARE EQUIVALENCE")
+    print("\n0. TEST ENVIRONMENT SPECIFICATIONS")
+    print("-" * 60)
+    print("[Software Node - Work PC]")
+    print(f"  -> CPU : {cpu_model} ({cores} Logical Cores)")
+    print(f"  -> RAM : {ram_gb} GB System Memory")
+    print("[Hardware Node - FPGA]")
+    print(f"  -> FPGA: Digilent Basys 3 (Xilinx Artix-7 XC7A35T)")
+    print(f"  -> BRAM: 225 KB Maximum (1,800 Kbits)")
+    print(f"  -> DSP : 90 Slices Maximum")
+    print(f"  -> Freq: 50 MHz (via Clocking Wizard, System 100 MHz)")
+
+    print("\n1. DATASET & CATEGORY BREAKDOWN")
+    print("-" * 60)
+    print(f"Total Audio Files Processed: {global_total_files}")
+    for cat in categories.keys():
+        tot = results[cat]['total_files']
+        if tot > 0:
+            cat_fpga_acc = (results[cat]['fpga_correct'] / tot) * 100
+            cat_sw_acc = (results[cat]['sw_correct'] / tot) * 100
+            print(f"  -> {cat.capitalize():<8}: {tot:>5} files | FPGA Acc: {cat_fpga_acc:>5.2f}% | SW Acc: {cat_sw_acc:>5.2f}%")
+
+    print("\n2. EXECUTION PERFORMANCE & ARCHITECTURAL EFFICIENCY")
+    print("-" * 60)
+    print(f"Software Baseline (PC)     : {avg_sw_ms:.4f} ms per inference")
+    print(f"  -> PC Cycle Cost         : ~{avg_sw_cycles:,.0f} CPU cycles")
+    print(f"FPGA Pure Compute Latency  : {avg_fpga_ms:.4f} ms per inference")
+    print(f"  -> FPGA Cycle Cost       : {avg_fpga_cycles:,.0f} Clock cycles")
+    print(f"UART I/O Transfer Time     : {uart_overhead_ms:.4f} ms")
+    print(f"I/O Bottleneck Percentage  : {uart_overhead_pct:.1f}% of total End-to-End time")
+    print(f"FPGA End-to-End Latency    : {avg_fpga_uart_ms:.4f} ms ({fpga_ips:.1f} IPS includes UART)")
+    print(f"Raw Time Acceleration      : {overall_speedup:.4f}x Faster than PC")
+    if cycle_ratio > 0:
+        print(f"Architectural Efficiency   : PC requires {cycle_ratio:.2f}x as many clock cycles as FPGA")
+
+    print("\n3. ACCURACY & HARDWARE-SOFTWARE EQUIVALENCE")
     print("-" * 60)
     print(f"Absolute FPGA Accuracy     : {fpga_accuracy:.2f}%")
     print(f"  -> Correct: {global_fpga_correct} | False: {global_fpga_false}")
@@ -330,15 +403,23 @@ def test_fpga_and_software():
 
     print("\nFPGA Confusion Matrix (Expected vs Predicted):")
     headers = "".join([f"{p[:7]:>9}" for p in pred_categories])
-    print(f"         {headers}")
-    for actual in categories.keys():
-        row_str = "".join([f"{fpga_cm[actual][p]:>9}" for p in pred_categories])
-        print(f"{actual[:7]:>8} |{row_str}")
+    # Add a TOTAL column header
+    print(f"         {headers} |   TOTAL")
+    print(f"---------+{'-'*len(headers)}-+--------")
 
-    print("\n### 3. SYSTEM & COMMUNICATION OVERHEAD")
-    print("-" * 60)
-    print(f"UART I/O Transfer Time     : {uart_overhead_ms:.4f} ms")
-    print(f"I/O Bottleneck Percentage  : {uart_overhead_pct:.1f}% of total End-to-End time")
+    # Print each row with its specific total file count
+    for actual in categories.keys():
+        if results[actual]['total_files'] > 0:
+            row_str = "".join([f"{fpga_cm[actual][p]:>9}" for p in pred_categories])
+            tot = results[actual]['total_files']
+            print(f"{actual[:7]:>8} |{row_str} | {tot:>7}")
+
+    # Calculate and print the total number of times the FPGA predicted each category
+    col_totals = {p: sum(fpga_cm[a][p] for a in categories.keys()) for p in pred_categories}
+    col_str = "".join([f"{col_totals[p]:>9}" for p in pred_categories])
+
+    print(f"---------+{'-'*len(headers)}-+--------")
+    print(f" PREDICT |{col_str} | {global_total_files:>7}")
 
     print("\n" + "="*60 + "\n")
 
