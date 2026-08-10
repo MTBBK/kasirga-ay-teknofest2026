@@ -172,12 +172,49 @@ module uart_stream_top #(
             if (rx_clear_trigger) begin
                 uart_cfg[1] <= 1'b0;
             end
-            if (accelerator_started) uart_cfg[6] <= 1'b1;
-            if (accelerator_done )    uart_cfg[7] <= 1'b1;
-            if (write_done_i    ) uart_cfg[8] <= 1'b1;
-            if (loader_done_i   )    uart_cfg[9] <= 1'b1;
-            if (loader_started_i) uart_cfg[10] <= 1'b1;
-            if (infer_done_i     )    uart_cfg[11] <= 1'b1;
+            
+            if (accelerator_started)begin  
+                uart_cfg[6] <= 1'b1; 
+            end
+            else begin 
+                uart_cfg[6] <= 1'b0;
+            end
+            
+            if (accelerator_done )begin
+                uart_cfg[7] <= 1'b1;
+            end
+            else begin 
+                uart_cfg[7] <= 1'b0;
+            end
+            
+            if (write_done_i    )begin  
+                uart_cfg[8] <= 1'b1;           
+            end
+            else begin 
+                uart_cfg[8] <= 1'b0;
+            end
+            
+            if (loader_done_i   )begin    
+                uart_cfg[9] <= 1'b1; 
+            end
+            else begin 
+                uart_cfg[9] <= 1'b0;
+            end
+            
+            if (loader_started_i)begin  
+                uart_cfg[10] <= 1'b1;
+            end
+            else begin 
+                uart_cfg[10] <= 1'b0;
+            end
+            
+            if (infer_done_i     )begin     
+                uart_cfg[11] <= 1'b1; 
+            end
+            else begin 
+                uart_cfg[11] <= 1'b0;
+            end
+            
             if (fsm_tx_dump_done_i) uart_cfg[3] <= 1'b0;
             
             if (fsm_stream_done_i) begin
@@ -253,5 +290,6 @@ module uart_stream_top #(
     assign stream_rx_byte_valid_o = rx_done;
 
 endmodule
+
 
 
