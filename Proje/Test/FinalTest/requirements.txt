@@ -1,0 +1,8 @@
+Flask
+pyserial
+numpy
+librosa
+tflite-micro
+ai-edge-litert
+sounddevice
+hwcounter

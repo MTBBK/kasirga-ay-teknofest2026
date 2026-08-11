@@ -1,7 +1,10 @@
-Sessiz sesleri üretirken kullanılan parametreler (4000 adet):
-- 4 Ses Rengi Frekansı (White, Pink, Brown, Blue)
-- 4 Geçiş (Constant, Fade-in, Fade-out, Pulsing)
-- 5 Çarpıtma Seviyesi (temizden fazla kırpılmışa)
-- 50 Ses Seviyesi (%2'den %100'e)
+Environment'e giriş yapın.
+source .venv/bin/activate
 
-4 * 4 * 5 * 50 = 4000
+Eğer Environment yoksa oluşturun ve gerekli kütüphaneleri yükleyin.
+python3 -m venv .venv
+pip install -r requirements.txt
+
+Ana test betiğini çalıştırın.
+python3 main_test.py
+
