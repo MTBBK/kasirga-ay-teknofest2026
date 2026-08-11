@@ -1,0 +1,137 @@
+# asic/config.yaml
+# TEKNOFEST Cip Tasarim Yarismasi - Kasirga Aquila Tam Sistem Sentezi
+# LibreLane Classic akisi, referans surum 3.0.6
+
+DESIGN_NAME: top
+
+# --- PDK yapilandirmasi (Tablo 3 - zorunlu, degistirilemez) ---
+PDK: sky130A
+STD_CELL_LIBRARY: sky130_fd_sc_hd
+
+# --- RTL kaynaklari ---
+VERILOG_FILES:
+  # 1. Paketler (Her seyden once derlenmeli)
+  - dir::../Core/rtl/include/cv32e40p_apu_core_pkg.sv
+  - dir::../Core/rtl/include/cv32e40p_fpu_pkg.sv
+  - dir::../Core/rtl/include/cv32e40p_pkg.sv
+
+  # 2. CV32E40P Cekirdek Dosyalari
+  - dir::../Core/rtl/cv32e40p_if_stage.sv
+  - dir::../Core/rtl/cv32e40p_cs_registers.sv
+  - dir::../Core/rtl/cv32e40p_register_file_ff.sv
+  - dir::../Core/rtl/cv32e40p_load_store_unit.sv
+  - dir::../Core/rtl/cv32e40p_id_stage.sv
+  - dir::../Core/rtl/cv32e40p_aligner.sv
+  - dir::../Core/rtl/cv32e40p_decoder.sv
+  - dir::../Core/rtl/cv32e40p_compressed_decoder.sv
+  - dir::../Core/rtl/cv32e40p_fifo.sv
+  - dir::../Core/rtl/cv32e40p_prefetch_buffer.sv
+  - dir::../Core/rtl/cv32e40p_hwloop_regs.sv
+  - dir::../Core/rtl/cv32e40p_mult.sv
+  - dir::../Core/rtl/cv32e40p_int_controller.sv
+  - dir::../Core/rtl/cv32e40p_ex_stage.sv
+  - dir::../Core/rtl/cv32e40p_alu_div.sv
+  - dir::../Core/rtl/cv32e40p_alu.sv
+  - dir::../Core/rtl/cv32e40p_ff_one.sv
+  - dir::../Core/rtl/cv32e40p_popcnt.sv
+  - dir::../Core/rtl/cv32e40p_apu_disp.sv
+  - dir::../Core/rtl/cv32e40p_controller.sv
+  - dir::../Core/rtl/cv32e40p_obi_interface.sv
+  - dir::../Core/rtl/cv32e40p_prefetch_controller.sv
+  - dir::../Core/rtl/cv32e40p_sleep_unit.sv
+  - dir::../Core/rtl/cv32e40p_core.sv
+  - dir::../Core/rtl/cv32e40p_top.sv
+  - dir::../Core/cv32e40p_clock_gate.sv
+
+  # 3. Interconnect (Capraz Baglanti) ve AXI Saricilari
+  - dir::../PeripheralModules/xbar.sv
+  - dir::../PeripheralModules/xbar_readonly.sv
+  - dir::../PeripheralModules/obi_to_axi.sv
+  - dir::../PeripheralModules/obi_to_axi_readonly.v
+
+  # 4. Acikca Belirtilen Cevresel Birimler
+  - dir::../PeripheralModules/GPIO/gpio.v
+  - dir::../PeripheralModules/I2C/sources/new/I2C_master.sv
+  - dir::../PeripheralModules/I2C/sources/new/i2c_axi_wrapper.sv
+  - dir::../PeripheralModules/UART_Stream/rtl/uart_stream_to_axi.sv
+  - dir::../PeripheralModules/UART_Stream/rtl/uart_stream_top.sv
+
+  # 5. Klasorlerden Dinamik Cekilenler (Wildcards)
+  - dir::../Accelerator/*.sv
+  - dir::../Accelerator/Softmax/rtl/*.sv
+  - dir::../MemoryModules/*.v
+  - dir::../MemoryModules/*.sv
+  - dir::../PeripheralModules/QSPI/rtl/*.v
+  - dir::../PeripheralModules/QSPI/rtl/*.sv
+  - dir::../PeripheralModules/Timer/rtl/*.v
+  - dir::../PeripheralModules/Timer/rtl/*.sv
+  - dir::../PeripheralModules/UART/rtl/*.v
+  - dir::../PeripheralModules/UART/rtl/*.sv
+  - dir::../PeripheralModules/VGA/*.v
+  - dir::../PeripheralModules/VGA/*.sv
+  
+  # JTAG eger kullanilacaksa aktif edilir
+  # - dir::../PeripheralModules/JTAG/*.sv
+
+  # 6. TODO: OpenRAM ile uretilecek SRAM Makrolarinin Verilog Modelleri
+  # - dir::../SRAM_Macros/sky130_sram_8kbyte_1rw1r_32x2048_8.v
+  # - dir::../SRAM_Macros/sky130_sram_32kbyte_1rw1r_32x8192_8.v
+
+  # 7. Top Modul (En son derlenmeli)
+  - dir::../TopModules/top.sv
+
+VERILOG_INCLUDE_DIRS:
+  - dir::../Core/rtl/include
+  - dir::../Core/rtl/vendor/pulp_platform_common_cells/include
+
+USE_SLANG: true
+
+CLOCK_PORT: clk_i_100mHz
+CLOCK_PERIOD: 20   # 50MHz veya 100MHz hedefinize gore revize edin
+
+PNR_SDC_FILE: dir::constraints/design.sdc
+SIGNOFF_SDC_FILE: dir::constraints/design.sdc
+
+# --- Floorplan / Yerlesim Yogunlugu ---
+FP_SIZING: relative
+FP_CORE_UTIL: 35
+PL_TARGET_DENSITY_PCT: expr::($FP_CORE_UTIL + 10.0)
+
+# --- Resizer (Zamanlama Onarimi) ---
+PL_RESIZER_SETUP_SLACK_MARGIN: 0.5
+PL_RESIZER_SETUP_MAX_BUFFER_PCT: 100
+RUN_POST_GRT_RESIZER_TIMING: true
+GRT_RESIZER_SETUP_SLACK_MARGIN: 0.5
+GRT_RESIZER_SETUP_MAX_BUFFER_PCT: 100
+
+PL_RESIZER_HOLD_SLACK_MARGIN: 0.15
+PL_RESIZER_HOLD_MAX_BUFFER_PCT: 80
+GRT_RESIZER_HOLD_SLACK_MARGIN: 0.15
+GRT_RESIZER_HOLD_MAX_BUFFER_PCT: 80
+
+PL_RESIZER_MAX_SLEW_MARGIN: 20
+PL_RESIZER_MAX_CAP_MARGIN: 20
+
+# --- Sentez (Alan Odakli Stabil Strateji) ---
+SYNTH_STRATEGY: "AREA 0"
+SYNTH_SIZING: false
+MAX_FANOUT_CONSTRAINT: 16
+SYNTH_MAX_FANOUT: 16
+MAX_TRANSITION_CONSTRAINT: 1.0
+
+# --- Saat Agaci (CTS) ---
+CTS_MAX_CAP: 0.15
+CTS_SINK_CLUSTERING_SIZE: 20
+CTS_SINK_CLUSTERING_MAX_DIAMETER: 50
+
+# --- Guc Dagitim Agi (PDN) ---
+VDD_NETS:
+  - vpwr
+GND_NETS:
+  - vgnd
+FP_PDN_ENABLE_GLOBAL_CONNECTIONS: true
+VDD_PIN_VOLTAGE: 1.8
+SYNTH_USE_PG_PINS_DEFINES: "USE_POWER_PINS"
+
+FP_WELLTAP_CELL: sky130_fd_sc_hd__tapvpwrvgnd_1
+FP_ENDCAP_CELL: sky130_fd_sc_hd__decap_3
