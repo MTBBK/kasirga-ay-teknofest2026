@@ -1,6 +1,6 @@
-module instruction_memory_axi #(
-    parameter SIZE = 200,
-    parameter BASE_ADDRESS = 32'h00000000
+module memory_axilite #(
+    parameter SIZE = 8192,
+    parameter BASE_ADDRESS = 32'h00001000
 ) (
 
     input wire clk,
@@ -25,17 +25,14 @@ module instruction_memory_axi #(
 
     output wire RVALID,
     input wire RREADY,
-    output wire [31:0] RDATA,
-    
-    output reg boot_ended
-
+    output wire [31:0] RDATA
 );
 
 assign BRESP = 2'b00;
 
-reg [31:0] memory [(SIZE/4)-1:0];
 
-
+wire [31:0] dout_unused;
+wire [31:0] sram_rdata;
 
 
 reg axi_rready,axi_awready;
@@ -44,7 +41,7 @@ reg axi_bvalid,axi_rvalid;
 
 assign BVALID  = axi_bvalid;
 assign RVALID  = axi_rvalid;
-assign RDATA   = axi_rdata;
+assign RDATA   = sram_rdata;
 assign WREADY  = axi_awready;
 assign AWREADY = axi_awready;
 assign ARREADY = axi_rready;
@@ -56,39 +53,6 @@ wire axi_write_ready,axi_read_ready;
 
 assign axi_write_ready = axi_awready;
 assign axi_read_ready = (ARVALID && ARREADY);
-
-integer i;
-initial begin
-    for (i = 0; i < (SIZE/4); i = i + 1) begin
-       memory[i] = 32'h00000000;
-    end
-end
-always@(posedge clk) begin
-        if(!rst_i)begin
-            boot_ended <= 1'b0;
-        end else 
-            if (axi_write_ready) begin
-                if(correct_write_address == 2047)begin
-                    boot_ended <= 1'b1;
-                end
-                if(WSTRB[0])
-                    memory[correct_write_address][7:0] <= WDATA[7:0];
-                if(WSTRB[1])
-                    memory[correct_write_address][15:8] <= WDATA[15:8];
-                if(WSTRB[2])
-                    memory[correct_write_address][23:16] <= WDATA[23:16];
-                if(WSTRB[3])
-                    memory[correct_write_address][31:24] <= WDATA[31:24];
-        end
-end
-
-always @(posedge clk)begin
-    if(!rst_i)
-        axi_rdata <= 32'b0;
-    if(!ARVALID || RREADY)begin
-        axi_rdata <= memory[correct_read_address];
-    end
-end
 
 initial axi_bvalid = 1'b0;
 always@(posedge clk)begin
@@ -123,5 +87,22 @@ end
 always@(*)begin
     axi_rready = !RVALID;
 end
+
+ sram_macro_wrapper#(.BANK_COUNT(SIZE/2048)) macro(
+    // Port 0: Okuma/Yazma (RW) Portu
+    .clk0(clk),
+    .csb0(~axi_write_ready),      // Active-low Chip Select
+    .web0(~axi_write_ready),      // Active-low Write Enable
+    .wmask0(WSTRB),    // 4-bit Write Mask (Byte enable)
+    .addr0(correct_write_address),     // 11-bit Adres (2048 kelime icin)
+    .din0(WDATA),      // 32-bit Yazilacak Veri
+    .dout0(dout_unused),     // 32-bit Okunan Veri
+
+    // Port 1: Sadece Okuma (R) Portu
+    .clk1(clk),
+    .csb1(~axi_read_ready),      // Active-low Chip Select
+    .addr1(correct_read_address),     // 11-bit Adres (2048 kelime icin)
+    .dout1(sram_rdata)      // 32-bit Okunan Veri
+    );
 
 endmodule

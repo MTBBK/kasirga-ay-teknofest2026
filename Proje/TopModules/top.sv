@@ -454,13 +454,6 @@ module top(
     wire [31:0] r_araddr_slv0, r_rdata_slv0,r_araddr_slv1;
     wire [31:0] r_rdata_slv1;
     
-    wire boot_ended;
-    wire boot_ended_o;
-    logic program_enable;
-    assign program_enable=1'b1;
-    assign boot_ended = program_enable ? 1 : boot_ended_o;
-    assign rvalid_slv0 = r_rvalid_slv1 & !boot_ended;
-    assign arready_slv0 = r_arready_slv1 & !boot_ended;
     
     
     
@@ -1162,7 +1155,7 @@ module top(
     
 
     //Instruction Memory
-    instruction_memory_axi  #(
+        memory_axilite  #(
          .BASE_ADDRESS(32'h0000_1000),
          .SIZE(8192)
         ) instruction_memory (
@@ -1183,8 +1176,7 @@ module top(
         .ARADDR(r_araddr_slv1),
         .RVALID(r_rvalid_slv1),
         .RREADY(r_rready_slv1),
-        .RDATA(r_rdata_slv1),
-        .boot_ended(boot_ended_o)
+        .RDATA(r_rdata_slv1)
     );
     
    //ROM
@@ -1208,8 +1200,9 @@ module top(
     );
     
     //Data Memory
-    memory_axi#(
-        .BASE_ADDRESS(32'h0000_3000)
+    memory_axilite#(
+        .BASE_ADDRESS(32'h0000_3000),
+        .SIZE(8192)
     ) data_memory(
         .clk(clk_i),
         .rst_i(rst_n_i),
@@ -1230,30 +1223,7 @@ module top(
         .BVALID(bvalid_slv1),
         .BREADY(bready_slv1),
         .WVALID(wvalid_slv1),
-        .BRESP(bresp_slv1),
-        
-        // DMA GİRİŞLERİ (INPUT) -> Kesinlikle 0'a bağlanmalı
-        .AWVALID_DMA(1'b0),
-        .AWADDR_DMA(32'd0),
-        .AWLEN_DMA(6'd0),
-        .WVALID_DMA(1'b0),
-        .WDATA_DMA(32'd0),
-        .WSTRB_DMA(4'd0),
-        .WLAST_DMA(1'b0),
-        .ARVALID_DMA(1'b0),
-        .ARADDR_DMA(32'd0),
-        .ARLEN_DMA(5'd0),
-        .BREADY_DMA(1'b0),
-        .RREADY_DMA(1'b0),
-        
-        // DMA ÇIKIŞLARI (OUTPUT) -> Boş kalabilir
-        .AWREADY_DMA(),
-        .WREADY_DMA(),
-        .BVALID_DMA(),
-        .ARREADY_DMA(),
-        .RVALID_DMA(),
-        .RDATA_DMA(),
-        .RLAST_DMA()
+        .BRESP(bresp_slv1)
     );
         
         //Data Memory
@@ -1349,4 +1319,5 @@ module top(
                  
     
 endmodule
+
 

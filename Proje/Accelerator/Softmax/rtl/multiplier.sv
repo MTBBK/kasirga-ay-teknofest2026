@@ -35,10 +35,10 @@ module multiplier(
     output logic [7:0] out_2,
     output logic [7:0] out_3
     );
-    logic [23:0] res_internal_0;
-    logic [23:0] res_internal_1;
-    logic [23:0] res_internal_2;
-    logic [23:0] res_internal_3;
+    (* USE_DSP = "NO" *) logic [23:0] res_internal_0;
+    (* USE_DSP = "NO" *) logic [23:0] res_internal_1;
+    (* USE_DSP = "NO" *) logic [23:0] res_internal_2;
+    (* USE_DSP = "NO" *) logic [23:0] res_internal_3;
     
     assign res_internal_0=in_exp_0*in_rec;
     assign res_internal_1=in_exp_1*in_rec;
@@ -68,3 +68,4 @@ module multiplier(
     end
     
 endmodule
+

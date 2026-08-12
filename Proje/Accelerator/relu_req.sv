@@ -11,7 +11,7 @@ input logic signed [31:0]data_in,
 output logic signed[7:0]data_out,
 output logic output_valid
     );
-    logic signed [63:0] scaled_val;
+    (* USE_DSP = "NO" *)logic signed [63:0] scaled_val;
     logic [31:0] post_relu;
     logic signed[7:0] final_out;
     logic signed[31:0] shifted;
@@ -59,3 +59,4 @@ output logic output_valid
     end
     assign data_out = final_out;
 endmodule
+
