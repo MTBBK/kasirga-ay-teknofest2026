@@ -64,9 +64,7 @@
 ../PeripheralModules/VGA/*.v
 ../PeripheralModules/VGA/*.sv
 
-# --- 6. SRAM Makrolari (Uretildiginde Acilacak) ---
-# ../SRAM_Macros/sky130_sram_8kbyte_1rw1r_32x2048_8.v
-# ../SRAM_Macros/sky130_sram_32kbyte_1rw1r_32x8192_8.v
+
 
 # --- 7. Top Modul ---
 ../TopModules/top.sv

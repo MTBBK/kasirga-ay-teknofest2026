@@ -61,11 +61,8 @@ VERILOG_FILES:
   - dir::../Accelerator/Softmax/rtl/*.sv
   - dir::../MemoryModules/*.v
   - dir::../MemoryModules/*.sv
-  - dir::../PeripheralModules/QSPI/rtl/*.v
   - dir::../PeripheralModules/QSPI/rtl/*.sv
-  - dir::../PeripheralModules/Timer/rtl/*.v
   - dir::../PeripheralModules/Timer/rtl/*.sv
-  - dir::../PeripheralModules/UART/rtl/*.v
   - dir::../PeripheralModules/UART/rtl/*.sv
   - dir::../PeripheralModules/VGA/*.v
   - dir::../PeripheralModules/VGA/*.sv
@@ -78,7 +75,8 @@ VERILOG_FILES:
   # - dir::../SRAM_Macros/sky130_sram_32kbyte_1rw1r_32x8192_8.v
 
   # 7. Top Modul (En son derlenmeli)
-  - dir::../TopModules/top.sv
+  - dir::../TopModules/clock_divider.sv
+  - dir::../TopModules/asic_top.sv
 
 VERILOG_INCLUDE_DIRS:
   - dir::../Core/rtl/include

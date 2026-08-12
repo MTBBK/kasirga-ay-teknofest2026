@@ -239,7 +239,7 @@ initial axi_wready_dma = 1'b0;
 always@(posedge clk) begin
     if(!rst_i) begin
         axi_wready_dma <= 1'b0;
-        write_burst_counter <= 4'b0;
+        write_burst_counter <= 0;
     end
     else if((AWVALID_DMA && AWREADY_DMA) && (!BVALID_DMA && BREADY_DMA) && !axi_wready_dma) begin
         axi_wready_dma <= 1;
