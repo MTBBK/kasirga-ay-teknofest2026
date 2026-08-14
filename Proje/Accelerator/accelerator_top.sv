@@ -1,7 +1,8 @@
 `timescale 1ns / 1ps
 
-module accelerator_top
 import accelerator_config_pkg::*;
+
+module accelerator_top
 (
     input logic clk,
     input logic rst,
@@ -51,8 +52,6 @@ import accelerator_config_pkg::*;
     logic start_accelerator;
     logic infer_done;
     logic loader_done;
-    assign accelerator_started = start_accelerator;
-    assign accelerator_done = infer_done;
     
     always_ff@(posedge clk)begin 
         if(rst)begin
@@ -226,7 +225,7 @@ axi4_dma_loader axi4_dma_loader_inst (
    .loader_din         (loader_din),
    .loader_we          (loader_we),  
    .M_AXI_ARADDR       (M_AXI_ARADDR[31:0]),
-   .M_AXI_ARLEN        (M_AXI_ARLEN[4:0])
+   .M_AXI_ARLEN        (M_AXI_ARLEN[7:0])
    // InOut Ports - Single Bit
    // InOut Ports - Busses
 );

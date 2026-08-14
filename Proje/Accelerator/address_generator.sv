@@ -1,6 +1,8 @@
 `timescale 1ns / 1ps
-module address_generator
+
 import accelerator_config_pkg::*;
+
+module address_generator
 (
 input logic clk,
 input logic rst,

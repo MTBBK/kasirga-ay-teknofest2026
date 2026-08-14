@@ -1,6 +1,8 @@
 `timescale 1ns / 1ps
-module output_manager
+
 import accelerator_config_pkg::*; 
+
+module output_manager
 (
 input logic clk,
 input logic rst,

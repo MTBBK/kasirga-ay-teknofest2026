@@ -17,7 +17,7 @@ module axi4_dma_loader #(
     //to memory axi dma port(axi4 master)
    
     output logic [31:0] M_AXI_ARADDR,
-    output logic [4:0] M_AXI_ARLEN,
+    output logic [7:0] M_AXI_ARLEN,
     output logic M_AXI_ARVALID,
     input  logic M_AXI_ARREADY,
 
@@ -128,7 +128,7 @@ module axi4_dma_loader #(
 
                 PASS2_REQ: begin
                     M_AXI_ARADDR<=BASE_ADDR+(row_idx * REAL_W);
-                    M_AXI_ARLEN<=5'd9; //10 beats (40 bytes per row)
+                    M_AXI_ARLEN<=8'd9; //10 beats (40 bytes per row)
                     M_AXI_ARVALID<=1'b1;
 
                     if (M_AXI_ARREADY && M_AXI_ARVALID) begin

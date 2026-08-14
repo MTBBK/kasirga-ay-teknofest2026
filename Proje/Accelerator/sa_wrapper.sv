@@ -1,7 +1,8 @@
 `timescale 1ns / 1ps
 
-module sa_wrapper
 import accelerator_config_pkg::*;
+
+module sa_wrapper
 (
 input logic clk,
 input logic rst,

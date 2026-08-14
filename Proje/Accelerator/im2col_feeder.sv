@@ -1,7 +1,8 @@
 `timescale 1ns / 1ps
 
-module im2col_feeder
 import accelerator_config_pkg::*;
+
+module im2col_feeder
 (
     input logic clk,
     input logic rst,
@@ -90,7 +91,9 @@ import accelerator_config_pkg::*;
                  sa_word_o[i] <= '0;
             end
             fifofeeder_colcnt <= '0;
-            fifofeeder <= '{default: '0};
+            for (int i = 0; i < FEEDLANE_COUNT; i = i + 1) begin
+                fifofeeder[i] <= '{default: '0};
+            end
             fifofeeder_ready <= 1'b1;
             endofregioncount <= '0;
             endofregion<= 1'b0;
@@ -162,7 +165,9 @@ import accelerator_config_pkg::*;
                      sa_word_o[i] <= '0;
                 end
                 fifofeeder_colcnt <= '0;
-                fifofeeder <= '{default: '0};
+                for (int i = 0; i < FEEDLANE_COUNT; i = i + 1) begin
+                    fifofeeder[i] <= '{default: '0};
+                end
                 fifofeeder_ready <= 1'b1;
                 endofregioncount <= '0;
                 endofregion<= 1'b0;

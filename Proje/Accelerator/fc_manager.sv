@@ -1,7 +1,9 @@
 `timescale 1ns / 1ps
 //TODOS:
-module fc_manager
+
 import accelerator_config_pkg::*; 
+
+module fc_manager
 (
 input logic clk,
 input logic rst,
@@ -70,6 +72,7 @@ output logic done
     
     logic [11:0]weight_buffer_addr;
     logic [31:0]weight_buffer_data;
+    logic [4:0] bitti_stagger;
     
     genvar i;
     generate
@@ -135,7 +138,6 @@ output logic done
     
     //logic we;
     //logic [31:0]din;//!!dikkat
-    logic [4:0] bitti_stagger;
     assign bitti = bitti_stagger[3];
     
     always_ff @(posedge clk)begin//ağırlıkları ver

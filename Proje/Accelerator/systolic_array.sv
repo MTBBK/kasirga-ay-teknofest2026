@@ -1,7 +1,8 @@
 `timescale 1ns / 1ps
 
-module systolic_array
 import accelerator_config_pkg::*; 
+
+module systolic_array
 (
 input logic clk,
 input logic rst,
