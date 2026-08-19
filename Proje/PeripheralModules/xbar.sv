@@ -283,7 +283,7 @@ module xbar(
             else if (awaddr_master[15:12] == 4'h8)   select_slv = 10'b0001000000; // SLAVE 6 (I2C)
             else if (awaddr_master[15:12] == 4'h9)   select_slv = 10'b0010000000; // SLAVE 7 (QSPI)
             else if (awaddr_master[19:12] == 8'h10)  select_slv = 10'b0100000000; // SLAVE 8 (JTAG)
-            else if (awaddr_master[19:12] == 8'h12)  select_slv = 10'b1000000000; // SLAVE 9 (Hizlandirici)
+            else if (awaddr_master[19:12] == 8'h12)  select_slv = 10'b1000000000; // SLAVE 9 (VGA)
             else select_slv = 10'b0;
         end
         else if (arvalid_master) begin
@@ -296,7 +296,7 @@ module xbar(
             else if (araddr_master[15:12] == 4'h8)   select_slv = 10'b0001000000; // SLAVE 6 (I2C)
             else if (araddr_master[15:12] == 4'h9)   select_slv = 10'b0010000000; // SLAVE 7 (QSPI)
             else if (araddr_master[19:12] == 8'h10)  select_slv = 10'b0100000000; // SLAVE 8 (JTAG)
-            else if (araddr_master[19:12] == 8'h12)  select_slv = 10'b1000000000; // SLAVE 9 (Hizlandirici)
+            else if (araddr_master[19:12] == 8'h12)  select_slv = 10'b1000000000; // SLAVE 9 (VGA)
             else select_slv = 10'b0;
         end
         else if (bvalid_slv0 || rvalid_slv0) select_slv = 10'b0000000001;
