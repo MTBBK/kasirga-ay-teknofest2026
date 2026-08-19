@@ -10,14 +10,13 @@ all: asic_run
 
 # ASIC akisini baslatan hedef
 asic_run:
-	rm -rf run
-	mkdir -p run
+	rm -rf run/*
 	librelane config.yaml -j$(CORES) --force-run-dir run
 
 # Temizlik hedefi
 asic_clean:
 	@echo "==> Sentez ciktilari ve loglar temizleniyor..."
-	rm -rf run
+	rm -rf run/*
 	@echo "==> Temizlik tamamlandi."
 
 # Yardim menusu

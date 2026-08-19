@@ -60,7 +60,14 @@ METRIC_MAPPINGS = {
 FILE_MAP = [
     # Format: ("Kaynak Dosya Yolu", "Hedef Ana Klasör", "Hedef Alt Klasör")
     
-    # Raporlar (Reports)
+    #5 Raporlar (Reports)
+    #5.1 Genel Akış Raporları
+    #5.2 Lint Raporları
+    #5.3 Sentez Raporları
+    #5.4 Fiziksel Tasarım Raporları 
+    #5.5 Zamanlama Raporları
+    #5.6 Fiziksel Signoff Raporları
+    #5.7 Güç ve IR Drop Raporları
     ("01-verilator-lint/verilator-lint.log", "reports", "lint"),
     ("02-yosys-synthesis/yosys.stat.rpt", "reports", "synth"),
     ("02-yosys-synthesis/yosys.log", "reports", "synth"),
@@ -70,11 +77,17 @@ FILE_MAP = [
     ("15-openroad-stapostpnr/power.rpt", "reports", "power"),
     ("16-magic-drc/magic.drc.rpt", "reports", "signoff"),
     
-    # Fiziksel ve Tasarım Çıktıları (Results)
+    #6 Fiziksel ve Tasarım Çıktıları (Results)
+    #6.1 Zorunlu Fiziksel Tasarım Görünümleri
     ("final/def/top.def", "results", "def"),
     ("final/gds/top.gds", "results", "gds"),
     ("final/lef/top.lef", "results", "lef"),
+    
+    #6.2 Zorunlu Ek Çıktılar
     ("final/verilog/top_pnr.v", "results", "netlist"),
+    
+    #6.3 Önerilen Ek Çıktılar
+    
     ("final/odb/top.odb", "results", "odb"),
     ("final/sdc/top.sdc", "results", "sdc"),
     #SDF

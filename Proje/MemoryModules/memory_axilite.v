@@ -25,10 +25,12 @@ module memory_axilite #(
 
     output wire RVALID,
     input wire RREADY,
-    output wire [31:0] RDATA
+    output wire [31:0] RDATA,
+    output wire [1:0] RRESP
 );
 
 assign BRESP = 2'b00;
+assign RRESP = 2'b00;
 
 
 wire [31:0] dout_unused;

@@ -22,6 +22,7 @@ module memory_axi #(
     output wire RVALID,
     input wire RREADY,
     output wire [31:0] RDATA,
+    output wire [1:0] RRESP,
     
     // AXI4 DMA
     input  wire AWVALID_DMA,
@@ -42,6 +43,7 @@ module memory_axi #(
     output wire RVALID_DMA,
     input wire RREADY_DMA,
     output wire [31:0] RDATA_DMA,
+    output wire [1:0] RRESP_DMA,
     output reg RLAST_DMA
 );
 

@@ -8,8 +8,10 @@ create_clock -name clk_main -period 10.0 [get_ports clk_i_100mHz]
 # --- 2. Uretilmis (Bolunmus) Saatler (Zorunlu) ---
 # FPGA PLL'i yerine yazacagin RTL saat bolucu register'larina gore yolu guncellemelisin.
 # Ornek: 50 MHz girisi 25 MHz'e bolen bir counter register'i (VGA icin)
-create_generated_clock -name clk_50mhz -source [get_ports clk_i_100mHz] -divide_by 2 [get_pins clk_div/counter_reg[0]/Q]
-create_generated_clock -name clk_25mhz -source [get_ports clk_i_100mHz] -divide_by 4 [get_pins clk_div/counter_reg[1]/Q]]
+create_generated_clock -name clk_50mhz -source [get_ports clk_i_100mHz] -divide_by 2 \
+    [get_pins -of_objects [get_nets clk_50mhz_o] -filter {direction == output}]
+create_generated_clock -name clk_25mhz -source [get_ports clk_i_100mHz] -divide_by 4 \
+    [get_pins -of_objects [get_nets clk_25mhz_o] -filter {direction == output}]
 
 # --- 3. Saat Belirsizlikleri ve Gecisler (Onerilen) ---
 set_clock_uncertainty -setup 0.05 [get_clocks clk_main]

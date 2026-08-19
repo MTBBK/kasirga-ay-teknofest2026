@@ -75,7 +75,11 @@ module sram_macro_wrapper #(
     genvar i;
     generate 
         for(i=0; i<BANK_COUNT; i++) begin 
-            sky130_sram_2kbyte_1rw1r_32x512_8 #(.VERBOSE(0)) sram(
+            sky130_sram_2kbyte_1rw1r_32x512_8 sram(
+                `ifdef USE_POWER_PINS
+                    .vccd1(vpwr), // Connect to the VDD_NET defined in config.yaml
+                    .vssd1(vgnd), // Connect to the GND_NET defined in config.yaml
+                `endif
                 .clk0(clk0),
                 .csb0(csb0_i[i]),
                 .web0(web0),

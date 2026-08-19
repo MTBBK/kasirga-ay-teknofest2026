@@ -78,6 +78,7 @@ VERILOG_FILES:
   - dir::../TopModules/clock_divider.sv
   - dir::../TopModules/asic_top.sv
 
+
 VERILOG_INCLUDE_DIRS:
   - dir::../Core/rtl/include
   - dir::../Core/rtl/vendor/pulp_platform_common_cells/include
@@ -85,7 +86,7 @@ VERILOG_INCLUDE_DIRS:
 USE_SLANG: true
 
 CLOCK_PORT: clk_i_100mHz
-CLOCK_PERIOD: 20   # 50MHz veya 100MHz hedefinize gore revize edin
+CLOCK_PERIOD: 10   # 50MHz veya 100MHz hedefinize gore revize edin
 
 PNR_SDC_FILE: dir::constraints/design.sdc
 SIGNOFF_SDC_FILE: dir::constraints/design.sdc
@@ -111,8 +112,8 @@ PL_RESIZER_MAX_SLEW_MARGIN: 20
 PL_RESIZER_MAX_CAP_MARGIN: 20
 
 # --- Sentez (Alan Odakli Stabil Strateji) ---
-SYNTH_STRATEGY: "AREA 0"
-SYNTH_SIZING: false
+SYNTH_STRATEGY: "DELAY 0"
+SYNTH_SIZING: true
 MAX_FANOUT_CONSTRAINT: 16
 SYNTH_MAX_FANOUT: 16
 MAX_TRANSITION_CONSTRAINT: 1.0
@@ -121,7 +122,8 @@ MAX_TRANSITION_CONSTRAINT: 1.0
 CTS_MAX_CAP: 0.15
 CTS_SINK_CLUSTERING_SIZE: 20
 CTS_SINK_CLUSTERING_MAX_DIAMETER: 50
-
+GRT_OVERFLOW_ITERS: 50
+GRT_ALLOW_CONGESTION: true
 # --- Guc Dagitim Agi (PDN) ---
 VDD_NETS:
   - vpwr
@@ -133,3 +135,39 @@ SYNTH_USE_PG_PINS_DEFINES: "USE_POWER_PINS"
 
 FP_WELLTAP_CELL: sky130_fd_sc_hd__tapvpwrvgnd_1
 FP_ENDCAP_CELL: sky130_fd_sc_hd__decap_3
+
+MACROS:
+  sky130_sram_2kbyte_1rw1r_32x512_8:
+    gds:
+      - dir::../SRAM_Macros/sky130_sram_2kbyte_1rw1r_32x512_8.gds
+    lef:
+      - dir::../SRAM_Macros/sky130_sram_2kbyte_1rw1r_32x512_8.lef
+    nl:
+      - dir::../SRAM_Macros/sky130_sram_2kbyte_1rw1r_32x512_8.v
+    lib:
+      "*":
+        - dir::../SRAM_Macros/sky130_sram_2kbyte_1rw1r_32x512_8_TT_1p8V_25C.lib
+    instances:
+      accelerator_memory.macro.genblk1[0].sram: { location: [150.0, 150.0], orientation: N }
+      accelerator_memory.macro.genblk1[1].sram: { location: [990.0, 150.0], orientation: N }
+      accelerator_memory.macro.genblk1[2].sram: { location: [1830.0, 150.0], orientation: N }
+      accelerator_memory.macro.genblk1[3].sram: { location: [2670.0, 150.0], orientation: N }
+      accelerator_memory.macro.genblk1[4].sram: { location: [3510.0, 150.0], orientation: N }
+      accelerator_memory.macro.genblk1[5].sram: { location: [150.0, 990.0], orientation: N }
+      accelerator_memory.macro.genblk1[6].sram: { location: [990.0, 990.0], orientation: N }
+      accelerator_memory.macro.genblk1[7].sram: { location: [1830.0, 990.0], orientation: N }
+      accelerator_memory.macro.genblk1[8].sram: { location: [2670.0, 990.0], orientation: N }
+      accelerator_memory.macro.genblk1[9].sram: { location: [3510.0, 990.0], orientation: N }
+      accelerator_memory.macro.genblk1[10].sram: { location: [150.0, 1830.0], orientation: N }
+      accelerator_memory.macro.genblk1[11].sram: { location: [990.0, 1830.0], orientation: N }
+      accelerator_memory.macro.genblk1[12].sram: { location: [1830.0, 1830.0], orientation: N }
+      accelerator_memory.macro.genblk1[13].sram: { location: [2670.0, 1830.0], orientation: N }
+      accelerator_memory.macro.genblk1[14].sram: { location: [3510.0, 1830.0], orientation: N }
+      data_memory.macro.genblk1[0].sram: { location: [150.0, 2670.0], orientation: N }
+      data_memory.macro.genblk1[1].sram: { location: [990.0, 2670.0], orientation: N }
+      data_memory.macro.genblk1[2].sram: { location: [1830.0, 2670.0], orientation: N }
+      data_memory.macro.genblk1[3].sram: { location: [2670.0, 2670.0], orientation: N }
+      instruction_memory.macro.genblk1[0].sram: { location: [3510.0, 2670.0], orientation: N }
+      instruction_memory.macro.genblk1[1].sram: { location: [150.0, 3510.0], orientation: N }
+      instruction_memory.macro.genblk1[2].sram: { location: [990.0, 3510.0], orientation: N }
+      instruction_memory.macro.genblk1[3].sram: { location: [1830.0, 3510.0], orientation: N }

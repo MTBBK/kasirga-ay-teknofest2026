@@ -10,7 +10,9 @@ module i2c_axi_wrapper #(
     // I2C Fiziksel Arayüzü
     output wire o_scl,
 
-    inout  wire sda,
+    input  wire sda_i,
+    output  wire sda_o,
+    output  wire sda_oe,
 
     // Kesme Çýkýþý (Rapordaki isterlere göre eklendi)
     output wire o_intr,
@@ -67,7 +69,7 @@ module i2c_axi_wrapper #(
     // SDA — Open-Drain IOBUF
     // Sadece oe=1 ve out=0 iken hattı 0'a çek, diğer her durumda Hi-Z
     // ----------------------------------------------------------------
-    wire sda_out_internal;
+    /*wire sda_out_internal;
     wire sda_oe_internal;
     wire sda_in_internal;
 
@@ -78,7 +80,7 @@ module i2c_axi_wrapper #(
         .I  (1'b0),           // open-drain: sadece 0 sürebiliriz
         .O  (sda_in_internal),
         .T  (~sda_drive_en)   // T=1 → Hi-Z, T=0 → 0 sür
-    );
+    );*/
 
     // AXI Atamalarý
     assign BVALID  = axi_bvalid;
@@ -114,9 +116,9 @@ module i2c_axi_wrapper #(
         .o_busy(core_busy),
         .o_error(o_error),
         .o_scl(o_scl),
-        .o_sda_out(sda_out_internal),
-        .o_sda_oe(sda_oe_internal),
-        .i_sda_in(sda_in_internal)
+        .o_sda_out(sda_o),
+        .o_sda_oe(sda_oe),
+        .i_sda_in(sda_i)
     );
     
 

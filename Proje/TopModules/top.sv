@@ -601,11 +601,16 @@ module top(
     //Peripheral Modules
 
 //    //I2C 
+    logic sda_i;
+    logic sda_o;
+    logic sda_oe;
     i2c_axi_wrapper i2c_top_inst(
-        .clk(clk_i),
+        .clk(clk_50mhz_o),
         .rst_n(rst_n_i),
         .o_scl(scl_o),
-        .sda(sda_io),
+        .sda_i(sda_i),
+        .sda_o(sda_o),
+        .sda_oe(sda_oe),
         .o_intr(),
         .AWVALID(awvalid_slv6), .AWREADY(awready_slv6), .AWADDR(awaddr_slv6),
         .WDATA(wdata_slv6),     .WSTRB(wstrb_slv6),     .WVALID(wvalid_slv6), .WREADY(wready_slv6) ,
@@ -613,20 +618,24 @@ module top(
         .ARVALID(arvalid_slv6), .ARREADY(arready_slv6), .ARADDR(araddr_slv6),
         .RVALID(rvalid_slv6),   .RREADY(rready_slv6),   .RDATA(rdata_slv6), .RRESP(rresp_slv6)
     );
+    assign sda_io=sda_oe?sda_o:1'bz;
+    assign sda_i=sda_io;
 
-    //QSPI
-    qspi_top qspi_top_inst( .S_AXI_ACLK(clk_i),
+    logic [3:0] qspi_data_i;
+    logic [3:0] qspi_data_o;
+    logic [3:0] qspi_data_oe;
+    assign qspi_io_0=qspi_data_oe[0] ? qspi_data_o[0] : 1'bz;
+    assign qspi_io_1=qspi_data_oe[1] ? qspi_data_o[1] : 1'bz;
+    assign qspi_io_2=qspi_data_oe[2] ? qspi_data_o[2] : 1'bz;
+    assign qspi_io_3=qspi_data_oe[3] ? qspi_data_o[3] : 1'bz;
+    assign qspi_data_i ={qspi_io_3,qspi_io_2,qspi_io_1,qspi_io_0};
+    qspi_axi_wrapper qspi_top_inst( .S_AXI_ACLK(clk_50mhz_o),
                             .S_AXI_ARESETN(rst_n_i),
-                            `ifdef SYNTHESIS
-                            .sclk(sclk_internal),
-                            `else
                             .sclk(sclk_o),
-                            `endif 
                             .cs(cs_o),
-                            .qspi_io_0(qspi_io_0),
-                            .qspi_io_1(qspi_io_1),
-                            .qspi_io_2(qspi_io_2),
-                            .qspi_io_3(qspi_io_3),
+                            .qspi_data_o(qspi_data_o),
+                            .qspi_data_i(qspi_data_i),
+                            .qspi_data_oe(qspi_data_oe),
                             .S_AXI_AWVALID(awvalid_slv7), .S_AXI_AWREADY(awready_slv7), .S_AXI_AWADDR(awaddr_slv7),
                             .S_AXI_WDATA(wdata_slv7),     .S_AXI_WSTRB(wstrb_slv7), .S_AXI_WVALID(wvalid_slv7), .S_AXI_WREADY(wready_slv7) ,
                             .S_AXI_BVALID(bvalid_slv7),   .S_AXI_BREADY(bready_slv7), .S_AXI_BRESP(bresp_slv7),

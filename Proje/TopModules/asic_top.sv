@@ -26,11 +26,6 @@ module top(
     // Clock Pin for default clock
     input logic clk_i_100mHz,
     
-    // Clock Pins for P and N
-    /*
-    input logic sysclk_p,
-    input logic sysclk_n,
-    */
     output logic [15:0] gpio_o,
     input logic [15:0] gpio_i,
     input logic rst_i,
@@ -66,13 +61,14 @@ module top(
 `endif
 
     );
-
+    (* keep *) logic clk_50mhz_o;
+    (* keep *) logic clk_25mhz_o;
     logic sclk_internal;
     clock_divider clk_div(
         .clk_100mhz_i(clk_i_100mHz),
         .rst_n_i(~rst_i),
-        .clk_50mhz_o(clk_i),
-        .clk_25mhz_o(clk_25)
+        .clk_50mhz_o(clk_50mhz_o),
+        .clk_25mhz_o(clk_25mhz_o)
 
     );
 
@@ -420,7 +416,7 @@ module top(
     logic sleep_en;
     logic held_interrupt;
     logic irq_ack;
-    always_ff@(posedge clk_i)begin 
+    always_ff@(posedge clk_50mhz_o)begin 
         if(!rst_n_i)begin
             held_interrupt<=0;
         end
@@ -441,7 +437,9 @@ module top(
     wire r_arvalid_slv0,r_arready_slv0,r_rvalid_slv0,r_rready_slv0,r_arvalid_slv1,r_arready_slv1,r_rvalid_slv1,r_rready_slv1;
     wire [31:0] r_araddr_slv0, r_rdata_slv0,r_araddr_slv1;
     wire [31:0] r_rdata_slv1;
-    
+    assign rdata_slv0=32'd0;
+    assign arready_slv0=0;
+    assign rvalid_slv0=0;
     
     
     
@@ -460,7 +458,7 @@ module top(
 ) u_core (
     // Clock and reset
     .rst_ni                   (rst_n_i),
-    .clk_i                    (clk_i),
+    .clk_i                    (clk_50mhz_o),
     .scan_cg_en_i             (1'b0),
 
     // Special control signals
@@ -523,7 +521,7 @@ module top(
         .DBG_BASE (DBG_BASE_ADDR),
         .DBG_MASK (DBG_ADDR_MASK)
     ) u_instr_dbg_demux (
-        .clk_i         (clk_i),
+        .clk_i         (clk_50mhz_o),
         .rst_ni        (rst_n_i),
 
         .core_req_i    (obi_req_instr_i),
@@ -552,7 +550,7 @@ module top(
         .IdcodeValue   (32'h249511C3),
         .DmBaseAddress (DBG_BASE_ADDR)
     ) u_dm_jtag_subsystem (
-        .clk_i     (clk_i),
+        .clk_i     (clk_50mhz_o),
         .rst_ni    (rst_n_i),
 
         .jtag_tck_i   (jtag_tck_i),
@@ -589,11 +587,16 @@ module top(
     //Peripheral Modules
 
 //    //I2C 
+    logic sda_i;
+    logic sda_o;
+    logic sda_oe;
     i2c_axi_wrapper i2c_top_inst(
-        .clk(clk_i),
+        .clk(clk_50mhz_o),
         .rst_n(rst_n_i),
         .o_scl(scl_o),
-        .sda(sda_io),
+        .sda_i(sda_i),
+        .sda_o(sda_o),
+        .sda_oe(sda_oe),
         .o_intr(),
         .AWVALID(awvalid_slv6), .AWREADY(awready_slv6), .AWADDR(awaddr_slv6),
         .WDATA(wdata_slv6),     .WSTRB(wstrb_slv6),     .WVALID(wvalid_slv6), .WREADY(wready_slv6) ,
@@ -601,20 +604,24 @@ module top(
         .ARVALID(arvalid_slv6), .ARREADY(arready_slv6), .ARADDR(araddr_slv6),
         .RVALID(rvalid_slv6),   .RREADY(rready_slv6),   .RDATA(rdata_slv6), .RRESP(rresp_slv6)
     );
+    assign sda_io=sda_oe?sda_o:1'bz;
+    assign sda_i=sda_io;
 
-    //QSPI
-    qspi_top qspi_top_inst( .S_AXI_ACLK(clk_i),
+    logic [3:0] qspi_data_i;
+    logic [3:0] qspi_data_o;
+    logic [3:0] qspi_data_oe;
+    assign qspi_io_0=qspi_data_oe[0] ? qspi_data_o[0] : 1'bz;
+    assign qspi_io_1=qspi_data_oe[1] ? qspi_data_o[1] : 1'bz;
+    assign qspi_io_2=qspi_data_oe[2] ? qspi_data_o[2] : 1'bz;
+    assign qspi_io_3=qspi_data_oe[3] ? qspi_data_o[3] : 1'bz;
+    assign qspi_data_i ={qspi_io_3,qspi_io_2,qspi_io_1,qspi_io_0};
+    qspi_axi_wrapper qspi_top_inst( .S_AXI_ACLK(clk_50mhz_o),
                             .S_AXI_ARESETN(rst_n_i),
-                            `ifdef SYNTHESIS
-                            .sclk(sclk_internal),
-                            `else
                             .sclk(sclk_o),
-                            `endif 
                             .cs(cs_o),
-                            .qspi_io_0(qspi_io_0),
-                            .qspi_io_1(qspi_io_1),
-                            .qspi_io_2(qspi_io_2),
-                            .qspi_io_3(qspi_io_3),
+                            .qspi_data_o(qspi_data_o),
+                            .qspi_data_i(qspi_data_i),
+                            .qspi_data_oe(qspi_data_oe),
                             .S_AXI_AWVALID(awvalid_slv7), .S_AXI_AWREADY(awready_slv7), .S_AXI_AWADDR(awaddr_slv7),
                             .S_AXI_WDATA(wdata_slv7),     .S_AXI_WSTRB(wstrb_slv7), .S_AXI_WVALID(wvalid_slv7), .S_AXI_WREADY(wready_slv7) ,
                             .S_AXI_BVALID(bvalid_slv7),   .S_AXI_BREADY(bready_slv7), .S_AXI_BRESP(bresp_slv7),
@@ -624,7 +631,7 @@ module top(
     );
 
     //Timer
-    timer_top timer_top_inst(.clk(clk_i),
+    timer_top timer_top_inst(.clk(clk_50mhz_o),
                              .rst_i(rst_n_i),
                              .AWVALID(awvalid_slv3), .AWREADY(awready_slv3), .AWADDR(awaddr_slv3),
                              .WDATA(wdata_slv3),     .WSTRB(wstrb_slv3),     .WVALID(wvalid_slv3), .WREADY(wready_slv3) ,
@@ -636,7 +643,7 @@ module top(
     );
 
     //GPIO
-    gpio gpio_top_inst(.clk(clk_i),
+    gpio gpio_top_inst(.clk(clk_50mhz_o),
                        .rst_i(rst_n_i),
                        .output_pins(gpio_o),
                        .input_pins(gpio_i),
@@ -650,7 +657,7 @@ module top(
 
     //UART
     uart_top #(.baud_rate(uart_baud_rate),.clock_frequency(clk_freq_Mhz)) uart_top_inst(   
-              .S_AXI_ACLK(clk_i),     
+              .S_AXI_ACLK(clk_50mhz_o),     
               .S_AXI_ARESETN(rst_n_i), 
               .uart_rx_i(uart_rx_i),
               .uart_tx_o(uart_tx_o),
@@ -707,7 +714,7 @@ module top(
     logic accelerator_done;
     logic accelerator_started;
     uart_stream_top #(.baud_rate(uart_baud_rate),.clock_frequency(clk_freq_Mhz)) uart_stream_inst(   
-              .S_AXI_ACLK(clk_i),     
+              .S_AXI_ACLK(clk_50mhz_o),     
               .S_AXI_ARESETN(rst_n_i), 
               .uart_rx_i(uart_stream_rx_i),
               .uart_tx_o(uart_stream_tx_o),
@@ -741,7 +748,7 @@ module top(
 
     
     uart_stream_to_axi uart_to_axi(
-        .clk_i(clk_i),             
+        .clk_i(clk_50mhz_o),             
         .rst_n_i(rst_n_i),           
                                               
         .rx_byte_i(stream_rx_byte_o),         
@@ -812,7 +819,7 @@ module top(
      
            
     accelerator_top accelerator_top_inst (
-       .clk(clk_i),
+       .clk(clk_50mhz_o),
        .rst(!rst_n_i),          
        .M_AXI_ARADDR        (dma_araddr ), 
        .M_AXI_ARLEN         (dma_arlen  ),  
@@ -843,12 +850,12 @@ module top(
     
     logic [11:0] vga_rgb_o;
     vga_axi_wrapper vga(
-        .S_AXI_ACLK(clk_i),     
+        .S_AXI_ACLK(clk_50mhz_o),     
               .S_AXI_ARESETN(rst_n_i), 
               .vga_h_sync_o(vga_h_sync_o),
               .vga_v_sync_o(vga_v_sync_o),
               .vga_rgb_o(vga_rgb_o),
-              .clk_25(clk_25),
+              .clk_25(clk_25mhz_o),
               .S_AXI_AWVALID(awvalid_slv9), .S_AXI_AWREADY(awready_slv9), .S_AXI_AWADDR(awaddr_slv9),
               .S_AXI_WDATA(wdata_slv9),     .S_AXI_WSTRB(wstrb_slv9), .S_AXI_WVALID(wvalid_slv9), .S_AXI_WREADY(wready_slv9) ,
               .S_AXI_BVALID(bvalid_slv9),   .S_AXI_BREADY(bready_slv9), .S_AXI_BRESP(bresp_slv9),
@@ -895,13 +902,13 @@ module top(
             .bready_slv0(bready_slv0),
             .bresp_slv0(bresp_slv0),
             //read is done from r/o xbar
-            .arvalid_slv0(),
-            .arready_slv0(),
-            .araddr_slv0(),
-            .rvalid_slv0(),
-            .rready_slv0(),
-            .rresp_slv0(),
-            .rdata_slv0(),
+            .arvalid_slv0(arvalid_slv0),
+            .arready_slv0(arready_slv0),
+            .araddr_slv0(araddr_slv0),
+            .rvalid_slv0(rvalid_slv0),
+            .rready_slv0(rready_slv0),
+            .rresp_slv0(rresp_slv0),
+            .rdata_slv0(rdata_slv0),
             
             .awvalid_slv1(awvalid_slv1),
             .awready_slv1(awready_slv1),
@@ -1112,7 +1119,7 @@ module top(
     
     //R/W obi-to-axi
     obi_to_axi obi_to_axi_data(
-    .clk(clk_i),
+    .clk(clk_50mhz_o),
     .rst_n(rst_n_i),
     .obi_req_i(obi_req_data),
     .obi_gnt_o(obi_gnt_data),
@@ -1147,7 +1154,7 @@ module top(
          .BASE_ADDRESS(32'h0000_1000),
          .SIZE(8192)
         ) instruction_memory (
-        .clk(clk_i),
+        .clk(clk_50mhz_o),
         .rst_i(rst_n_i),
         .AWVALID(awvalid_slv0),
         .AWREADY(awready_slv0),
@@ -1164,7 +1171,8 @@ module top(
         .ARADDR(r_araddr_slv1),
         .RVALID(r_rvalid_slv1),
         .RREADY(r_rready_slv1),
-        .RDATA(r_rdata_slv1)
+        .RDATA(r_rdata_slv1),
+        .RRESP(rresp_slv0)
     );
     
    //ROM
@@ -1177,7 +1185,7 @@ module top(
         `endif
         .BASE_ADDRESS(32'h0000_0000)
     ) ROM (
-        .clk(clk_i),
+        .clk(clk_50mhz_o),
         .rst_i(rst_n_i),
         .ARVALID(r_arvalid_slv0),
         .ARREADY(r_arready_slv0),
@@ -1192,7 +1200,7 @@ module top(
         .BASE_ADDRESS(32'h0000_3000),
         .SIZE(8192)
     ) data_memory(
-        .clk(clk_i),
+        .clk(clk_50mhz_o),
         .rst_i(rst_n_i),
         
         // AXI-Lite (İşlemci Tarafı)
@@ -1211,15 +1219,16 @@ module top(
         .BVALID(bvalid_slv1),
         .BREADY(bready_slv1),
         .WVALID(wvalid_slv1),
-        .BRESP(bresp_slv1)
+        .BRESP(bresp_slv1),
+        .RRESP(rresp_slv1)
     );
-        
+        wire dma_rresp;
         //Data Memory
     memory_axi#(
         .BASE_ADDRESS(32'h0000_12000),
         .SIZE(30720)
         ) accelerator_memory(
-        .clk(clk_i),
+        .clk(clk_50mhz_o),
         .rst_i(rst_n_i),
         
         .AWADDR(uart_to_axi_AWADDR),  
@@ -1241,7 +1250,8 @@ module top(
                                       
         .RDATA(uart_to_axi_RDATA),      
         .RVALID(uart_to_axi_RVALID),  
-        .RREADY(uart_to_axi_RREADY),  
+        .RREADY(uart_to_axi_RREADY),
+        .RRESP(uart_to_axi_RRESP),
         
         .AWVALID_DMA(dma_awvalid),     
         .AWREADY_DMA(dma_awready),
@@ -1258,6 +1268,7 @@ module top(
         .RVALID_DMA(dma_rvalid),
         .RREADY_DMA(dma_rready),
         .RDATA_DMA(dma_rdata),
+        .RRESP_DMA(dma_rresp),
         
         .ARLEN_DMA(dma_arlen),
         .RLAST_DMA(dma_rlast),

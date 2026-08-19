@@ -1,3 +1,4 @@
+(* keep_hierarchy = "yes" *)
 module clock_divider (
     input  logic clk_100mhz_i,
     input  logic rst_n_i,
