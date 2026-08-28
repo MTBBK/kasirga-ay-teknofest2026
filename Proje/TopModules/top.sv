@@ -59,14 +59,15 @@ module top(
     inout wire      qspi_io_2,
     inout wire      qspi_io_3
     
-`ifdef ENABLE_JTAG
-    ,
-    input  logic jtag_tck_i,
-    input  logic jtag_tms_i,
-    input  logic jtag_trst_ni,
-    input  logic jtag_tdi_i,
-    output logic jtag_tdo_o
-`endif
+    
+//`ifdef ENABLE_JTAG
+//    ,
+//    input  logic jtag_tck_i,
+//    input  logic jtag_tms_i,
+//    input  logic jtag_trst_ni,
+//    input  logic jtag_tdi_i,
+//    output logic jtag_tdo_o
+//`endif
 
     );
     logic locked;
@@ -567,11 +568,11 @@ module top(
         .clk_i     (clk_i),
         .rst_ni    (rst_n_i),
 
-        .jtag_tck_i   (jtag_tck_i),
-        .jtag_tms_i   (jtag_tms_i),
-        .jtag_trst_ni (jtag_trst_ni),
-        .jtag_tdi_i   (jtag_tdi_i),
-        .jtag_tdo_o   (jtag_tdo_o),
+        .jtag_tck_i   (1'b0),
+        .jtag_tms_i   (1'b0),
+        .jtag_trst_ni (1'b1),
+        .jtag_tdi_i   (1'b0),
+        .jtag_tdo_o   (),
 
         .debug_req_o          (dbg_req_from_jtag),
         .dm_halt_addr_o       (dbg_halt_addr_from_jtag),
