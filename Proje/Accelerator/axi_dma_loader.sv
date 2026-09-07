@@ -15,7 +15,7 @@ module axi4_dma_loader #(
     input  logic rst,
 
     //to memory axi dma port(axi4 master)
-   
+
     output logic [31:0] M_AXI_ARADDR,
     output logic [7:0] M_AXI_ARLEN,
     output logic M_AXI_ARVALID,
@@ -25,15 +25,15 @@ module axi4_dma_loader #(
     input  logic M_AXI_RLAST,
     input  logic M_AXI_RVALID,
     output logic M_AXI_RREADY,
-    
-    //to local buffer 
-    
+
+    //to local buffer
+
     output logic [7:0] loader_we,
     output logic [9:0] loader_addr,
     output logic [63:0] loader_din,
 
     //control interface (from config slave)
-    
+
     input  logic start_loader,
     output logic loader_done
 );
@@ -45,55 +45,114 @@ module axi4_dma_loader #(
     logic [63:0] PADDING_BLOCK;
     assign PADDING_BLOCK = {8{PAD_VAL}};
 
-    typedef enum logic [2:0] {
-        IDLE, 
-        PASS1_PAD, 
-        PASS2_REQ, 
-        PASS2_READ, 
-        PASS2_STRADDLE, 
+    //padding geometry
+    localparam int GAP_LEN=PADDED_W-REAL_W;//right-pad(r)+left-pad(r+1), contiguous
+
+    localparam int TOP_WORDS=(PAD_TOP*PADDED_W)/8;//full words fully inside the top pad rows
+
+    localparam int TOTAL_WORDS=(PADDED_W*PADDED_H+7)/8;//words needed for the whole grid
+
+    localparam int FINAL_START=(REAL_H-1+PAD_TOP)*PADDED_W+PAD_LEFT+REAL_W;//right-pad start of last row
+
+    localparam int BOTTOM_START_WORD = FINAL_START/8 + 1;// first word fully inside bottom pad rows
+
+    typedef enum logic [3:0] {
+        IDLE,
+        TOP_PAD,
+        PAD_A,
+        PAD_B,
+        PASS2_REQ,
+        PASS2_READ,
+        PASS2_STRADDLE,
+        BOTTOM_PAD,
         DONE
     } state_t;
     state_t state;
 
-    logic [8:0] pass1_addr;
-    logic [5:0] row_idx;
-    logic [5:0] col_idx; 
+    typedef enum logic [1:0] { 
+        PAD_INIT, 
+        PAD_GAP, 
+        PAD_FINAL 
+    } pad_ctx_t;
+    pad_ctx_t pad_ctx;
 
-    //combinational straddle math
-    //tracks where the current 4-byte axi word belongs in the padded 2D grid
+    logic [9:0] pad_word_ctr;//shared sweep counter for TOP_PAD/BOTTOM_PAD
+    logic [5:0] row_idx;
+    logic [5:0] col_idx;
+
+    //straddle math for AXI data
     logic [12:0] current_byte_idx;
-    assign current_byte_idx=(row_idx + PAD_TOP)* PADDED_W+PAD_LEFT+col_idx;
+    assign current_byte_idx=(row_idx+PAD_TOP)*PADDED_W+PAD_LEFT+col_idx;
 
     logic [9:0] bram_addr_0, bram_addr_1;
-    assign bram_addr_0 = current_byte_idx>>3; //to divide with 8 
-    assign bram_addr_1 = (current_byte_idx + 3)>>3; 
+    assign bram_addr_0=current_byte_idx>>3;
+    assign bram_addr_1=(current_byte_idx + 3)>>3;
 
     logic [2:0] offset;
-    assign offset = current_byte_idx % 8;
+    assign offset=current_byte_idx%8;
 
     logic [7:0] we_0, we_1;
     logic [63:0] din_0, din_1;
-    
-    //slices the 32-bit axi data into the correct byte lanes of the 64-bit bram
+
     assign we_0=8'(8'h0F<<offset);
     assign din_0=64'(M_AXI_RDATA)<<(offset * 8);
     assign we_1=8'(8'h0F>>(8 - offset));
     assign din_1=64'(M_AXI_RDATA)>>((8 - offset) * 8);
 
-    //save registers for straddling boundaries
     logic [7:0] saved_we_1;
     logic [63:0] saved_din_1;
     logic [9:0] saved_addr_1;
     logic saved_rlast;
 
+    //math for the pad margin writes (PAD_A/PAD_B)
+    logic [12:0] pad_start_idx;
+    logic [3:0]  pad_length;
+
+    always_comb begin
+        case (pad_ctx)
+            PAD_INIT: begin
+                pad_start_idx=PAD_TOP*PADDED_W;//left-pad of row0
+                pad_length=PAD_LEFT;
+            end
+            PAD_GAP: begin
+                pad_start_idx=(row_idx+PAD_TOP)*PADDED_W+PAD_LEFT+REAL_W;//right-pad(row_idx)+left-pad(row_idx+1)
+                pad_length    = GAP_LEN;
+            end
+            default: begin//PAD_FINAL
+                pad_start_idx=(row_idx+PAD_TOP)*PADDED_W+PAD_LEFT+REAL_W;//right-pad(last row)
+                pad_length    = 4'd8 - (pad_start_idx % 8);//extend to fill the word exactly
+            end
+        endcase
+    end
+
+    logic [2:0] pad_offset;
+    logic [9:0] pad_word0;
+    assign pad_offset=pad_start_idx[2:0];
+    assign pad_word0=pad_start_idx[12:3];
+
+    logic [7:0]  pad_mask_lsb;
+    logic [15:0] pad_mask16;
+    assign pad_mask_lsb=8'hFF >> (4'd8-pad_length);
+    assign pad_mask16={8'b0, pad_mask_lsb} << pad_offset;
+
+    logic [7:0] pad_we_0, pad_we_1;
+    logic [9:0] pad_addr_0, pad_addr_1;
+    assign pad_we_0=pad_mask16[7:0];
+    assign pad_we_1=pad_mask16[15:8];
+    assign pad_addr_0=pad_word0;
+    assign pad_addr_1=pad_word0 + 10'd1;
+    logic pad_straddle;
+    assign pad_straddle=|pad_we_1;
+
     always_ff @(posedge clk) begin
         if (rst) begin
             state<=IDLE;
-            loader_done<= 1'b0;
+            pad_ctx<=PAD_INIT;
+            loader_done<=1'b0;
             M_AXI_ARVALID<=1'b0;
             M_AXI_RREADY<=1'b0;
             loader_we<=8'd0;
-            pass1_addr<='0;
+            pad_word_ctr<='0;
             row_idx<='0;
             col_idx<='0;
         end else begin
@@ -103,32 +162,72 @@ module axi4_dma_loader #(
             case (state)
                 IDLE: begin
                     if (start_loader) begin
-                        state<=PASS1_PAD;
-                        pass1_addr<= '0;
-                        
-                        row_idx<='0; //reset the row tracker for repeat runs
-                        col_idx<='0; //reset the col tracker for repeat runs
-                        
+                        state<=TOP_PAD;
+                        pad_word_ctr<='0;
+                        row_idx<='0;
+                        col_idx<='0;
                         loader_done<=1'b0;
                     end
                 end
 
-                PASS1_PAD: begin
+                TOP_PAD: begin
                     loader_we<=8'hFF;
                     loader_din<=PADDING_BLOCK;
-                    loader_addr<=pass1_addr;
+                    loader_addr<=pad_word_ctr;
 
-                    if (pass1_addr==9'd333) begin //334 words covers the 46x58 grid
-                        state<=PASS2_REQ;
-                        pass1_addr<='0;
+                    if (pad_word_ctr==TOP_WORDS-1) begin
+                        state<=PAD_A;
+                        pad_ctx<=PAD_INIT;
                     end else begin
-                        pass1_addr<=pass1_addr+1;
+                        pad_word_ctr<=pad_word_ctr+1;
                     end
+                end
+
+                PAD_A: begin
+                    loader_we<=pad_we_0;
+                    loader_din<=PADDING_BLOCK;
+                    loader_addr<=pad_addr_0;
+
+                    if (pad_straddle) begin
+                        state<=PAD_B;
+                    end else begin
+                        case (pad_ctx)
+                            PAD_INIT: state<=PASS2_REQ;
+                            PAD_GAP: begin
+                                row_idx<=row_idx+1;
+                                col_idx<='0;
+                                state<=PASS2_REQ;
+                            end
+                            default: begin //PAD_FINAL
+                                pad_word_ctr<=BOTTOM_START_WORD[9:0];
+                                state<=BOTTOM_PAD;
+                            end
+                        endcase
+                    end
+                end
+
+                PAD_B: begin
+                    loader_we<=pad_we_1;
+                    loader_din<=PADDING_BLOCK;
+                    loader_addr<=pad_addr_1;
+
+                    case (pad_ctx)
+                        PAD_INIT: state<=PASS2_REQ;
+                        PAD_GAP: begin
+                            row_idx<=row_idx+1;
+                            col_idx<='0;
+                            state<=PASS2_REQ;
+                        end
+                        default: begin //PAD_FINAL
+                            pad_word_ctr<=BOTTOM_START_WORD[9:0];
+                            state<=BOTTOM_PAD;
+                        end
+                    endcase
                 end
 
                 PASS2_REQ: begin
                     M_AXI_ARADDR<=BASE_ADDR+(row_idx * REAL_W);
-                    M_AXI_ARLEN<=8'd9; //10 beats (40 bytes per row)
+                    M_AXI_ARLEN<=8'd9; 
                     M_AXI_ARVALID<=1'b1;
 
                     if (M_AXI_ARREADY && M_AXI_ARVALID) begin
@@ -145,45 +244,52 @@ module axi4_dma_loader #(
                         loader_addr<=bram_addr_0;
 
                         if (bram_addr_0 == bram_addr_1) begin
-                            //axi data fits perfectly in one bram word
                             col_idx<=col_idx + 4;
                             if (M_AXI_RLAST) begin
                                 M_AXI_RREADY<=1'b0;
-                                row_idx<=row_idx + 1;
-                                col_idx<='0;
-                                if (row_idx==REAL_H - 1) state<= DONE;
-                                else state<=PASS2_REQ;
+                                if (row_idx==REAL_H - 1) pad_ctx<=PAD_FINAL;
+                                else pad_ctx<=PAD_GAP;
+                                state<=PAD_A;
                             end
                         end else begin
-                            //data straddles a bram word boundary save spillover.
                             saved_we_1<=we_1;
                             saved_din_1<=din_1;
                             saved_addr_1<=bram_addr_1;
                             saved_rlast<=M_AXI_RLAST;
 
-                            M_AXI_RREADY<=1'b0; //pause axi bus
+                            M_AXI_RREADY<=1'b0;
                             state<=PASS2_STRADDLE;
                         end
                     end
                 end
 
                 PASS2_STRADDLE: begin
-                    //write the spillover bytes to the next ram address
                     loader_we<=saved_we_1;
                     loader_din<=saved_din_1;
                     loader_addr<=saved_addr_1;
 
                     col_idx<=col_idx+4;
-                    M_AXI_RREADY<=1'b1; //resume axi bus
+                    M_AXI_RREADY<=1'b1;
 
                     if (saved_rlast) begin
                         M_AXI_RREADY<=1'b0;
-                        row_idx<=row_idx+1;
-                        col_idx<='0;
-                        if (row_idx==REAL_H-1) state<=DONE;
-                        else state<=PASS2_REQ;
+                        if (row_idx==REAL_H-1) pad_ctx<=PAD_FINAL;
+                        else pad_ctx<=PAD_GAP;
+                        state<=PAD_A;
                     end else begin
                         state<=PASS2_READ;
+                    end
+                end
+
+                BOTTOM_PAD: begin
+                    loader_we<=8'hFF;
+                    loader_din<=PADDING_BLOCK;
+                    loader_addr<=pad_word_ctr;
+
+                    if (pad_word_ctr==TOTAL_WORDS-1) begin
+                        state<=DONE;
+                    end else begin
+                        pad_word_ctr<=pad_word_ctr+1;
                     end
                 end
 
