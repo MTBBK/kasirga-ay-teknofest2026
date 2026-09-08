@@ -1,0 +1,8 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1787915183" />
+    <testcase name="test_core_halt" classname="test_core_halt" file="/home/kasirga/Downloads/openselim/openselim.srcs/sources_1/imports/Proje/PeripheralModules/JTAG/tb_core_halt/test_core_halt.py" lineno="70" time="0.08528447151184082" sim_time_ns="40670.0" ratio_time="476874.6206553372">
+      <failure error_type="AssertionError" error_msg="Hart DMI uzerinden hic halted raporlamadi -- SUMMARY'e bakip zincirin nerede kirildigina bakin&#10;assert False" />
+    </testcase>
+  </testsuite>
+</testsuites>

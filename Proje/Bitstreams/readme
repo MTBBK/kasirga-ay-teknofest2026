@@ -5,6 +5,7 @@
 5. Vivadonun içinde TCL konsola "source /bu_dosyanın_dizini/merge_flash.tcl" yazarak basys3_final.mcs dosyasını oluşturun.
 6. * Bu adım flashı ilk kez kurarken lazım* Basys3 kartını usb ile bağladıktan sonra vivadoda sol taraftaki "Open Hardware Manager" ın altındaki "Add Configuration Memory Device"'a tıklayarak basys3'ü seçin ve   ardından gelen ekranda s25fl032p-spi-x1_x2_x4'ü seçin 
 
+*Eğer uzaktan deniyorsanız basys3 kartın ismine sağ tıklayıp "Boot From Configuration Memory Device" tuşuna basınız aşağı kısımlar uzaktan önemli değil
 7.Flash'ı programlamak için Hardware Managerda flash'a sağ tıklayıp "Program Configuration Memory Device" a basarak gelen ekranda config file'a basys3_final.mcs dosyasını seçin ve flasha yükleyin.
 8.Yükleme işlemi tamamlandıktan sonra basys3 kartında R2 switchini kapatın ve Kırmızı program tuşuna basın.
 9.Son olarak BtnC ye basarak sistemi resetleyin ve R2 switchini kaldırın.

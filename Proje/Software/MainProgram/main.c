@@ -13,7 +13,7 @@
 
 volatile uint8_t ai_done = 0;
 int main(void) {
-    vga_clear();
+    /*vga_clear();
     const char* vga_startup_screen = "+------------------------------------------------------------------------------+\
 |                                                                              |\
 |                                                                              |\
@@ -145,12 +145,16 @@ int main(void) {
         print_h32(last_ai_result);
         print_s("\n");
     }
-
     
-    }
+    
+    }*/
+
     while (1)
-    {
-        /* code */
+    {   
+        gpio_write_pin(15,1);
+        uart_send_string("merhaba");
+        delay_s(1);
+        gpio_write_pin(15,0);
     }
     
     return 0;

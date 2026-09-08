@@ -1,180 +1,266 @@
 #!/usr/bin/env python3
-import os
+"""
+TEKNOFEST 2026 - Cip Tasarim Yarismasi
+ASIC akis ciktilarini asic/reports/ ve asic/results/ altina toplayan betik.
+
+Bu betik asic/ dizini icerisinden calistirilmalidir:
+    cd asic && python3 collect_outputs.py
+
+Kaynak: run/ (LibreLane calisma dizini)
+Hedef:  reports/ ve results/ (Bolum 4/5/6 gereksinimleri)
+"""
 import shutil
 import json
 from pathlib import Path
 
-# =======================================================================
-# 1. METRİK HARİTALAMASI (Hangi adımda, hangi değerler rapora yazılacak?)
-# =======================================================================
-# LibreLane'in ana metrics.json dosyasindaki anahtar kelimeleri (keys) icerir.
-METRIC_MAPPINGS = {
-    "lint": [
-        "design__lint_error__count",
-        "design__lint_warning__count",
-        "design__lint_timing_construct__count",
-        "design__inferred_latch__count"
-    ],
-    "synth": [
-        "design__instance__count",
-        "design__instance__area__stdcell",
-        "design__instance__count__unmapped",
-        "synth__design__inferred_latch__count"
-    ],
-    "placement": [
-        "design__instance__displacement__total",
-        "design__instance__displacement__mean",
-        "design__instance__displacement__max"
-    ],
-    "routing": [
-        "route__wirelength",
-        "route__vias",
-        "route__drc_errors__count",
-        "route__antenna_violations__count"
-    ],
-    "timing": [
-        "timing__setup__ws",
-        "timing__setup__tns",
-        "timing__setup__wns",
-        "timing__hold__ws",
-        "timing__hold__tns",
-        "timing__hold__wns",
-        "clock__skew__worst_hold",
-        "clock__skew__worst_setup"
-    ],
-    "power": [
-        "power__internal__total",
-        "power__switching__total",
-        "power__leakage__total",
-        "power__total"
-    ],
-    "signoff": [
-        "magic__drc_error__count",
-        "netgen__lvs_error__count"
-    ]
-}
+SOURCE = Path("run")
+REPORTS = Path("reports")
+RESULTS = Path("results")
 
-# =======================================================================
-# 2. LOG VE ÇIKTI DOSYALARI HARİTALAMASI
-# =======================================================================
-FILE_MAP = [
-    # Format: ("Kaynak Dosya Yolu", "Hedef Ana Klasör", "Hedef Alt Klasör")
-    
-    #5 Raporlar (Reports)
-    #5.1 Genel Akış Raporları
-    #5.2 Lint Raporları
-    #5.3 Sentez Raporları
-    #5.4 Fiziksel Tasarım Raporları 
-    #5.5 Zamanlama Raporları
-    #5.6 Fiziksel Signoff Raporları
-    #5.7 Güç ve IR Drop Raporları
-    ("01-verilator-lint/verilator-lint.log", "reports", "lint"),
-    ("02-yosys-synthesis/yosys.stat.rpt", "reports", "synth"),
-    ("02-yosys-synthesis/yosys.log", "reports", "synth"),
-    ("10-openroad-globalrouting/globalroute.log", "reports", "routing"),
-    ("11-openroad-detailedrouting/detailedroute.log", "reports", "routing"),
-    ("15-openroad-stapostpnr/timing.rpt", "reports", "timing"),
-    ("15-openroad-stapostpnr/power.rpt", "reports", "power"),
-    ("16-magic-drc/magic.drc.rpt", "reports", "signoff"),
-    
-    #6 Fiziksel ve Tasarım Çıktıları (Results)
-    #6.1 Zorunlu Fiziksel Tasarım Görünümleri
-    ("final/def/top.def", "results", "def"),
-    ("final/gds/top.gds", "results", "gds"),
-    ("final/lef/top.lef", "results", "lef"),
-    
-    #6.2 Zorunlu Ek Çıktılar
-    ("final/verilog/top_pnr.v", "results", "netlist"),
-    
-    #6.3 Önerilen Ek Çıktılar
-    
-    ("final/odb/top.odb", "results", "odb"),
-    ("final/sdc/top.sdc", "results", "sdc"),
-    #SDF
-    #spef
-    ("final/spice/top.spice", "results", "spice"),
-    ("final/lib/top.lib", "results", "lib"),
-    ("final/mag/top.mag", "results", "mag"),
-    ("final/metrics.csv", "results", "metrics"),
-    ("final/metrics.json", "results", "metrics")
-]
 
-# =======================================================================
-# ANA İŞLEM FONKSİYONLARI
-# =======================================================================
+def safe_copy(src: Path, dst: Path, label: str = ""):
+    if not src.exists():
+        print(f"[EKSIK] {label or src} bulunamadi: {src}")
+        return False
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    if src.is_dir():
+        shutil.copytree(src, dst, dirs_exist_ok=True)
+    else:
+        shutil.copy2(src, dst)
+    print(f"[OK] {src} -> {dst}")
+    return True
 
-def split_metrics(source_dir, reports_dir):
-    """Ana metrics.json dosyasını okuyup adımlara göre parçalar."""
-    main_metrics_path = source_dir / "final" / "metrics.json"
-    
-    if not main_metrics_path.exists():
-        print(f"[UYARI] Ana metrik dosyası bulunamadı: {main_metrics_path}")
+
+def collect_general_reports():
+    # 5.1 Genel Akis Raporlari
+    safe_copy(SOURCE / "flow.log", REPORTS / "general" / "flow.log")
+    safe_copy(SOURCE / "warning.log", REPORTS / "general" / "warning.log")
+    safe_copy(SOURCE / "error.log", REPORTS / "general" / "error.log")
+    safe_copy(SOURCE / "resolved.json", REPORTS / "general" / "resolved.json")
+    safe_copy(SOURCE / "final" / "metrics.csv", REPORTS / "general" / "metrics.csv")
+    safe_copy(SOURCE / "final" / "metrics.json", REPORTS / "general" / "metrics.json")
+
+
+def collect_lint_reports():
+    # 5.2 Lint Raporlari
+    safe_copy(
+        SOURCE / "01-verilator-lint" / "verilator-lint.log",
+        REPORTS / "lint" / "verilator_lint.log",
+    )
+    # Waiver dosyasi varsa (opsiyonel)
+    waiver = SOURCE / "01-verilator-lint" / "_waivers_output.vlt"
+    if waiver.exists():
+        safe_copy(waiver, REPORTS / "lint" / "waivers" / "_waivers_output.vlt")
+
+
+def collect_synth_reports():
+    # 5.3 Sentez Raporlari - asil raporlar reports/ alt dizininde:
+    # stat.rpt, stat.json, latch.rpt, pre_synth_chk.rpt, chk.rpt
+    src = SOURCE / "06-yosys-synthesis"
+    reports_sub = src / "reports"
+    if reports_sub.exists():
+        safe_copy(reports_sub, REPORTS / "synthesis")
+    log = src / "yosys-synthesis.log"
+    if log.exists():
+        safe_copy(log, REPORTS / "synthesis" / log.name)
+
+
+def collect_physical_design_reports():
+    # 5.4 Fiziksel Tasarim Raporlari
+    safe_copy(
+        SOURCE / "51-odb-reportwirelength" / "wire_lengths.csv",
+        REPORTS / "physical" / "wire_lengths.csv",
+    )
+    # Detailed routing DRC - birden fazla dtr-run-N klasoru olabilir,
+    # nihai top.drc kok dizinde
+    safe_copy(
+        SOURCE / "45-openroad-detailedrouting" / "top.drc",
+        REPORTS / "physical" / "top.drc",
+    )
+    safe_copy(SOURCE / "45-openroad-detailedrouting", REPORTS / "physical" / "detailedrouting")
+    safe_copy(SOURCE / "39-openroad-globalrouting", REPORTS / "physical" / "globalrouting")
+    safe_copy(SOURCE / "49-odb-reportdisconnectedpins", REPORTS / "physical" / "disconnectedpins")
+
+
+def collect_timing_reports():
+    # 5.5 Zamanlama Raporlari - butun corner alt dizinleriyle birlikte
+    src = SOURCE / "56-openroad-stapostpnr"
+    if not src.exists():
+        print(f"[EKSIK] STAPostPNR dizini bulunamadi: {src}")
         return
+    dst = REPORTS / "timing"
+    dst.mkdir(parents=True, exist_ok=True)
+    safe_copy(src / "summary.rpt", dst / "summary.rpt")
+    for corner_dir in src.iterdir():
+        if corner_dir.is_dir() and corner_dir.name != "COMMANDS":
+            safe_copy(corner_dir, dst / corner_dir.name)
 
-    with open(main_metrics_path, 'r') as f:
-        try:
-            full_data = json.load(f)
-        except json.JSONDecodeError:
-            print("[HATA] metrics.json okunamadi. Dosya bozuk olabilir.")
-            return
 
-    # Her bir TEKNOFEST kategorisi için ayri dosya olustur
-    for category, keys in METRIC_MAPPINGS.items():
-        # Eger o anahtar bulunamazsa "Bulunamadi" veya 0 ata
-        category_data = {k: full_data.get(k, "Bulunamadi") for k in keys}
-        
-        target_folder = reports_dir / category
-        target_folder.mkdir(parents=True, exist_ok=True)
-        
-        target_file = target_folder / f"{category}_metrics.json"
-        
-        with open(target_file, 'w') as f:
-            json.dump(category_data, f, indent=4)
-            
-        print(f"[METRİK] {category.upper()} metrikleri ayrıştırıldı -> {target_file}")
+def collect_signoff_reports():
+    # 5.6 Fiziksel Signoff Raporlari
+    safe_copy(SOURCE / "65-magic-drc" / "reports", REPORTS / "drc" / "magic")
+    safe_copy(SOURCE / "66-klayout-drc" / "reports", REPORTS / "drc" / "klayout")
+    safe_copy(SOURCE / "71-netgen-lvs" / "reports", REPORTS / "lvs")
+    # Anten - iki checkantennas asamasi da olabilir (PnR sonrasi ve routing sonrasi)
+    safe_copy(SOURCE / "40-openroad-checkantennas" / "reports", REPORTS / "antenna" / "pre_route")
+    safe_copy(SOURCE / "47-openroad-checkantennas-1" / "reports", REPORTS / "antenna" / "post_route")
+    safe_copy(SOURCE / "50-checker-disconnectedpins", REPORTS / "signoff" / "disconnectedpins")
+    safe_copy(SOURCE / "63-klayout-xor" / "xor.xml", REPORTS / "signoff" / "xor.xml")
+    safe_copy(SOURCE / "77-misc-reportmanufacturability", REPORTS / "signoff" / "manufacturability")
 
-def copy_log_files(source_dir, base_target_dir):
-    """Belirlenen log ve GDS/LEF cikti dosyalarini kopyalar."""
-    for src_subpath, target_base, target_subfolder in FILE_MAP:
-        src_path = source_dir / src_subpath
-        dest_folder = base_target_dir / target_base / target_subfolder
-        dest_path = dest_folder / src_path.name
 
-        if src_path.exists():
-            dest_folder.mkdir(parents=True, exist_ok=True)
-            try:
-                shutil.copy2(src_path, dest_path)
-                print(f"[DOSYA] Kopyalandi: {src_path.name} -> {target_base}/{target_subfolder}/")
-            except Exception as e:
-                print(f"[HATA] {src_path.name} kopyalanırken hata oluştu: {e}")
-        else:
-            # Bazi adimlar hatadan dolayi uretilmemis olabilir
-            pass 
+def collect_pdn_reports():
+    # Tablo 8: asic/reports/pdn/ - PDN baglanti ve *-grid-errors.rpt raporlari
+    # Confirmed: vssd1-grid-errors.rpt ve vccd1-grid-errors.rpt
+    # run/21-openroad-generatepdn altinda uretiliyor.
+    src = SOURCE / "21-openroad-generatepdn"
+    if src.exists():
+        for f in src.glob("*-grid-errors.rpt"):
+            safe_copy(f, REPORTS / "pdn" / f.name)
+    safe_copy(SOURCE / "30-checker-powergridviolations", REPORTS / "pdn" / "powergridviolations")
+
+
+def collect_power_reports():
+    # 5.7 Guc ve IR-Drop Raporlari
+    # NOT: corner-ozgu power.rpt dosyalari OpenROAD.STAPostPNR tarafindan
+    # uretilir ve zaten reports/timing/<corner>/ altina kopyalandi
+    # (collect_timing_reports icinde). Burada sadece IRDropReport
+    # ciktisini (irdrop.rpt, net-<net>.csv) topluyoruz.
+    safe_copy(SOURCE / "57-openroad-irdropreport", REPORTS / "power")
+
+
+def collect_physical_views():
+    # 6.1 Zorunlu Fiziksel Tasarim Gorunumleri
+    safe_copy(SOURCE / "final" / "gds" / "top.gds", RESULTS / "gds" / "top.gds")
+    safe_copy(SOURCE / "final" / "lef" / "top.lef", RESULTS / "lef" / "top.lef")
+    safe_copy(SOURCE / "final" / "def" / "top.def", RESULTS / "def" / "top.def")
+
+
+def collect_mandatory_extras():
+    # 6.2 Zorunlu Ek Ciktilar
+    safe_copy(
+        SOURCE / "06-yosys-synthesis" / "top.nl.v",
+        RESULTS / "netlist" / "top_synth.v",
+    )
+    safe_copy(
+        SOURCE / "final" / "nl" / "top.nl.v",
+        RESULTS / "netlist" / "top_pnr.v",
+    )
+    safe_copy(
+        SOURCE / "final" / "pnl" / "top.pnl.v",
+        RESULTS / "netlist" / "top_powered.v",
+    )
+    # PnR ve signoff SDC - ayni dosya kullanildiysa tek kopya yeterli (README'de belirtilecek)
+    safe_copy(SOURCE / "final" / "sdc" / "top.sdc", RESULTS / "sdc" / "pnr.sdc")
+    safe_copy(SOURCE / "final" / "sdc" / "top.sdc", RESULTS / "sdc" / "signoff.sdc")
+    # SPEF - her corner grubu icin
+    spef_src = SOURCE / "final" / "spef"
+    if spef_src.exists():
+        for corner_dir in spef_src.iterdir():
+            if corner_dir.is_dir():
+                for f in corner_dir.glob("*.spef"):
+                    safe_copy(f, RESULTS / "spef" / corner_dir.name / f.name)
+    safe_copy(SOURCE / "final" / "spice" / "top.spice", RESULTS / "spice" / "top.spice")
+    safe_copy(SOURCE / "final" / "metrics.csv", RESULTS / "metrics" / "metrics.csv")
+    safe_copy(SOURCE / "final" / "metrics.json", RESULTS / "metrics" / "metrics.json")
+    safe_copy(SOURCE / "resolved.json", RESULTS / "config" / "resolved.json")
+
+
+def collect_optional_extras():
+    # 6.3 Onerilen Ek Ciktilar
+    safe_copy(SOURCE / "final" / "odb" / "top.odb", RESULTS / "odb" / "top.odb")
+    safe_copy(SOURCE / "final" / "mag" / "top.mag", RESULTS / "mag" / "top.mag")
+    safe_copy(SOURCE / "final" / "mag_gds" / "top.magic.gds", RESULTS / "gds" / "top_magic.gds")
+    safe_copy(SOURCE / "final" / "klayout_gds" / "top.klayout.gds", RESULTS / "gds" / "top_klayout.gds")
+    safe_copy(SOURCE / "final" / "render" / "top.png", RESULTS / "images" / "top.png")
+
+    sdf_src = SOURCE / "final" / "sdf"
+    if sdf_src.exists():
+        for corner_dir in sdf_src.iterdir():
+            if corner_dir.is_dir():
+                safe_copy(corner_dir, RESULTS / "sdf" / corner_dir.name)
+
+    lib_src = SOURCE / "final" / "lib"
+    if lib_src.exists():
+        for corner_dir in lib_src.iterdir():
+            if corner_dir.is_dir():
+                safe_copy(corner_dir, RESULTS / "lib" / corner_dir.name)
+
+
+def clean_targets():
+    """reports/ ve results/ dizinlerini onceki calismalardan kalan
+    dosyalari birakmamak icin tamamen temizler, ardindan yeniden olusturur."""
+    for d in (REPORTS, RESULTS):
+        if d.exists():
+            shutil.rmtree(d)
+            print(f"[TEMIZ] Silindi: {d}")
+        d.mkdir(parents=True, exist_ok=True)
+
+
+BOOKKEEPING_NAMES = {
+    "state_in.json",
+    "state_out.json",
+    "config.json",
+    "runtime.txt",
+    "COMMANDS",
+}
+BOOKKEEPING_SUFFIXES = (
+    ".process_stats.json",
+)
+BOOKKEEPING_PREFIXES = (
+    "_env",
+)
+
+
+def clean_bookkeeping(root: Path):
+    """LibreLane'in adim ic mekanizmasina ait, rapor icerigi olmayan
+    dosyalari (state_in/out.json, config.json, runtime.txt, COMMANDS,
+    _env*.tcl, *.process_stats.json) reports/ altindan temizler."""
+    removed = 0
+    for p in root.rglob("*"):
+        if not p.is_file():
+            continue
+        name = p.name
+        if (
+            name in BOOKKEEPING_NAMES
+            or name.endswith(BOOKKEEPING_SUFFIXES)
+            or name.startswith(BOOKKEEPING_PREFIXES)
+        ):
+            p.unlink()
+            removed += 1
+    print(f"[TEMIZ] {removed} adet LibreLane ic dosyasi kaldirildi ({root})")
+
 
 def main():
-    print("="*50)
-    print("TEKNOFEST ÇIKTI VE METRİK TOPLAMA SİSTEMİ")
-    print("="*50)
-    
-    # Dizinleri Ayarla
-    source_dir = Path("run")           # LibreLane'in ciktilari verdigi dizin
-    base_target_dir = Path("asic")     # Bizim asil teslim dizinimiz
-    reports_dir = base_target_dir / "reports"
-    
-    if not source_dir.exists():
-        print("[KRİTİK HATA] 'run' dizini bulunamadi. Lütfen LibreLane akisinin tamamlandigindan emin olun.")
+    print("=" * 60)
+    print("TEKNOFEST 2026 - Cikti Toplama")
+    print("=" * 60)
+
+    if not SOURCE.exists():
+        print(f"[KRITIK] '{SOURCE}' dizini bulunamadi. Bu betik asic/ icinden calistirilmalidir.")
         return
 
-    # 1. Loglari ve GDS'leri Kopyala
-    copy_log_files(source_dir, base_target_dir)
-    
-    print("-" * 50)
-    
-    # 2. Metrikleri Parcala ve Klasorlere Dagıt
-    split_metrics(source_dir, reports_dir)
-    
-    print("="*50)
-    print("ISLEM TAMAMLANDI! Teslim klasor yapiniz asic/reports ve asic/results altinda hazir.")
+    clean_targets()
+    collect_general_reports()
+    collect_lint_reports()
+    collect_synth_reports()
+    collect_physical_design_reports()
+    collect_timing_reports()
+    collect_signoff_reports()
+    collect_pdn_reports()
+    collect_power_reports()
+    collect_physical_views()
+    collect_mandatory_extras()
+    collect_optional_extras()
+
+    clean_bookkeeping(REPORTS)
+
+    print("=" * 60)
+    print("TAMAMLANDI. 'reports/' ve 'results/' altini kontrol edin.")
+    print("EKSIK olarak isaretlenen her satiri asic/README.md'de aciklayin")
+    print("ya da gercekten uretilmemisse nedenini belirtin.")
+    print("=" * 60)
+
 
 if __name__ == "__main__":
     main()

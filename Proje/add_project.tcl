@@ -1,5 +1,5 @@
 # Temel Proje Dizini (Tek Değişken)
-set PROJE_DIR "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje"
+set PROJE_DIR "/home/kasirga/Documents/kasirga-ay-teknofest2026/Proje"
 
 # Include yollarını PROJE_DIR üzerinden dinamik olarak ayarlıyoruz
 set INCLUDE_PATHS [list \
@@ -10,7 +10,10 @@ set INCLUDE_PATHS [list \
     "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_common_cells/include" \
     "${PROJE_DIR}/Test/top_module_test/Flash_Verilog_Sim_Model" \
 ]
+set_property verilog_define {FPGA_TARGET} [current_fileset]
 
+# Simülasyon (sim_1) için SIMULATION flag'ini aktif et
+set_property verilog_define {SIMULATION} [get_filesets sim_1]
 # Include yollarını tanımlıyoruz
 set_property include_dirs $INCLUDE_PATHS [current_fileset]
 set_property include_dirs $INCLUDE_PATHS [get_filesets sim_1]

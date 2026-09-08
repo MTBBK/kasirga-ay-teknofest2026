@@ -1,0 +1,27 @@
+# ASIC Akisi - Kullanilan Arac ve Ortam Bilgileri
+# TEKNOFEST 2026 Cip Tasarim Yarismasi - Mikrodenetleyici Tasarim Kategorisi
+
+LibreLane surumu: 3.0.6 (yarisma referans surumu ile birebir ayni)
+LibreLane commit/etiket: Nix flake.lock icerisinde fossi-foundation/librelane
+girdisi olarak kilitlenmistir; tam commit kimligi icin bkz.
+asic/environment/flake.lock
+LibreLane akisi: Classic
+
+PDK: sky130A
+Open PDKs commit kimligi: 8afc8346a57fe1ab7934ba5a6056ea8b43078e71
+Standart hucre kutuphanesi: sky130_fd_sc_hd
+
+OpenRAM: kullanilmadi (referans SKY130 PDK kurulumu icerisindeki
+hazir SRAM makrolari kullanildi - bkz. asic/README.md SRAM ve Fiziksel
+Makrolar bolumu)
+
+Akisi calistirmak icin gerekli komutlar:
+    cd asic
+    make asic_run
+
+Ciktilarin toplanmasi (asic_run icerisinde otomatik calisir/calismiyorsa
+manuel):
+    python3 scripts/collect_outputs.py
+
+Teslim kontrolu:
+    make asic_verify

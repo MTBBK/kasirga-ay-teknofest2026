@@ -1,0 +1,11 @@
+===================================
+Configuration Memory information
+===================================
+File Format        MCS
+Interface          SPIX1
+Size               4M
+Start Address      0x00000000
+End Address        0x003FFFFF
+
+Addr1         Addr2         Date                    File(s)
+0x00000000    0x0018E617    Sep  3 12:17:50 2026    /home/kasirga/Documents/kasirga-ay-teknofest2026/Proje/Bitstreams/top.bit

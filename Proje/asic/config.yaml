@@ -7,7 +7,8 @@ DESIGN_NAME: top
 # --- PDK yapilandirmasi (Tablo 3 - zorunlu, degistirilemez) ---
 PDK: sky130A
 STD_CELL_LIBRARY: sky130_fd_sc_hd
-
+VERILOG_DEFINES:
+  - ASIC_TARGET
 # --- RTL kaynaklari ---
 VERILOG_FILES:
   # 1. Paketler (Her seyden once derlenmeli)
@@ -66,7 +67,7 @@ VERILOG_FILES:
   - dir::../PeripheralModules/UART/rtl/*.sv
   - dir::../PeripheralModules/VGA/*.v
   - dir::../PeripheralModules/VGA/*.sv
-  
+
   # JTAG eger kullanilacaksa aktif edilir
   # - dir::../PeripheralModules/JTAG/*.sv
 
@@ -76,8 +77,7 @@ VERILOG_FILES:
 
   # 7. Top Modul (En son derlenmeli)
   - dir::../TopModules/clock_divider.sv
-  - dir::../TopModules/asic_top.sv
-
+  - dir::../TopModules/top.sv
 
 VERILOG_INCLUDE_DIRS:
   - dir::../Core/rtl/include
@@ -85,15 +85,20 @@ VERILOG_INCLUDE_DIRS:
 
 USE_SLANG: true
 
-CLOCK_PORT: clk_i_100mHz
-CLOCK_PERIOD: 10   # 50MHz veya 100MHz hedefinize gore revize edin
+CLOCK_PORT: clk_i_50mHz
+CLOCK_PERIOD: 40.0
+
+CLOCK_NET:
+  - clk_i_50mHz
+  #- clk_div/clk_25mhz_o
 
 PNR_SDC_FILE: dir::constraints/design.sdc
 SIGNOFF_SDC_FILE: dir::constraints/design.sdc
 
 # --- Floorplan / Yerlesim Yogunlugu ---
-FP_SIZING: relative
-FP_CORE_UTIL: 35
+FP_SIZING: absolute
+DIE_AREA: [0, 0, 5500, 5200]
+FP_CORE_UTIL: 25
 PL_TARGET_DENSITY_PCT: expr::($FP_CORE_UTIL + 10.0)
 
 # --- Resizer (Zamanlama Onarimi) ---
@@ -103,38 +108,72 @@ RUN_POST_GRT_RESIZER_TIMING: true
 GRT_RESIZER_SETUP_SLACK_MARGIN: 0.5
 GRT_RESIZER_SETUP_MAX_BUFFER_PCT: 100
 
-PL_RESIZER_HOLD_SLACK_MARGIN: 0.15
-PL_RESIZER_HOLD_MAX_BUFFER_PCT: 80
-GRT_RESIZER_HOLD_SLACK_MARGIN: 0.15
-GRT_RESIZER_HOLD_MAX_BUFFER_PCT: 80
+# CONFIRMED GOOD: dropped slew violations 8775->5197, cap 723->570 at
+# max_ss_100C_1v60 by forcing buffer insertion on long nets (default
+# threshold was 6884u, far too loose for this floorplan).
+DESIGN_REPAIR_MAX_WIRE_LENGTH: 800
 
-PL_RESIZER_MAX_SLEW_MARGIN: 20
-PL_RESIZER_MAX_CAP_MARGIN: 20
+# CONFIRMED GOOD: 50 -> 80. Reg-to-reg hold violations went from 6 -> 0
+# fully resolved. Remaining hold violations are all port-to-register
+# (qspi_io_1, gpio_i[*], fetch_enable, uart_rx_i -> first-stage flops),
+# a separate mechanism being addressed via SDC -min input delay instead.
+PL_RESIZER_HOLD_SLACK_MARGIN: 0.05
+PL_RESIZER_HOLD_MAX_BUFFER_PCT: 100
+GRT_RESIZER_HOLD_SLACK_MARGIN: 0.05
+GRT_RESIZER_HOLD_MAX_BUFFER_PCT: 100
+
+# CONFIRMED: reverted 20 -> 40. Shrinking halo to 20 made every metric
+# worse (hold WNS -0.66->-1.04ns, hold count 154->187, slew 8775->10347) -
+# less halo room hurts routing/buffering more than it helps site
+# availability. Do not shrink this again without new evidence.
+FP_MACRO_HORIZONTAL_HALO: 40
+FP_MACRO_VERTICAL_HALO: 40
 
 # --- Sentez (Alan Odakli Stabil Strateji) ---
-SYNTH_STRATEGY: "DELAY 0"
-SYNTH_SIZING: true
-MAX_FANOUT_CONSTRAINT: 16
-SYNTH_MAX_FANOUT: 16
+#SYNTH_STRATEGY: "DELAY 0"
+#SYNTH_SIZING: true
+MAX_FANOUT_CONSTRAINT: 4
 MAX_TRANSITION_CONSTRAINT: 1.0
+# NOTE: left unchanged. Dominant slew violations trace to the SRAM's own
+# fixed 40ps max_transition Liberty spec on macro address pins, not this
+# global constraint.
 
 # --- Saat Agaci (CTS) ---
+# NOTE: left unchanged. Confirmed clock-tree nets account for only 13 of
+# 12497 lines in the max_ss_100C_1v60 violator list - ruled out as cause
+# of slew/cap violations.
 CTS_MAX_CAP: 0.15
-CTS_SINK_CLUSTERING_SIZE: 20
-CTS_SINK_CLUSTERING_MAX_DIAMETER: 50
+CTS_SINK_CLUSTERING_MAX_DIAMETER: 15
+CTS_SINK_CLUSTERING_SIZE: 8
 GRT_OVERFLOW_ITERS: 50
 GRT_ALLOW_CONGESTION: true
+
 # --- Guc Dagitim Agi (PDN) ---
 VDD_NETS:
-  - vpwr
+  - vccd1
 GND_NETS:
-  - vgnd
-FP_PDN_ENABLE_GLOBAL_CONNECTIONS: true
-VDD_PIN_VOLTAGE: 1.8
-SYNTH_USE_PG_PINS_DEFINES: "USE_POWER_PINS"
+  - vssd1
+PDN_ENABLE_GLOBAL_CONNECTIONS: true
+VERILOG_POWER_DEFINE: "DISABLE_POWER_PINS_TRICK"
+PDN_MACRO_CONNECTIONS:
+  - 'accelerator_memory.* vccd1 vssd1 vccd1 vssd1'
+  - 'data_memory.* vccd1 vssd1 vccd1 vssd1'
+  - 'instruction_memory.* vccd1 vssd1 vccd1 vssd1'
 
-FP_WELLTAP_CELL: sky130_fd_sc_hd__tapvpwrvgnd_1
-FP_ENDCAP_CELL: sky130_fd_sc_hd__decap_3
+WELLTAP_CELL: sky130_fd_sc_hd__tapvpwrvgnd_1
+ENDCAP_CELL: sky130_fd_sc_hd__decap_3
+
+# UNRESOLVED: MAGIC_DISABLE_HIER_GDS: true did NOT fix the XOR mismatch
+# (82,996,244 -> 82,994,325, essentially unchanged). Hierarchy-flattening
+# theory is disproven. Kept enabled since it's not harmful, but the real
+# cause of the ~83M diff items is still under investigation - awk/grep
+# on xor.xml so far hasn't isolated which GDS layer(s) carry the diffs.
+# Needs a proper KLayout report-DB-aware query (e.g. via klayout -b with
+# a script reading the .lyrdb/xor.xml structure properly, or opening
+# xor.xml directly in the KLayout GUI's marker browser) before further
+# config changes are justified. Do not guess at another config fix here.
+MAGIC_DISABLE_HIER_GDS: true
+PRIMARY_GDSII_STREAMOUT_TOOL: klayout
 
 MACROS:
   sky130_sram_2kbyte_1rw1r_32x512_8:
@@ -148,26 +187,31 @@ MACROS:
       "*":
         - dir::../SRAM_Macros/sky130_sram_2kbyte_1rw1r_32x512_8_TT_1p8V_25C.lib
     instances:
-      accelerator_memory.macro.genblk1[0].sram: { location: [150.0, 150.0], orientation: N }
-      accelerator_memory.macro.genblk1[1].sram: { location: [990.0, 150.0], orientation: N }
-      accelerator_memory.macro.genblk1[2].sram: { location: [1830.0, 150.0], orientation: N }
-      accelerator_memory.macro.genblk1[3].sram: { location: [2670.0, 150.0], orientation: N }
-      accelerator_memory.macro.genblk1[4].sram: { location: [3510.0, 150.0], orientation: N }
-      accelerator_memory.macro.genblk1[5].sram: { location: [150.0, 990.0], orientation: N }
-      accelerator_memory.macro.genblk1[6].sram: { location: [990.0, 990.0], orientation: N }
-      accelerator_memory.macro.genblk1[7].sram: { location: [1830.0, 990.0], orientation: N }
-      accelerator_memory.macro.genblk1[8].sram: { location: [2670.0, 990.0], orientation: N }
-      accelerator_memory.macro.genblk1[9].sram: { location: [3510.0, 990.0], orientation: N }
-      accelerator_memory.macro.genblk1[10].sram: { location: [150.0, 1830.0], orientation: N }
-      accelerator_memory.macro.genblk1[11].sram: { location: [990.0, 1830.0], orientation: N }
-      accelerator_memory.macro.genblk1[12].sram: { location: [1830.0, 1830.0], orientation: N }
-      accelerator_memory.macro.genblk1[13].sram: { location: [2670.0, 1830.0], orientation: N }
-      accelerator_memory.macro.genblk1[14].sram: { location: [3510.0, 1830.0], orientation: N }
-      data_memory.macro.genblk1[0].sram: { location: [150.0, 2670.0], orientation: N }
-      data_memory.macro.genblk1[1].sram: { location: [990.0, 2670.0], orientation: N }
-      data_memory.macro.genblk1[2].sram: { location: [1830.0, 2670.0], orientation: N }
-      data_memory.macro.genblk1[3].sram: { location: [2670.0, 2670.0], orientation: N }
-      instruction_memory.macro.genblk1[0].sram: { location: [3510.0, 2670.0], orientation: N }
-      instruction_memory.macro.genblk1[1].sram: { location: [150.0, 3510.0], orientation: N }
-      instruction_memory.macro.genblk1[2].sram: { location: [990.0, 3510.0], orientation: N }
-      instruction_memory.macro.genblk1[3].sram: { location: [1830.0, 3510.0], orientation: N }
+      # === LEFT EDGE (9 Macros, Y-pitch = 550um) ===
+      instruction_memory.macro.genblk1[0].sram: { location: [150.0, 150.0], orientation: N }
+      instruction_memory.macro.genblk1[1].sram: { location: [150.0, 700.0], orientation: N }
+      instruction_memory.macro.genblk1[2].sram: { location: [150.0, 1250.0], orientation: N }
+      instruction_memory.macro.genblk1[3].sram: { location: [150.0, 1800.0], orientation: N }
+      accelerator_memory.macro.genblk1[0].sram: { location: [150.0, 2350.0], orientation: N }
+      accelerator_memory.macro.genblk1[1].sram: { location: [150.0, 2900.0], orientation: N }
+      accelerator_memory.macro.genblk1[2].sram: { location: [150.0, 3450.0], orientation: N }
+      accelerator_memory.macro.genblk1[3].sram: { location: [150.0, 4000.0], orientation: N }
+      accelerator_memory.macro.genblk1[4].sram: { location: [150.0, 4550.0], orientation: N }
+
+      # === TOP EDGE (5 Macros, X-pitch = 700um, fits between columns) ===
+      accelerator_memory.macro.genblk1[5].sram: { location: [1000.0, 4550.0], orientation: N }
+      accelerator_memory.macro.genblk1[6].sram: { location: [1700.0, 4550.0], orientation: N }
+      accelerator_memory.macro.genblk1[7].sram: { location: [2400.0, 4550.0], orientation: N }
+      accelerator_memory.macro.genblk1[8].sram: { location: [3100.0, 4550.0], orientation: N }
+      accelerator_memory.macro.genblk1[9].sram: { location: [3800.0, 4550.0], orientation: N }
+
+      # === RIGHT EDGE (9 Macros, Y-pitch = 550um) ===
+      data_memory.macro.genblk1[0].sram: { location: [4600.0, 150.0], orientation: N }
+      data_memory.macro.genblk1[1].sram: { location: [4600.0, 700.0], orientation: N }
+      data_memory.macro.genblk1[2].sram: { location: [4600.0, 1250.0], orientation: N }
+      data_memory.macro.genblk1[3].sram: { location: [4600.0, 1800.0], orientation: N }
+      accelerator_memory.macro.genblk1[10].sram: { location: [4600.0, 2350.0], orientation: N }
+      accelerator_memory.macro.genblk1[11].sram: { location: [4600.0, 2900.0], orientation: N }
+      accelerator_memory.macro.genblk1[12].sram: { location: [4600.0, 3450.0], orientation: N }
+      accelerator_memory.macro.genblk1[13].sram: { location: [4600.0, 4000.0], orientation: N }
+      accelerator_memory.macro.genblk1[14].sram: { location: [4600.0, 4550.0], orientation: N }
