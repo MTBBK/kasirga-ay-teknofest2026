@@ -43,6 +43,7 @@ module top(
     inout wire      qspi_io_2,
     inout wire      qspi_io_3
     
+
 /*`ifdef ENABLE_JTAG
     ,
     input  logic jtag_tck_i,
@@ -51,6 +52,7 @@ module top(
     input  logic jtag_tdi_i,
     output logic jtag_tdo_o
 `endif*/
+
     );
     
     parameter uart_baud_rate = 921600;
@@ -313,17 +315,19 @@ module top(
         .dbg_rdata_i   (instr_dbg_rdata)
     );
 
-    dm_jtag_subsystem #(
+     dm_jtag_subsystem #(
         .IdcodeValue   (32'h249511C3),
         .DmBaseAddress (DBG_BASE_ADDR)
     ) u_dm_jtag_subsystem (
         .clk_i     (clk_i),
         .rst_ni    (rst_n_i),
+
         .jtag_tck_i   (1'b0),
         .jtag_tms_i   (1'b0),
         .jtag_trst_ni (1'b1),
         .jtag_tdi_i   (1'b0),
         .jtag_tdo_o   (),
+
         .debug_req_o          (dbg_req_from_jtag),
         .dm_halt_addr_o       (dbg_halt_addr_from_jtag),
         .dm_exception_addr_o  (dbg_exception_addr_from_jtag),

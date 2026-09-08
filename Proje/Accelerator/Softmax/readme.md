@@ -38,16 +38,3 @@ Boru hattından gelen dengelenmiş üstel değerler ($E_i$) ile Reciprocal modü
 
 ---
 
-## Yazılım (C/C++) Entegrasyonu
-
-Donanım modülünden çıkan değerler artık TFLite uyumlu `int8_t` (işaretli tam sayı) formatındadır ($-128$ ile $+127$ arası). Bu çıkışların işlemci (MCU/CPU) tarafında gerçek birer olasılık yüzdesine ($0.0 - 1.0$) dönüştürülmesi için standart TFLite `Dequantize` formülü uygulanmalıdır:
-
-```c
-// Donanımdan gelen 8-bit işaretli değeri oku
-int8_t hw_result = read_softmax_output(REG_OUT_0);
-
-// Değeri 0.0 ile 1.0 arasında bir Float'a çevir (TFLite Dequantize işlemi)
-float probability = (hw_result + 128.0f) / 256.0f;
-
-// Artık olasılığı yüzdelik olarak kullanabilirsiniz
-printf("Sınıf Olasılığı: %%%.2f\n", probability * 100);
