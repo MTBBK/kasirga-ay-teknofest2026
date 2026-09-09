@@ -1,0 +1,199 @@
+[2026-09-03 09:49:05 UTC] qrun -batch -access=rw+/. -uvmhome uvm-1.2 '-timescale' '1ns/1ns' -mfcu design.sv testbench.sv '-voptargs=+acc=npr'  -do  " run -all; exit"  
+QuestaSim-64 qrun 2025.2 Utility 2025.05 May 31 2025
+Start time: 05:49:05 on Sep 03,2026
+qrun -batch -access=rw+/. -uvmhome uvm-1.2 -timescale 1ns/1ns -mfcu design.sv testbench.sv -voptargs="+acc=npr" -do " run -all; exit" 
+** Note: (qrun-220) 'modelsim.ini' is used as the ini file.
+Creating library 'qrun.out/work'.
+Mapping library 'mtiUvm' to 'qrun.out/work'.
+** Note: (vmap-220) 'modelsim.ini' is used as the ini file.
+QuestaSim-64 vlog 2025.2 Compiler 2025.05 May 31 2025
+Start time: 05:49:05 on Sep 03,2026
+vlog -timescale 1ns/1ns -mfcu -ccflags "-Wno-missing-declarations" -ccflags "-Wno-maybe-uninitialized" -ccflags "-Wno-return-type" -ccflags "-DQUESTA" /usr/share/questa/questasim/verilog_src/uvm-1.2/src/dpi/uvm_dpi.cc /usr/share/questa/questasim/verilog_src/uvm-1.2/src/uvm_pkg.sv /usr/share/questa/questasim/verilog_src/questa_uvm_pkg-1.2/src/questa_uvm_pkg.sv design.sv testbench.sv -work qrun.out/work "+incdir+/usr/share/questa/questasim/verilog_src/uvm-1.2/src" -statslog qrun.out/stats_log -csession=incr 
+** Note: (vlog-220) 'modelsim.ini' is used as the ini file.
+-- Compiling package uvm_pkg (uvm-1.2 Built-in)
+-- Compiling package questa_uvm_pkg
+-- Importing package uvm_pkg (uvm-1.2 Built-in)
+-- Compiling module axi4_dma_loader
+-- Compiling interface axi4_slave_if
+-- Compiling interface accel_ctrl_if
+-- Compiling package accel_uvm_pkg
+-- Compiling module tb_top
+-- Importing package accel_uvm_pkg
+
+Top level modules:
+	tb_top
+** Note: (vlog-7082) For C/C++ auto compile, choosing compiler /usr/bin/g++ set from the PATH environment variable.
+-- Compiling DPI/PLI C++ file /usr/share/questa/questasim/verilog_src/uvm-1.2/src/dpi/uvm_dpi.cc
+End time: 05:49:08 on Sep 03,2026, Elapsed time: 0:00:03
+Errors: 0, Warnings: 0
+QuestaSim-64 vopt 2025.2 Compiler 2025.05 May 31 2025
+** Warning: (vopt-10587) Some optimizations are turned off because the +acc switch is in effect. This will cause your simulation to run slowly. Please use -access/-debug to maintain needed visibility. The +acc switch would be deprecated in a future release.
+Start time: 05:49:08 on Sep 03,2026
+vopt -access=rw+/. -timescale 1ns/1ns -mfcu "+acc=npr" -findtoplevels qrun.out/work+2+ -work qrun.out/work -statslog qrun.out/stats_log -csession=incr -o qrun_opt -csessionid=3 
+** Note: (vopt-220) 'modelsim.ini' is used as the ini file.
+
+Top level modules:
+	tb_top
+
+Analyzing design...
+-- Loading module tb_top
+-- Importing package uvm_pkg (uvm-1.2 Built-in)
+-- Importing package accel_uvm_pkg
+-- Loading package questa_uvm_pkg
+-- Loading interface axi4_slave_if
+-- Loading interface accel_ctrl_if
+-- Loading module axi4_dma_loader
+Optimizing 9 design-units (inlining 0/4 module instances):
+-- Optimizing package uvm_pkg (uvm-1.2 Built-in)(fast)
+-- Optimizing package questa_uvm_pkg(fast)
+-- Optimizing package accel_uvm_pkg(fast)
+-- Optimizing module axi4_dma_loader(fast)
+-- Optimizing interface axi4_slave_if(fast__2)
+-- Optimizing module tb_top(fast)
+-- Optimizing interface accel_ctrl_if(fast__2)
+-- Optimizing interface accel_ctrl_if(fast)
+-- Optimizing interface axi4_slave_if(fast)
+Optimized design name is qrun_opt
+End time: 05:49:16 on Sep 03,2026, Elapsed time: 0:00:08
+Errors: 0, Warnings: 1
+# ** Note: (vsim-220) 'modelsim.ini' is used as the ini file.
+# vsim -batch -lib qrun.out/work -do " run -all; exit" -statslog qrun.out/stats_log qrun_opt -appendlog -l qrun.log 
+# Start time: 05:49:16 on Sep 03,2026
+# Loading /tmp/root@b5cb814cf35b_dpi_35/linux_x86_64_gcc-11/export_tramp.so
+# //  Questa Sim-64
+# //  Version 2025.2 linux_x86_64 May 31 2025
+# //
+# // Unpublished work. Copyright 2025 Siemens
+# //
+# // This material contains trade secrets or otherwise confidential information
+# // owned by Siemens Industry Software Inc. or its affiliates (collectively,
+# // "SISW"), or its licensors. Access to and use of this information is strictly
+# // limited as set forth in the Customer's applicable agreements with SISW.
+# //
+# // This material may not be copied, distributed, or otherwise disclosed outside
+# // of the Customer's facilities without the express written permission of SISW,
+# // and may not be used in any way not expressly authorized by SISW.
+# //
+# Loading sv_std.std
+# Loading work.axi4_slave_if(fast)
+# Loading work.accel_ctrl_if(fast)
+# Loading work.uvm_pkg(fast)
+# Loading work.accel_uvm_pkg(fast)
+# Loading work.questa_uvm_pkg(fast)
+# Loading work.tb_top(fast)
+# Loading work.axi4_slave_if(fast__2)
+# Loading work.accel_ctrl_if(fast__2)
+# Loading work.axi4_dma_loader(fast)
+# ** Note: (vsim-7082) For C/C++ auto compile, choosing compiler /usr/bin/g++ set from the PATH environment variable.
+# Compiling /tmp/root@b5cb814cf35b_dpi_35/linux_x86_64_gcc-11/exportwrapper.c
+# Loading /tmp/root@b5cb814cf35b_dpi_35/linux_x86_64_gcc-11/vsim_auto_compile.so
+# 
+# run -all
+# UVM_INFO /usr/share/questa/questasim/verilog_src/uvm-1.2/src/base/uvm_root.svh(392) @ 0: reporter [UVM/RELNOTES] 
+# ----------------------------------------------------------------
+# UVM-1.2
+# (C) 2007-2014 Mentor Graphics Corporation
+# (C) 2007-2014 Cadence Design Systems, Inc.
+# (C) 2006-2014 Synopsys, Inc.
+# (C) 2011-2013 Cypress Semiconductor Corp.
+# (C) 2013-2014 NVIDIA Corporation
+# ----------------------------------------------------------------
+# 
+#   ***********       IMPORTANT RELEASE NOTES         ************
+# 
+#   You are using a version of the UVM library that has been compiled
+#   with `UVM_NO_DEPRECATED undefined.
+#   See http://www.eda.org/svdb/view.php?id=3313 for more details.
+# 
+#   You are using a version of the UVM library that has been compiled
+#   with `UVM_OBJECT_DO_NOT_NEED_CONSTRUCTOR undefined.
+#   See http://www.eda.org/svdb/view.php?id=3770 for more details.
+# 
+#       (Specify +UVM_NO_RELNOTES to turn off this notice)
+# 
+# UVM_INFO /usr/share/questa/questasim/verilog_src/questa_uvm_pkg-1.2/src/questa_uvm_pkg.sv(277) @ 0: reporter [Questa UVM] QUESTA_UVM-1.2.3
+# UVM_INFO /usr/share/questa/questasim/verilog_src/questa_uvm_pkg-1.2/src/questa_uvm_pkg.sv(278) @ 0: reporter [Questa UVM]  questa_uvm::init(+struct)
+# UVM_INFO @ 0: reporter [RNTST] Running test accel_test...
+# UVM_INFO testbench.sv(257) @ 0: uvm_test_top [TEST] Starting AI Accelerator DMA Loader Test...
+# UVM_INFO testbench.sv(263) @ 195000: uvm_test_top [TEST] Asserting start_loader...
+# UVM_INFO testbench.sv(271) @ 205000: uvm_test_top [TEST] Waiting for loader_done...
+# UVM_INFO testbench.sv(117) @ 3575000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12000, LEN=10
+# UVM_INFO testbench.sv(117) @ 3755000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12028, LEN=10
+# UVM_INFO testbench.sv(117) @ 3935000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12050, LEN=10
+# UVM_INFO testbench.sv(117) @ 4115000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12078, LEN=10
+# UVM_INFO testbench.sv(117) @ 4295000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=120a0, LEN=10
+# UVM_INFO testbench.sv(117) @ 4475000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=120c8, LEN=10
+# UVM_INFO testbench.sv(117) @ 4655000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=120f0, LEN=10
+# UVM_INFO testbench.sv(117) @ 4835000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12118, LEN=10
+# UVM_INFO testbench.sv(117) @ 5015000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12140, LEN=10
+# UVM_INFO testbench.sv(117) @ 5195000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12168, LEN=10
+# UVM_INFO testbench.sv(117) @ 5375000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12190, LEN=10
+# UVM_INFO testbench.sv(117) @ 5555000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=121b8, LEN=10
+# UVM_INFO testbench.sv(117) @ 5735000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=121e0, LEN=10
+# UVM_INFO testbench.sv(117) @ 5915000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12208, LEN=10
+# UVM_INFO testbench.sv(117) @ 6095000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12230, LEN=10
+# UVM_INFO testbench.sv(117) @ 6275000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12258, LEN=10
+# UVM_INFO testbench.sv(117) @ 6455000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12280, LEN=10
+# UVM_INFO testbench.sv(117) @ 6635000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=122a8, LEN=10
+# UVM_INFO testbench.sv(117) @ 6815000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=122d0, LEN=10
+# UVM_INFO testbench.sv(117) @ 6995000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=122f8, LEN=10
+# UVM_INFO testbench.sv(117) @ 7175000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12320, LEN=10
+# UVM_INFO testbench.sv(117) @ 7355000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12348, LEN=10
+# UVM_INFO testbench.sv(117) @ 7535000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12370, LEN=10
+# UVM_INFO testbench.sv(117) @ 7715000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12398, LEN=10
+# UVM_INFO testbench.sv(117) @ 7895000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=123c0, LEN=10
+# UVM_INFO testbench.sv(117) @ 8075000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=123e8, LEN=10
+# UVM_INFO testbench.sv(117) @ 8255000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12410, LEN=10
+# UVM_INFO testbench.sv(117) @ 8435000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12438, LEN=10
+# UVM_INFO testbench.sv(117) @ 8615000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12460, LEN=10
+# UVM_INFO testbench.sv(117) @ 8795000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12488, LEN=10
+# UVM_INFO testbench.sv(117) @ 8975000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=124b0, LEN=10
+# UVM_INFO testbench.sv(117) @ 9155000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=124d8, LEN=10
+# UVM_INFO testbench.sv(117) @ 9335000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12500, LEN=10
+# UVM_INFO testbench.sv(117) @ 9515000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12528, LEN=10
+# UVM_INFO testbench.sv(117) @ 9695000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12550, LEN=10
+# UVM_INFO testbench.sv(117) @ 9875000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12578, LEN=10
+# UVM_INFO testbench.sv(117) @ 10055000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=125a0, LEN=10
+# UVM_INFO testbench.sv(117) @ 10235000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=125c8, LEN=10
+# UVM_INFO testbench.sv(117) @ 10415000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=125f0, LEN=10
+# UVM_INFO testbench.sv(117) @ 10595000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12618, LEN=10
+# UVM_INFO testbench.sv(117) @ 10775000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12640, LEN=10
+# UVM_INFO testbench.sv(117) @ 10955000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12668, LEN=10
+# UVM_INFO testbench.sv(117) @ 11135000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12690, LEN=10
+# UVM_INFO testbench.sv(117) @ 11315000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=126b8, LEN=10
+# UVM_INFO testbench.sv(117) @ 11495000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=126e0, LEN=10
+# UVM_INFO testbench.sv(117) @ 11675000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12708, LEN=10
+# UVM_INFO testbench.sv(117) @ 11855000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12730, LEN=10
+# UVM_INFO testbench.sv(117) @ 12035000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12758, LEN=10
+# UVM_INFO testbench.sv(117) @ 12215000: uvm_test_top.env.axi_agent.driver [SLAVE_DRV] Received AR Request: ADDR=12780, LEN=10
+# UVM_INFO testbench.sv(279) @ 12385000: uvm_test_top [TEST] SUCCESS: loader_done asserted!
+# UVM_INFO testbench.sv(288) @ 12385000: uvm_test_top [TEST] AI Accelerator DMA Loader Test Completed.
+# UVM_INFO /usr/share/questa/questasim/verilog_src/uvm-1.2/src/base/uvm_objection.svh(1270) @ 12385000: reporter [TEST_DONE] 'run' phase is ready to proceed to the 'extract' phase
+# UVM_INFO /usr/share/questa/questasim/verilog_src/uvm-1.2/src/base/uvm_report_server.svh(847) @ 12385000: reporter [UVM/REPORT/SERVER] 
+# --- UVM Report Summary ---
+# 
+# ** Report counts by severity
+# UVM_INFO :   59
+# UVM_WARNING :    0
+# UVM_ERROR :    0
+# UVM_FATAL :    0
+# ** Report counts by id
+# [Questa UVM]     2
+# [RNTST]     1
+# [SLAVE_DRV]    49
+# [TEST]     5
+# [TEST_DONE]     1
+# [UVM/RELNOTES]     1
+# 
+# ** Note: $finish    : /usr/share/questa/questasim/verilog_src/uvm-1.2/src/base/uvm_root.svh(517)
+#    Time: 12385 ns  Iteration: 71  Instance: /tb_top
+# End time: 05:49:18 on Sep 03,2026, Elapsed time: 0:00:02
+# Errors: 0, Warnings: 0
+End time: 05:49:18 on Sep 03,2026, Elapsed time: 0:00:13
+*** Summary *********************************************
+    qrun: Errors:   0, Warnings:   0
+    vlog: Errors:   0, Warnings:   0
+    vopt: Errors:   0, Warnings:   1
+    vsim: Errors:   0, Warnings:   0
+  Totals: Errors:   0, Warnings:   1
+Done

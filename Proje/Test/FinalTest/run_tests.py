@@ -144,7 +144,11 @@ def test_fpga_and_software():
             "fpga_uart_time_total_ms": 0.0,
             "sw_time_total_ms": 0.0,
             "sw_cycles_total": 0,
-            "fpga_cycles_total": 0
+            "fpga_cycles_total": 0,
+            "fpga_accel_cycles_total": 0,
+            "fpga_stream_cycles_total": 0,
+            "fpga_loader_cycles_total": 0,
+            "fpga_wb_cycles_total": 0
         } for cat in categories.keys()
     }
 
@@ -226,17 +230,31 @@ def test_fpga_and_software():
 			# Timer Start: FPGA (Starts immediately after data finishes sending)
             start_fpga = time.perf_counter()
             fpga_hex = None
-            hw_inference_cycles = 0 # NEW: Variable to hold actual hardware cycles
+
+            # Variables to hold actual hardware cycles
+            hw_inference_cycles = 0
+            hw_accel_cycles = 0
+            hw_stream_cycles = 0
+            hw_loader_cycles = 0
+            hw_wb_cycles = 0
 
             while True:
                 result_line = main_serial.readline().decode('utf-8', errors='ignore').strip()
 
-                # Parse the hardware cycles directly from your C code output
-                if "Inference cevrim sayisi:" in result_line:
+                # Parse all hardware cycles directly from your C code output
+                if "Hizlandirici cevrim sayisi:" in result_line:
+                    hw_accel_cycles = int(result_line.split(":")[1].strip())
+                elif "Uart_stream cevrim sayisi:" in result_line:
+                    hw_stream_cycles = int(result_line.split(":")[1].strip())
+                elif "Loader cevrim sayisi:" in result_line:
+                    hw_loader_cycles = int(result_line.split(":")[1].strip())
+                elif "Inference cevrim sayisi:" in result_line:
                     hw_inference_cycles = int(result_line.split(":")[1].strip())
+                elif "write_back cevrim sayisi:" in result_line:
+                    hw_wb_cycles = int(result_line.split(":")[1].strip())
 
                 # Parse the final hex result
-                if "Sonuc:" in result_line and "0x" in result_line:
+                elif "Sonuc:" in result_line and "0x" in result_line:
                     end_fpga = time.perf_counter()
                     fpga_hex = "0x" + result_line.split("0x")[1].upper()
                     break
@@ -247,7 +265,13 @@ def test_fpga_and_software():
 
             results[category]["fpga_time_total_ms"] += fpga_time_ms
             results[category]["fpga_uart_time_total_ms"] += fpga_uart_time_ms
+
+            # Accumulate all cycles
             results[category]["fpga_cycles_total"] += hw_inference_cycles
+            results[category]["fpga_accel_cycles_total"] += hw_accel_cycles
+            results[category]["fpga_stream_cycles_total"] += hw_stream_cycles
+            results[category]["fpga_loader_cycles_total"] += hw_loader_cycles
+            results[category]["fpga_wb_cycles_total"] += hw_wb_cycles
 
 			# --- 4. COMPARISON & EVALUATION ---
             fpga_pass = (expected_hex == fpga_hex)
@@ -285,13 +309,18 @@ def test_fpga_and_software():
                     # Both failed, but they gave different wrong answers
                     results[category]["mismatch_both_false"] += 1
 
-# --- 5. GENERATE COMPREHENSIVE REPORT ---
+	# --- 5. GENERATE COMPREHENSIVE REPORT ---
     global_total_files = 0
     global_fpga_time = 0.0
     global_fpga_uart_time = 0.0
     global_sw_time = 0.0
     global_sw_cycles = 0
+
     global_fpga_cycles = 0
+    global_fpga_accel_cycles = 0
+    global_fpga_stream_cycles = 0
+    global_fpga_loader_cycles = 0
+    global_fpga_wb_cycles = 0
 
     global_fpga_correct = 0
     global_fpga_false = 0
@@ -309,7 +338,12 @@ def test_fpga_and_software():
         global_fpga_uart_time += results[cat]['fpga_uart_time_total_ms']
         global_sw_time += results[cat]['sw_time_total_ms']
         global_sw_cycles += results[cat]['sw_cycles_total']
+
         global_fpga_cycles += results[cat]['fpga_cycles_total']
+        global_fpga_accel_cycles += results[cat]['fpga_accel_cycles_total']
+        global_fpga_stream_cycles += results[cat]['fpga_stream_cycles_total']
+        global_fpga_loader_cycles += results[cat]['fpga_loader_cycles_total']
+        global_fpga_wb_cycles += results[cat]['fpga_wb_cycles_total']
 
         global_fpga_correct += results[cat]['fpga_correct']
         global_fpga_false += results[cat]['fpga_false']
@@ -332,9 +366,14 @@ def test_fpga_and_software():
 
     avg_sw_cycles = global_sw_cycles / global_total_files
 
+    # Calculate granular hardware averages
     avg_fpga_cycles = global_fpga_cycles / global_total_files
+    avg_fpga_accel = global_fpga_accel_cycles / global_total_files
+    avg_fpga_stream = global_fpga_stream_cycles / global_total_files
+    avg_fpga_loader = global_fpga_loader_cycles / global_total_files
+    avg_fpga_wb = global_fpga_wb_cycles / global_total_files
 
-    # Calculate how many cycles the PC uses compared to the FPGA
+    # Calculate how many cycles the PC uses compared to the FPGA pure inference
     cycle_ratio = avg_sw_cycles / avg_fpga_cycles if avg_fpga_cycles > 0 else 0
 
     fpga_ips = 1000.0 / avg_fpga_uart_ms if avg_fpga_uart_ms > 0 else 0
@@ -380,13 +419,18 @@ def test_fpga_and_software():
     print(f"Software Baseline (PC)     : {avg_sw_ms:.4f} ms per inference")
     print(f"  -> PC Cycle Cost         : ~{avg_sw_cycles:,.0f} CPU cycles")
     print(f"FPGA Pure Compute Latency  : {avg_fpga_ms:.4f} ms per inference")
-    print(f"  -> FPGA Cycle Cost       : {avg_fpga_cycles:,.0f} Clock cycles")
+    print("  -> FPGA Cycle Breakdown  :")
+    print(f"       - Uart Stream       : {avg_fpga_stream:,.0f} cycles")
+    print(f"       - Loader            : {avg_fpga_loader:,.0f} cycles")
+    print(f"       - Inference         : {avg_fpga_cycles:,.0f} cycles")
+    print(f"       - Write-Back        : {avg_fpga_wb:,.0f} cycles")
+    print(f"       - Total Accelerator : {avg_fpga_accel:,.0f} cycles")
     print(f"UART I/O Transfer Time     : {uart_overhead_ms:.4f} ms")
     print(f"I/O Bottleneck Percentage  : {uart_overhead_pct:.1f}% of total End-to-End time")
     print(f"FPGA End-to-End Latency    : {avg_fpga_uart_ms:.4f} ms ({fpga_ips:.1f} IPS includes UART)")
     print(f"Raw Time Acceleration      : {overall_speedup:.4f}x Faster than PC")
     if cycle_ratio > 0:
-        print(f"Architectural Efficiency   : PC requires {cycle_ratio:.2f}x as many clock cycles as FPGA")
+        print(f"Architectural Efficiency   : PC requires {cycle_ratio:.2f}x as many clock cycles as FPGA Inference")
 
     print("\n3. ACCURACY & HARDWARE-SOFTWARE EQUIVALENCE")
     print("-" * 60)
