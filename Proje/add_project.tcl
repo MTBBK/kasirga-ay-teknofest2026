@@ -10,6 +10,7 @@ set INCLUDE_PATHS [list \
     "${PROJE_DIR}/Core/sva" \
     "${PROJE_DIR}/Core/rtl/vendor/pulp_platform_common_cells/include" \
     "${PROJE_DIR}/Test/top_module_test/Flash_Verilog_Sim_Model" \
+    "${PROJE_DIR}/PeripheralModules/JTAG/vendor/common-cell/include" \
 ]
 set_property verilog_define {FPGA_TARGET} [current_fileset]
 
@@ -67,6 +68,36 @@ set my_files [list \
     "${PROJE_DIR}/PeripheralModules/UART_Stream/rtl/uart_stream_top.sv" \
 
 ]
+set VENDOR         "${PROJE_DIR}/PeripheralModules/JTAG/vendor"
+set COMMON_CELLS   "${VENDOR}/common-cell"
+set RISCV_DBG_SRC  "${VENDOR}/src"
+set DEBUG_ROM      "${VENDOR}/debug_rom"
+set TECH_CELLS     "${VENDOR}/tech_cells_generic"
+set jtag_vendor_files [list \
+    "${RISCV_DBG_SRC}/dm_pkg.sv" \
+    "${COMMON_CELLS}/src/cf_math_pkg.sv" \
+    "${COMMON_CELLS}/src/sync.sv" \
+    "${COMMON_CELLS}/src/spill_register.sv" \
+    "${COMMON_CELLS}/src/spill_register_flushable.sv" \
+    "${COMMON_CELLS}/src/fifo_v3.sv" \
+    "${COMMON_CELLS}/src/lzc.sv" \
+    "${COMMON_CELLS}/src/rr_arb_tree.sv" \
+    "${COMMON_CELLS}/src/cdc_reset_ctrlr_pkg.sv" \
+    "${COMMON_CELLS}/src/cdc_reset_ctrlr.sv" \
+    "${COMMON_CELLS}/src/cdc_4phase.sv" \
+    "${COMMON_CELLS}/src/cdc_2phase_clearable.sv" \
+    "${TECH_CELLS}/src/rtl/tc_clk.sv" \
+    "${RISCV_DBG_SRC}/dmi_bscane_tap.sv" \
+    "${RISCV_DBG_SRC}/dmi_cdc.sv" \
+    "${RISCV_DBG_SRC}/dmi_jtag.sv" \
+    "${DEBUG_ROM}/debug_rom.sv" \
+    "${DEBUG_ROM}/debug_rom_one_scratch.sv" \
+    "${RISCV_DBG_SRC}/dm_csrs.sv" \
+    "${RISCV_DBG_SRC}/dm_mem.sv" \
+    "${RISCV_DBG_SRC}/dm_sba.sv" \
+    "${RISCV_DBG_SRC}/dm_top.sv" \
+    "${RISCV_DBG_SRC}/dm_obi_top.sv" \
+]
 
 # 2. Dinamik olarak toplanacak klasörler
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/Accelerator/*.sv"]
@@ -78,6 +109,7 @@ lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/Timer/rtl/
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/UART/rtl/*"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/Accelerator/model_weights/*.mem"]
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/JTAG/*.sv"]
+lappend my_files {*}$jtag_vendor_files
 lappend my_files {*}[glob -nocomplain "${PROJE_DIR}/PeripheralModules/VGA/*"]
 
 
