@@ -1,6 +1,14 @@
 ## Clock signal
+## Clock signal
 set_property -dict { PACKAGE_PIN W5   IOSTANDARD LVCMOS33 } [get_ports clk_i_100mHz]
-create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports clk_i_100mHz]
+
+# Do NOT use create_clock here! The clk_wiz IP automatically generates it.
+
+# --- Clock Domain Crossings (CDC) ---
+# Tell Vivado to stop trying to analyze timing between the 50MHz core and 25MHz VGA
+set_clock_groups -asynchronous \
+    -group [get_clocks -of_objects [get_pins clock_div/clk_out_50]] \
+    -group [get_clocks -of_objects [get_pins clock_div/clk_out3]]
 ## Switches (16-bit GPIO Input)
 set_property -dict { PACKAGE_PIN V17   IOSTANDARD LVCMOS33 } [get_ports {gpio_i[0]}]
 set_property -dict { PACKAGE_PIN V16   IOSTANDARD LVCMOS33 } [get_ports {gpio_i[1]}]
@@ -41,11 +49,11 @@ set_property -dict { PACKAGE_PIN L1    IOSTANDARD LVCMOS33 } [get_ports {gpio_o[
 set_property -dict { PACKAGE_PIN U18   IOSTANDARD LVCMOS33 } [get_ports rst_i]
 set_property -dict { PACKAGE_PIN T18   IOSTANDARD LVCMOS33 } [get_ports fetch_enable]
 
-set_property PACKAGE_PIN B18 [get_ports uart_rx_i]
-set_property IOSTANDARD LVCMOS33 [get_ports uart_rx_i]
-
-set_property PACKAGE_PIN A18 [get_ports uart_tx_o]
-set_property IOSTANDARD LVCMOS33 [get_ports uart_tx_o]
+## Pmod Header JC (Main UART)
+# Pin 1
+set_property -dict { PACKAGE_PIN K17   IOSTANDARD LVCMOS33 } [get_ports uart_tx_o]
+# Pin 2
+set_property -dict { PACKAGE_PIN M18   IOSTANDARD LVCMOS33 } [get_ports uart_rx_i]
 
 ## Pmod Header JA (Stream UART for PC Communication)
 set_property -dict { PACKAGE_PIN L2    IOSTANDARD LVCMOS33 } [get_ports uart_stream_rx_i] 
@@ -103,3 +111,4 @@ set_property CFGBVS VCCO [current_design]
 set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
 set_property BITSTREAM.CONFIG.CONFIGRATE 33 [current_design]
 set_property CONFIG_MODE SPIx1 [current_design]
+

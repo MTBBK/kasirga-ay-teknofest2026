@@ -16,7 +16,7 @@ VPATH = $(DRIVER_SUBDIRS) . ../
 CFILE = main
 LINKER_SCRIPT = main.ld
 
-CFLAGS = -Os -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -ffunction-sections -march=rv32imc -fno-tree-loop-distribute-patterns -mabi=ilp32 $(INCLUDES)
+CFLAGS = -Os -mcmodel=medany -static -std=gnu99 -fno-common -nostdlib -ffunction-sections -march=rv32imc_zicsr_zifencei -fno-tree-loop-distribute-patterns -mabi=ilp32 $(INCLUDES)
 LDFLAGS = -T $(LINKER_SCRIPT) -nostartfiles -Wl,--gc-sections -lgcc
 
 # startup.S üst klasörden alınıyor

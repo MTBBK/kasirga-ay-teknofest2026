@@ -36,7 +36,7 @@ module result_writeback #(
 
     assign M_AXI_AWADDR=RESULT_ADDR;
     assign M_AXI_WDATA={28'd0, latched_result};
-    assign M_AXI_WSTRB=4'b0001;//since it's 4 bits we will only use first byte
+    assign M_AXI_WSTRB=4'b1111;//since it's 4 bits we will only use first byte
     assign M_AXI_BREADY=1'b1;
 
     always_ff @(posedge clk) begin
@@ -91,4 +91,5 @@ module result_writeback #(
         end
     end
 endmodule
+
 

@@ -7,7 +7,7 @@
 #define UART_TDR_ADDR 0x0000500C  // Transmit data
 #define UART_CFG_ADDR 0x00005010  // Config
 
-#define CLK_FREQ 25
+#define CLK_FREQ 45
 
 
 
@@ -21,7 +21,7 @@ void uart_send_char(char);
 void uart_send_string(const char*);
 char uart_get_char(void);
 uint8_t char_received(void);
-
+uint8_t uart_get_byte(void);
 void uart_send_dec32(uint32_t val);
 void uart_send_hex8(uint8_t val);
 void uart_send_hex32(uint32_t val);

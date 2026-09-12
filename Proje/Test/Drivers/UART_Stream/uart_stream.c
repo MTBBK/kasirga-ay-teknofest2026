@@ -18,10 +18,18 @@ void start_uart_stream(void){
     uart_send_string("READY\n");
     REG_WRITE(UART_STREAM_CFG_ADDR, REG_READ(UART_STREAM_CFG_ADDR) | 0x20);
 }
+void start_uart_stream_for_demo(void){
+    REG_WRITE(UART_STREAM_CFG_ADDR, REG_READ(UART_STREAM_CFG_ADDR) | 0x20);
+}
 
 void start_uart_stream_for_sim(void){
     gpio_write_pin(15, 1); // "Veri göndermeye başlayabilirsin, hazırım" sinyali
     REG_WRITE(UART_STREAM_CFG_ADDR, REG_READ(UART_STREAM_CFG_ADDR) | 0x20);
+}
+uint8_t uart_stream_get_byte(){
+    // HW, RDR okunduğunda cfg[1]'i (rx_data_ready) otomatik temizler.
+    // CFG'ye yazma gerekmiyor.
+    return REG_READ(UART_STREAM_RDR_ADDR);
 }
 
 uint32_t uart_stream_read_ai_memory(uint32_t target_address) {

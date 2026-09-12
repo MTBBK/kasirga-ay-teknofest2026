@@ -1,0 +1,22 @@
+used top_feedlane1.bit
+Feedlane Count=1
+results:
+python3 send_ai_data.py 
+[PC] Dosyadan 1960 bayt veri okundu.
+[PC] FPGA'den 'READY' tetigi bekleniyor...
+[FPGA Log]: READY
+[PC] Tetik alindi! Stream UART uzerinden veri basiliyor...
+[PC] Veri aktarimi bitti! FPGA isleme basliyor...
+
+[PC] --- KRONOMETRE SONUCU ---
+[PC] Gecen Toplam Sure (READY -> Ilk Sonuc): 0.0318 saniye
+
+[FPGA Sonuc]: Ready->Sonuc (mikro saniye):38668
+[FPGA Sonuc]: Hizlandirici cevrim sayisi: 1933437
+[FPGA Sonuc]: Uart_stream cevrim sayisi: 1887051
+[FPGA Sonuc]: Loader cevrim sayisi: 1152
+[FPGA Sonuc]: Inference cevrim sayisi: 45156
+[FPGA Sonuc]: write_back cevrim sayisi: 18
+[FPGA Sonuc]: Sonuc: 0x0000000B
+[FPGA Sonuc]: READY
+

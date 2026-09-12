@@ -1,7 +1,7 @@
 # ==============================================================================
 # Vivado Bitstream ve Yazılım (MCS) Kesin Birleştirme Scripti
 # ==============================================================================
-set PROJE_DIR "/home/mtbbk/Temel/Projeler/Kasirga/Aquila/Proje"
+set PROJE_DIR "/mnt/disk2/Gtihub_Projects/kasirga/kasirga-ay-teknofest2026/Proje"
 
 set BIT_FILE "${PROJE_DIR}/Bitstreams/top.bit"
 set SW_MCS   "${PROJE_DIR}/Software/MainProgram/mem_Q512.mcs"

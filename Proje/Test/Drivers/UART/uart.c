@@ -84,6 +84,12 @@ char uart_get_char(){
     return (char)REG_READ(UART_RDR_ADDR);
 }
 
+uint8_t uart_get_byte(){
+    // HW, RDR okunduğunda cfg[1]'i (rx_data_ready) otomatik temizler.
+    // CFG'ye yazma gerekmiyor.
+    return REG_READ(UART_RDR_ADDR);
+}
+
 
 // 1 Byte'lık veriyi "A5", "0F" şeklinde Hex olarak yazdırır
 void uart_send_hex8(uint8_t val) {
