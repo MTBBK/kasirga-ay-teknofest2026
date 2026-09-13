@@ -233,6 +233,10 @@ axi4_dma_loader axi4_dma_loader_inst (
 result_writeback result_writeback_inst(
     .clk(clk),
     .rst(rst),
+    .softmax_0(softmax_results[0]),
+    .softmax_1(softmax_results[1]),
+    .softmax_2(softmax_results[2]),
+    .softmax_3(softmax_results[3]),
     .infer_done(infer_done),
     .result_class(results_class),
     .M_AXI_AWADDR(M_AXI_AWADDR),
@@ -278,6 +282,7 @@ assign infer_done_o = infer_done;
    
    
 endmodule
+
 
 
 

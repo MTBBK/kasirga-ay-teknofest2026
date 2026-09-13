@@ -2,6 +2,7 @@
 #include "uart.h"
 #include "gpio.h"
 #include "vga.h"
+#include "interrupt.h"
 
 void uart_stream_wait_for_data(void) {
     // CFG yazmacının 4. biti (0x10) stream_done_o sinyaline bağlıdır.
@@ -13,7 +14,23 @@ void uart_stream_wait_for_data(void) {
     // adına "Stream Enable" (0x20) bayrağını maskeleyerek temizle (~0x30).
     REG_WRITE(UART_STREAM_CFG_ADDR, REG_READ(UART_STREAM_CFG_ADDR) & ~0x30);
 }
+uint32_t read_result(void){
+    return last_ai_result & 0x000F;
+}
 
+#include <stdint.h>
+
+extern volatile uint32_t last_ai_result;
+extern volatile uint32_t softmax;
+
+// Pass an array of size 4 to this function: e.g., int8_t my_softmax[4]; read_softmax(my_softmax);
+void read_softmax(int8_t *softmax_array){
+    // Extract each 8-bit segment and cast to int8_t for correct signed interpretation
+    softmax_array[0] = (int8_t)((last_ai_result >> 8)  & 0xFF);
+    softmax_array[1] = (int8_t)((last_ai_result >> 16) & 0xFF);
+    softmax_array[2] = (int8_t)((last_ai_result >> 24) & 0xFF);
+    softmax_array[3] = (int8_t)(softmax & 0xFF);
+}
 void start_uart_stream(void){
     uart_send_string("READY\n");
     REG_WRITE(UART_STREAM_CFG_ADDR, REG_READ(UART_STREAM_CFG_ADDR) | 0x20);

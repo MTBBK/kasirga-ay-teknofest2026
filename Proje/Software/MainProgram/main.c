@@ -1,3 +1,4 @@
+
 #include "uart.h"
 #include "qspi.h"
 #include "timer.h"
@@ -92,31 +93,16 @@ int main(void) {
         uint32_t cycle_l4=0;
         ai_done = 0; // Her yeni ses dosyasında bayrağı sıfırla       
         
-        /*if(gpio_read_all()==0xADEF){
+        if(gpio_read_all()==0xADEF){
             start_uart_stream_for_sim();
         }
         else{
             start_uart_stream();
-        }*/
-        uint8_t byte1 = 0;
-        uint8_t byte2 = 0;
-
-        // Wait for AA 55 preamble
-        /*while (1) {
-            byte1 = uart_stream_get_byte(); // Your function to read 1 byte from the stream port
-            if (byte1 == 0xAA) {
-                byte2 = uart_stream_get_byte();
-                if (byte2 == 0x55) {
-                    start_uart_stream_for_demo();
-                    break; // Synchronization successful, break the loop and start reading the frame
-                }
-            }
-        }*/
-       start_uart_stream();
-        /*cycle_f1 = read_csr(cycle);
-        timer_init(49,1,0xFFFFFFFF);*/
+        }
+        cycle_f1 = read_csr(cycle);
+        timer_init(49,1,0xFFFFFFFF);
         uart_stream_wait_for_data();
-        /*cycle_l1 = read_csr(cycle);
+        cycle_l1 = read_csr(cycle);
 
         uart_stream_wait_for_loader_start();
         cycle_f2 = read_csr(cycle);
@@ -156,21 +142,31 @@ int main(void) {
         uart_send_string("\nwrite_back cevrim sayisi: ");
         uart_send_dec32(result4); 
         uart_send_string("\n");
-        uart_send_string("\nSonuc: ");
-        uart_send_hex32(last_ai_result);
-        uart_send_string("\n");
-        */
-        if(last_ai_result==0x0E){
+        uint32_t ai_result=read_result();
+        int8_t softmax_results[4]; 
+        read_softmax(softmax_results);
+        if(ai_result==0x0E){
             uart_send_string("Result is: UNKNOWN\n");
+
         }
-        else if(last_ai_result==0x0D){
+        else if(ai_result==0x0D){
             uart_send_string("Result is: SILENCE\n");
         }
-        else if(last_ai_result==0x0B){
+        else if(ai_result==0x0B){
             uart_send_string("Result is: YES\n");
         }
-        else if(last_ai_result==0x07){
+        else if(ai_result==0x07){
             uart_send_string("Result is: NO\n");
+        }
+        uart_send_string("Scores are:\n");
+    
+        for (uint32_t i = 0; i < 4; i++) {
+            uart_send_string("SM[");
+            uart_send_dec32(i);
+            uart_send_string("]: ");
+        
+            uart_send_int32((int32_t)softmax_results[i]);
+            uart_send_string("\n");
         }
     }
 

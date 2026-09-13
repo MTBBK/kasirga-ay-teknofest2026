@@ -12,6 +12,8 @@
 
 #define CLK_FREQ 45
 #define RESULT_ADDR 0x000127B8
+#define SOFTMAX_ADDR 0x000127BC
+
 
 
 
@@ -20,7 +22,8 @@
 #define REG_WRITE(addr, val) (*((volatile uint32_t *)(addr)) = (val))
 #define REG_READ(addr)       (*((volatile uint32_t *)(addr)))
 #define UART_READ_DATA       (*(volatile char*)UART_RDR_ADDR)
-
+uint32_t read_result(void);
+void read_softmax(int8_t *softmax_array);
 void uart_stream_wait_for_data(void);
 void start_uart_stream(void);
 void start_uart_stream_for_sim(void);

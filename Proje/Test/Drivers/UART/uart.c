@@ -97,7 +97,13 @@ void uart_send_hex8(uint8_t val) {
     uart_send_char(hex_chars[val >> 4]);   // Üst 4 bit
     uart_send_char(hex_chars[val & 0x0F]); // Alt 4 bit
 }
-
+void uart_send_int32(int32_t val) {
+    if (val < 0) {
+        uart_send_char('-');
+        val = -val; // Pozitife çevirip mevcut unsigned fonksiyona yolla
+    }
+    uart_send_dec32((uint32_t)val);
+}
 // 32-bit (Word) veriyi Hex olarak yazdırır
 void uart_send_hex32(uint32_t val) {
     uart_send_char('0');

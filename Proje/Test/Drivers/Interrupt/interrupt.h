@@ -21,6 +21,7 @@
 // YENİ: Main.c ve interrupt.c arasında paylaşılacak değişkenler
 extern volatile uint32_t last_ai_result;
 extern volatile uint8_t is_ai_done;
+extern volatile uint32_t softmax;
 
 void __attribute__((interrupt("machine"), aligned(256))) interrupt(void);
 void setup_interrupt(void);

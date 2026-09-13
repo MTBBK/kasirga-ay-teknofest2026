@@ -15,7 +15,7 @@
 #define REG_WRITE(addr, val) (*((volatile uint32_t *)(addr)) = (val))
 #define REG_READ(addr)       (*((volatile uint32_t *)(addr)))
 #define UART_READ_DATA       (*(volatile char*)UART_RDR_ADDR)
-
+void uart_send_int32(int32_t val);
 void uart_init(uint32_t);
 void uart_send_char(char);
 void uart_send_string(const char*);
