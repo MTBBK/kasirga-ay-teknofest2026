@@ -178,14 +178,14 @@ PRIMARY_GDSII_STREAMOUT_TOOL: klayout
 MACROS:
   sky130_sram_2kbyte_1rw1r_32x512_8:
     gds:
-      - dir::../SRAM_Macros/sky130_sram_2kbyte_1rw1r_32x512_8.gds
+      - dir::../asic/macros/sky130_sram_2kbyte_1rw1r_32x512_8/gds/sky130_sram_2kbyte_1rw1r_32x512_8.gds
     lef:
-      - dir::../SRAM_Macros/sky130_sram_2kbyte_1rw1r_32x512_8.lef
+      - dir::../asic/macros/sky130_sram_2kbyte_1rw1r_32x512_8/lef/sky130_sram_2kbyte_1rw1r_32x512_8.lef
     nl:
-      - dir::../SRAM_Macros/sky130_sram_2kbyte_1rw1r_32x512_8.v
+      - dir::../asic/macros/sky130_sram_2kbyte_1rw1r_32x512_8/verilog/sky130_sram_2kbyte_1rw1r_32x512_8.v
     lib:
       "*":
-        - dir::../SRAM_Macros/sky130_sram_2kbyte_1rw1r_32x512_8_TT_1p8V_25C.lib
+        - dir::../asic/macros/sky130_sram_2kbyte_1rw1r_32x512_8/lib/sky130_sram_2kbyte_1rw1r_32x512_8_TT_1p8V_25C.lib
     instances:
       # === LEFT EDGE (9 Macros, Y-pitch = 550um) ===
       instruction_memory.macro.genblk1[0].sram: { location: [150.0, 150.0], orientation: N }

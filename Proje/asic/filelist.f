@@ -1,15 +1,6 @@
-# asic/filelist.f
-
-# --- Include Dizinleri ---
-+incdir+../Core/rtl/include
-+incdir+../Core/rtl/vendor/pulp_platform_common_cells/include
-
-# --- 1. Paketler ---
 ../Core/rtl/include/cv32e40p_apu_core_pkg.sv
 ../Core/rtl/include/cv32e40p_fpu_pkg.sv
 ../Core/rtl/include/cv32e40p_pkg.sv
-
-# --- 2. Cekirdek Dosyalari ---
 ../Core/rtl/cv32e40p_if_stage.sv
 ../Core/rtl/cv32e40p_cs_registers.sv
 ../Core/rtl/cv32e40p_register_file_ff.sv
@@ -36,35 +27,31 @@
 ../Core/rtl/cv32e40p_core.sv
 ../Core/rtl/cv32e40p_top.sv
 ../Core/cv32e40p_clock_gate.sv
-
-# --- 3. AXI ve Interconnect ---
 ../PeripheralModules/xbar.sv
 ../PeripheralModules/xbar_readonly.sv
 ../PeripheralModules/obi_to_axi.sv
 ../PeripheralModules/obi_to_axi_readonly.v
-
-# --- 4. Cevresel Birimler ---
 ../PeripheralModules/GPIO/gpio.v
 ../PeripheralModules/I2C/sources/new/I2C_master.sv
 ../PeripheralModules/I2C/sources/new/i2c_axi_wrapper.sv
 ../PeripheralModules/UART_Stream/rtl/uart_stream_to_axi.sv
 ../PeripheralModules/UART_Stream/rtl/uart_stream_top.sv
-
-# --- 5. Klasorlerden Dinamik Cekilenler ---
 ../Accelerator/*.sv
 ../Accelerator/Softmax/rtl/*.sv
 ../MemoryModules/*.v
 ../MemoryModules/*.sv
-../PeripheralModules/QSPI/rtl/*.v
 ../PeripheralModules/QSPI/rtl/*.sv
-../PeripheralModules/Timer/rtl/*.v
 ../PeripheralModules/Timer/rtl/*.sv
-../PeripheralModules/UART/rtl/*.v
 ../PeripheralModules/UART/rtl/*.sv
 ../PeripheralModules/VGA/*.v
 ../PeripheralModules/VGA/*.sv
-
-
-
-# --- 7. Top Modul ---
+../PeripheralModules/JTAG/*.sv
+../SRAM_Macros/sky130_sram_8kbyte_1rw1r_32x2048_8.v
+../SRAM_Macros/sky130_sram_32kbyte_1rw1r_32x8192_8.v
+../TopModules/clock_divider.sv
 ../TopModules/top.sv
+../Core/rtl/include
+../Core/rtl/vendor/pulp_platform_common_cells/include
+constraints/design.sdc
+constraints/design.sdc
+macros/sky130_sram_2kbyte_1rw1r_32x512_8/verilog/sky130_sram_2kbyte_1rw1r_32x512_8.v

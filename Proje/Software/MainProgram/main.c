@@ -145,11 +145,11 @@ int main(void) {
         int8_t softmax_results[4]; 
         read_softmax(softmax_results);
         if(ai_result==0x0E){
-            uart_send_string("Result is: UNKNOWN\n");
+            uart_send_string("Result is: SILENCE\n");
 
         }
         else if(ai_result==0x0D){
-            uart_send_string("Result is: SILENCE\n");
+            uart_send_string("UNKNOWN\n");
         }
         else if(ai_result==0x0B){
             uart_send_string("Result is: YES\n");
