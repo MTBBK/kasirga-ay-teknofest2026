@@ -1,6 +1,6 @@
 # Temel Proje Dizini (Tek Değişken)
-set PROJE_DIR "/home/kasirga/Documents/kasirga-ay-teknofest2026/Proje"
 
+set PROJE_DIR "/mnt/disk2/Gtihub_Projects/kasirga/kasirga-ay-teknofest2026/Proje"
 
 # Include yollarını PROJE_DIR üzerinden dinamik olarak ayarlıyoruz
 set INCLUDE_PATHS [list \
@@ -20,9 +20,20 @@ set_property verilog_define {SIMULATION} [get_filesets sim_1]
 set_property include_dirs $INCLUDE_PATHS [current_fileset]
 set_property include_dirs $INCLUDE_PATHS [get_filesets sim_1]
 
+# -------------------------------------------------------------
+# YENİ: Verilog Compiler Flag'leri (FPGA_TARGET ve SIMULATION)
+# -------------------------------------------------------------
+# Sentez (Synthesis) için FPGA_TARGET flag'ini aktif et
+set_property verilog_define {FPGA_TARGET} [current_fileset]
+
+# Simülasyon (sim_1) için SIMULATION flag'ini aktif et
+set_property verilog_define {SIMULATION} [get_filesets sim_1]
+# -------------------------------------------------------------
+
 # 1. Tek tek eklenecek ana tasarım dosyaları
 set my_files [list \
     "${PROJE_DIR}/TopModules/top.sv" \
+    "${PROJE_DIR}/TopModules/clock_divider.sv" \
     "${PROJE_DIR}/Core/cv32e40p_clock_gate.sv" \
     "${PROJE_DIR}/PeripheralModules/GPIO/gpio.v" \
     "${PROJE_DIR}/PeripheralModules/I2C/sources/new/I2C_master.sv" \

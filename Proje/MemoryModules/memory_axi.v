@@ -53,7 +53,7 @@ assign BRESP_DMA = 2'b00;
 assign RRESP_DMA = 2'b00;
 
 // ==========================================
-// AXI4 DMA SİNYALLERİ
+// AXI4 DMA SIGNALS
 // ==========================================
 reg [5:0] write_burst_counter;
 reg [5:0] write_burst_length;
@@ -80,7 +80,7 @@ wire [31:0] burst_write_address_dma = correct_write_address_dma + write_burst_co
 wire [31:0] burst_read_address_dma  = correct_read_address_dma + read_burst_counter_next;
 
 // ==========================================
-// AXI4 Lite SİNYALLERİ
+// AXI4 Lite SIGNALS
 // ==========================================
 reg axi_rready, axi_awready;
 reg axi_bvalid, axi_rvalid;
@@ -88,7 +88,7 @@ reg axi_bvalid, axi_rvalid;
 assign BVALID  = axi_bvalid;
 assign RVALID  = axi_rvalid;
 
-// Çarpışma Çözücü (DMA Öncelikli)
+// Collision Resolver (DMA Priority)
 assign WREADY  = axi_awready & !axi_write_ready_dma;
 assign AWREADY = axi_awready & !axi_write_ready_dma;
 assign ARREADY = axi_rready  & !axi_read_ready_dma;
@@ -101,9 +101,8 @@ wire axi_read_ready  = (ARVALID && ARREADY);
 
 
 // ==========================================
-// PORT 0: YAZMA (WRITE) YÖNLENDİRMESİ
+// PORT 0: WRITE ROUTING
 // ==========================================
-// Sadece WVALID aktifken SRAM'e yazma izni ver (Çöp veri yazılmasını engeller)
 wire dma_write_active  = axi_write_ready_dma && WVALID_DMA;
 wire lite_write_active = axi_write_ready && WVALID;
 wire write_req_any     = dma_write_active | lite_write_active;
@@ -114,9 +113,8 @@ wire [3:0]  sram_wstrb      = axi_write_ready_dma ? WSTRB_DMA : WSTRB;
 
 
 // ==========================================
-// PORT 1: OKUMA (READ) YÖNLENDİRMESİ
+// PORT 1: READ ROUTING
 // ==========================================
-// BURASI KRİTİK: Burst işlemi boyunca SRAM'i açık ve doğru adreste tutmalıyız!
 wire dma_read_active  = axi_read_ready_dma || axi_rvalid_dma;
 wire lite_read_active = axi_read_ready || axi_rvalid;
 wire read_req_any     = dma_read_active | lite_read_active;
@@ -126,7 +124,7 @@ wire [31:0] dout_unused;
 wire [31:0] sram_dout1;
 
 sram_macro_wrapper #(.BANK_COUNT(SIZE/2048)) macro(
-    // Port 0: Okuma/Yazma (RW) Portu
+    // Port 0: RW Port
     .clk0(clk),
     .csb0(~write_req_any), 
     .web0(~write_req_any), 
@@ -135,20 +133,59 @@ sram_macro_wrapper #(.BANK_COUNT(SIZE/2048)) macro(
     .din0(sram_din0), 
     .dout0(dout_unused),
 
-    // Port 1: Sadece Okuma (R) Portu
+    // Port 1: R Port
     .clk1(clk),
     .csb1(~read_req_any), 
     .addr1(sram_read_addr), 
     .dout1(sram_dout1) 
 );
 
-// Makrodan cikan veriyi AXI hattina dogrudan bagliyoruz (1 cycle SRAM dogal gecikmesi)
-assign RDATA_DMA = sram_dout1;
-assign RDATA     = sram_dout1;
+
+// ==========================================
+// READ HOLD REGISTERS (SKID BUFFERS)
+// ==========================================
+
+// DMA Hold Register
+reg [31:0] rdata_dma_hold;
+reg use_hold_dma;
+
+always @(posedge clk) begin
+    if (!rst_i) begin
+        use_hold_dma <= 1'b0;
+        rdata_dma_hold <= 32'b0;
+    end else begin
+        if (RVALID_DMA && !RREADY_DMA && !use_hold_dma) begin
+            rdata_dma_hold <= sram_dout1;
+            use_hold_dma <= 1'b1;
+        end else if (RREADY_DMA) begin
+            use_hold_dma <= 1'b0;
+        end
+    end
+end
+assign RDATA_DMA = use_hold_dma ? rdata_dma_hold : sram_dout1;
+
+// Lite Hold Register
+reg [31:0] rdata_lite_hold;
+reg use_hold_lite;
+
+always @(posedge clk) begin
+    if (!rst_i) begin
+        use_hold_lite <= 1'b0;
+        rdata_lite_hold <= 32'b0;
+    end else begin
+        if (RVALID && !RREADY && !use_hold_lite) begin
+            rdata_lite_hold <= sram_dout1;
+            use_hold_lite <= 1'b1;
+        end else if (RREADY) begin
+            use_hold_lite <= 1'b0;
+        end
+    end
+end
+assign RDATA = use_hold_lite ? rdata_lite_hold : sram_dout1;
 
 
 // ==========================================
-// AXI4 DURUM MAKİNELERİ
+// AXI4 STATE MACHINES
 // ==========================================
 
 // AXI4 Lite BVALID
@@ -260,9 +297,12 @@ always@(*) begin
     axi_rready_dma = !RVALID_DMA;
 end
 
+// Fixed Address Generation logic: Freeze read counter when stalled
 always@(*) begin
-    if(RVALID_DMA)
+    if(RVALID_DMA && RREADY_DMA)
         read_burst_counter_next = read_burst_counter + 1;
+    else if(RVALID_DMA && !RREADY_DMA)
+        read_burst_counter_next = read_burst_counter;
     else
         read_burst_counter_next = 0;
 end

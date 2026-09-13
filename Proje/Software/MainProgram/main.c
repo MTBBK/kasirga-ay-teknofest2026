@@ -102,7 +102,7 @@ int main(void) {
         uint8_t byte2 = 0;
 
         // Wait for AA 55 preamble
-        while (1) {
+        /*while (1) {
             byte1 = uart_stream_get_byte(); // Your function to read 1 byte from the stream port
             if (byte1 == 0xAA) {
                 byte2 = uart_stream_get_byte();
@@ -111,7 +111,8 @@ int main(void) {
                     break; // Synchronization successful, break the loop and start reading the frame
                 }
             }
-        }
+        }*/
+       start_uart_stream();
         /*cycle_f1 = read_csr(cycle);
         timer_init(49,1,0xFFFFFFFF);*/
         uart_stream_wait_for_data();

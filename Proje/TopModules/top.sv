@@ -8,7 +8,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 // Comment the line below if you want to deactivate JTAG module
-`define ENABLE_JTAG
+//`define ENABLE_JTAG
 
 module top(
     // Clock Pin for default clock
@@ -56,7 +56,7 @@ module top(
     );
     
     parameter uart_baud_rate = 921600;
-    parameter clk_freq_Mhz   = 25;
+    parameter clk_freq_Mhz   = 50;
 
     // ==========================================
     // 1. CLOCK & RESET GENERATION
@@ -252,7 +252,7 @@ module top(
         .rst_ni                   (rst_n_i),
         .clk_i                    (clk_i),
         .scan_cg_en_i             (1'b0),
-        .fetch_enable_i           (1'b1), // fetch_enable
+        .fetch_enable_i           (fetch_enable), // fetch_enable
         .pulp_clock_en_i          (1'b0),
         .core_sleep_o             (sleep_en),
         .boot_addr_i              (boot_addr),
@@ -890,3 +890,4 @@ module top(
 `endif
         
 endmodule
+

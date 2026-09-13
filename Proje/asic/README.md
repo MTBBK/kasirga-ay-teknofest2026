@@ -7,24 +7,77 @@ açıklamasını, kullanılan araç/ortam bilgilerini ve teslim edilen rapor/
 
 ## 9.1. Tasarım Özeti
 
-- **Tasarımın kısa açıklaması ve amacı:** [DOLDUR: 1-2 cümle - projenin
-  genel amacı, örn. "CV32E40P çekirdekli, AI hızlandırıcı ve çevre
-  birimleri içeren bir mikrodenetleyici SoC tasarımı"]
+- **Tasarımın kısa açıklaması ve amacı:** OpenHW Group CV32E40P RISC-V
+  çekirdeği üzerine kurulu, yapay zeka hızlandırıcı ve Timer/UART/I2C
+  Master/QSPI Master/GPIO çevre birimleri içeren, tüm çevre
+  birimlerinin AXI4-Lite arayüzü ve bir OBI-to-AXI köprüsü üzerinden
+  entegre edildiği bir mikrodenetleyici SoC tasarımıdır.
 - **En üst seviye modül adı:** `top`
 - **Temel giriş ve çıkış arayüzleri:** GPIO (`gpio_i[15:0]`), QSPI
   (`qspi_io_0..3`), UART (`uart_rx_i`, ilgili tx sinyalleri),
   UART_Stream (`uart_stream_rx_i` ve ilgili sinyaller), I2C
-  (`sda_io` ve ilgili sinyaller), VGA çıkışı, [DOLDUR: eksik varsa ekle -
-  JTAG kullanıldıysa belirt, kullanılmadıysa "JTAG dahil edilmedi" yaz]
+  (`sda_io` ve ilgili sinyaller), VGA çıkışı. JTAG (opsiyonel debug
+  arayüzü) bu ASIC teslimine dahil edilmemiştir - bkz. Bölüm 9.9.
 - **Saat ve reset portları:** `clk_i_50mHz` (saat girişi), `rst_i`
   (asenkron reset, `set_false_path -from` ile kısıtlamalardan
   ayrılmıştır)
-- **Hedef saat frekansı:** 25 MHz (40ns periyot).
+- **Hedef saat frekansı:** 25 MHz (40ns periyot) - yalnızca ASIC
+  fiziksel tasarımı için. FPGA prototipi 50MHz'de çalışmaktadır; bu
+  fark ve gerekçesi aşağıda ayrıca açıklanmıştır.
+
   Not: `clk_i_50mHz` port adı, projenin ilk aşamasındaki 50MHz hedefinden
-  kalma bir isimlendirmedir. Gerçek çalışma frekansı 25MHz (40ns
-  periyot) olarak belirlenmiş ve tüm STA analizleri bu değer üzerinden
-  yürütülmüştür; port adı fonksiyonel olarak yanıltıcıdır ancak
-  tasarımı etkilememektedir.
+  kalma bir isimlendirmedir. ASIC tarafındaki gerçek çalışma frekansı
+  25MHz (40ns periyot) olarak belirlenmiş ve tüm STA analizleri bu
+  değer üzerinden yürütülmüştür; port adı fonksiyonel olarak
+  yanıltıcıdır ancak tasarımı etkilememektedir.
+
+### FPGA (50MHz) ve ASIC (25MHz) Arasındaki Frekans Farkının Gerekçesi
+
+Aynı RTL tabanlı tasarım FPGA'da 50MHz'de, ASIC fiziksel tasarımında
+ise 25MHz'de doğrulanmıştır. Bu, iki ayrı tasarım değil, aynı temel
+tasarımın hedef teknolojiye bağlı gerçek fiziksel/zamanlama
+karakteristiklerinin sonucudur:
+
+1. **ASIC signoff, FPGA doğrulamasından çok daha geniş bir işletim
+   uzayını garanti etmek zorundadır.** ASIC zamanlama kapatması dokuz
+   PVT (Proses-Gerilim-Sıcaklık) köşesinin tamamında (min/nom/max ×
+   tt/ss/ff) yapılmıştır; en kötü durum köşesi (ss_100C_1v60 - yavaş
+   silikon, yüksek sıcaklık, düşük gerilim) belirleyicidir. FPGA'da
+   ise doğrulama, önceden karakterize edilmiş, fabrikasyonu tamamlanmış
+   ve hız sınıfı (speed grade) test edilmiş tek bir silikon üzerinde
+   yapılır; üretim varyasyonu için ayrıca marj bırakmaya gerek yoktur.
+2. **FPGA'nın sabit donanım blokları (BRAM, DSP, dedike carry
+   zincirleri, saat ağları) vendor tarafından yıllarca optimize
+   edilmiş, çok düşük gecikmeli yapılardır.** Bu tasarımda ASIC
+   tarafında kullanılan SRAM makrosu için yalnızca TT (tipik) Liberty
+   zamanlama modeli mevcuttur ve bu model tüm PVT köşelerine
+   uygulanmıştır (bkz. Bölüm 9.5); bu, özellikle yavaş köşelerde
+   SRAM arayüzü etrafında ilave zamanlama marjı gerektirmektedir.
+3. **SKY130 (130nm), modern FPGA'ların üretildiği süreçlere kıyasla
+   daha eski/yavaş bir açık kaynak prosestir.** Kullanılan Digilent
+   Basys3 geliştirme kartı, Xilinx Artix-7 (XC7A35T) FPGA ailesini
+   içermektedir; bu aile 28nm süreçte üretilmektedir. SKY130'un 130nm
+   süreci ile karşılaştırıldığında, Artix-7'nin ham transistör anahtarlama
+   hızı belirgin şekilde daha yüksektir; bu da aynı mantık derinliğinin
+   FPGA'da çok daha kısa sürede tamamlanabilmesini açıklamaktadır.
+4. **Fiziksel yerleşim farkı:** ASIC tarafında 23 SRAM makrosunun
+   entegrasyonu için düşük çekirdek doluluğu (%25 utilization) ve
+   geniş die alanı tercih edilmiştir; bu, FPGA'nın önceden
+   optimize edilmiş, yoğun ve düzenli yönlendirme kumaşına kıyasla
+   daha uzun tel uzunlukları ve buna bağlı RC gecikmesi doğurmaktadır.
+5. **Zaman kısıtları nedeniyle önceliklendirme:** ASIC tarafında setup
+   marjı zaten geniştir (en kötü köşede +2.27ns), ancak hold
+   ihlallerinin kapatılması (bkz. Bölüm 9.9) bu teslim döngüsünde
+   önceliklendirilmiş; frekans artırma denemeleri (35-38ns aralığı
+   teorik olarak setup açısından mümkün olsa da) hold kapatma
+   çalışmasıyla etkileşebileceğinden ve ek doğrulama turu
+   gerektireceğinden zaman kısıtları nedeniyle bu teslimde
+   denenmemiştir.
+
+Bu farklılık, DDK'nin FPGA/ASIC implementasyon farklılıkları hakkındaki
+yönlendirmesi kapsamında (aynı algoritma, işlev ve zorunlu arayüzlerin
+korunması koşuluyla hedef teknolojiye bağlı zamanlama/performans
+farklılıklarının kabul edilebilir olduğu) uygun bir uygulamadır.
 
 ## 9.2. Araç ve Ortam Bilgileri
 
@@ -52,11 +105,10 @@ açıklamasını, kullanılan araç/ortam bilgilerini ve teslim edilen rapor/
 
 ## 9.3. Akışın Çalıştırılması
 
-Nix ortamını başlatmak için gerekli komutlar:
+Nix ortamını başlatmak için gerekli komut:
 ```
-nix-shell 
+nix-shell
 ```
-[DOLDUR: gerçek Nix başlatma komutunuz farklıysa düzeltin]
 
 Akışı yeniden çalıştırmak için:
 ```
@@ -68,33 +120,36 @@ make asic_run
 öncesinde temizlenir (`rm -rf run/*`) ve LibreLane Classic akışının
 geçici çalışma alanı olarak kullanılır.
 
-Akış sonunda rapor ve nihai çıktıların toplanması işlemi make asic_run çalıştırıldığında otomatik olarak gerçekleşir.
-
-Bu betik `asic/run/` içerisindeki LibreLane ham çıktılarını okuyup,
-Bölüm 5 ve 6'da tanımlanan zorunlu raporları ve çıktıları sırasıyla
-`asic/reports/` ve `asic/results/` altına toplar; ayrıca LibreLane'in
-iç mekanizmasına ait rapor içeriği taşımayan yardımcı dosyaları
-(`state_in.json`, `state_out.json`, `config.json`, `runtime.txt`,
-`COMMANDS`, `_env*.tcl`, `*.process_stats.json`) temizler.
+Akış sonunda rapor ve nihai çıktıların toplanması işlemi, `make
+asic_run` çalıştırıldığında (`asic/scripts/collect_outputs.py`
+betiğinin Makefile içerisinden çağrılması yoluyla) otomatik olarak
+gerçekleşir. Bu betik `asic/run/` içerisindeki LibreLane ham
+çıktılarını okuyup, Bölüm 5 ve 6'da tanımlanan zorunlu raporları ve
+çıktıları sırasıyla `asic/reports/` ve `asic/results/` altına toplar;
+ayrıca LibreLane'in iç mekanizmasına ait rapor içeriği taşımayan
+yardımcı dosyaları (`state_in.json`, `state_out.json`, `config.json`,
+`runtime.txt`, `COMMANDS`, `_env*.tcl`, `*.process_stats.json`)
+temizler.
 
 Teslim kontrolü:
 ```
 make asic_verify
 ```
 
-Gerekli ön koşullar ve ortam değişkenleri: [DOLDUR: varsa]
+Gerekli ön koşullar ve ortam değişkenleri: Yoktur; Nix ortamı tüm
+bağımlılıkları sağlar.
 
 Yaklaşık çalışma süresi: ~7 saat
 
-Önerilen CPU/RAM/disk gereksinimleri: 64GB+
-RAM önerilir - SRAM makro sayısı ve XOR analizi nedeniyle bellek
-kullanımı yüksektir
+Önerilen CPU/RAM/disk gereksinimleri: 64GB+ RAM önerilir - SRAM makro
+sayısı (23 adet) ve XOR analizi (~83 milyon karşılaştırma öğesi)
+nedeniyle bellek kullanımı yüksektir.
 
 ## 9.4. RTL ve Akış Girdileri
 
-- **asic/filelist.f dosyasının konumu:** [DOLDUR: filelist.f
-  kullanıyorsanız konumunu belirtin; VERILOG_FILES doğrudan
-  config.yaml içinde tanımlıysa bunu belirtin]
+- **asic/filelist.f dosyasının konumu:** Kullanılmamıştır; RTL kaynak
+  dosyaları doğrudan `asic/config.yaml` içerisinde `VERILOG_FILES`
+  anahtarı altında listelenmiştir.
 - **Kullanılan include dizinleri:**
   `Core/rtl/include`, `Core/rtl/vendor/pulp_platform_common_cells/include`
 - **Kullanılan derleme tanımları ve makrolar:** `ASIC_TARGET`
@@ -139,7 +194,7 @@ edilmiştir:
   şekilde yüksek slew/kapasitans ihlali sayısına yol açmaktadır (bkz.
   Bölüm 9.9).
 
-**Kaynak konumu:** Proje/SRAM_Macros
+**Kaynak konumu:** `Proje/SRAM_Macros/`
 
 **Güç ve toprak pinleri:** `vccd1`, `vssd1`
 
@@ -152,9 +207,9 @@ bağlanmıştır.
 
 - **Birincil saat:** `clk_main`, 40.0ns periyot, `clk_i_50mHz`
   portundan tanımlanmıştır.
-- **Generated clock:** Kullanılmamıştır (VGA için düşünülen
+- **Generated clock:** Kullanılmamıştır. VGA için düşünülen
   `clk_25mhz` generated clock tanımı devre dışı bırakılmıştır; VGA
-  çevre birimi ana saat alanında çalışmaktadır.
+  çevre birimi ana saat alanında (`clk_main`) çalışmaktadır.
 - **Saat alanı ilişkileri:** Tek saat alanı (`clk_main`) kullanılmıştır;
   `set_clock_groups -asynchronous` ile tanımlanmıştır.
 - **Input/output delay:** Tüm girişler için 1.0ns (`-max`), tüm
@@ -171,11 +226,12 @@ bağlanmıştır.
     zorlanmaması amacıyla).
 - **Multicycle path:** Kullanılmamıştır.
 - **Hold ihlali düzeltme amaçlı min-delay kısıtları:**
-  Aşağıdaki portlar için, ilk kademe register'larda tespit edilen hold
-  ihlallerini azaltmak amacıyla `set_min_delay` kısıtları
-  uygulanmıştır (bkz. Bölüm 9.9 için gerekçe ve kapsamlı analiz):
-  - `qspi_io_0`, `qspi_io_1`, `qspi_io_2`, `qspi_io_3`: 1.6ns
-  - `uart_rx_i`, `gpio_i[6]`: 1.1ns
+  Giriş portlarından ilk kademe register'lara giden yollarda tespit
+  edilen hold ihlallerini azaltmak amacıyla, aşağıdaki portlara sabit
+  0.5ns `set_min_delay` kısıtı uygulanmıştır (bkz. Bölüm 9.9 için
+  gerekçe ve denenen alternatiflerin analizi):
+  `qspi_io_0`, `qspi_io_1`, `qspi_io_2`, `qspi_io_3`, `gpio_i[*]`,
+  `fetch_enable`, `uart_rx_i`.
 - **Kullanılan varsayımlar:** Yukarıdaki input/output delay, transition
   ve load değerleri dışında LibreLane ve PDK'nin varsayılan değerleri
   geçerlidir.
@@ -188,11 +244,11 @@ bağlanmıştır.
   `PL_TARGET_DENSITY_PCT: 35%` (`FP_CORE_UTIL + 10`)
 - **Floorplan en boy oranı:** Die alanı doğrudan mutlak koordinatlarla
   tanımlanmıştır.
-- **Giriş/çıkış pinlerinin yerleşim yöntemi:** LibreLane
-  varsayılan IO placement kullanıldı.
-- **Kullanılan yönlendirme katmanları:** [DOLDUR: config.yaml'da özel
-  bir RT_* katman kısıtlaması yoksa "PDK varsayılan katmanları
-  kullanılmıştır" yazın]
+- **Giriş/çıkış pinlerinin yerleşim yöntemi:** LibreLane varsayılan IO
+  placement kullanılmıştır; özel bir pin sıralaması/yönü
+  tanımlanmamıştır.
+- **Kullanılan yönlendirme katmanları:** PDK varsayılan katmanları
+  kullanılmıştır; özel bir RT_* katman kısıtlaması tanımlanmamıştır.
 - **Güç ve toprak ağı isimleri:** `vccd1` (güç), `vssd1` (toprak)
 - **Güç dağıtım ağı yapılandırması:** LibreLane varsayılan PDN
   yapılandırması, `PDN_ENABLE_GLOBAL_CONNECTIONS: true`
@@ -220,33 +276,62 @@ bağlanmıştır.
   çok altına çekilerek uzun netler üzerinde tampon eklenmesi
   zorlanmış, bu sayede max_ss_100C_1v60 köşesinde slew ihlalleri
   8775'ten 5189'a, kapasitans ihlalleri 723'ten 570'e düşürülmüştür.
-- `PL_RESIZER_HOLD_MAX_BUFFER_PCT` / `GRT_RESIZER_HOLD_MAX_BUFFER_PCT 100`:
-  - Bu değerin 50'den yükseltilmesi, register-to-register hold
-    ihlallerini tamamen (6 → 0) gidermiştir.
+- `PL_RESIZER_HOLD_MAX_BUFFER_PCT` / `GRT_RESIZER_HOLD_MAX_BUFFER_PCT`:
+  100 - bu değerin 50'den yükseltilmesi, register-to-register hold
+  ihlallerini tamamen (6 → 0) gidermiştir.
 
 ## 9.8. Lint Sonuçları ve İstisnaları
 
-- **Lint waiver/yapılandırma dosyaları:** [DOLDUR: `_waivers_output.vlt`
-  dosyası mevcut ancak içeriği kontrol edilmedi - eğer içi boşsa
-  "waiver kullanılmamıştır" yazın, doluysa içeriğini özetleyin]
-- **Kapatılan/kabul edilen lint uyarıları:** 909 lint uyarısı
-  mevcuttur [DOLDUR: bunların kategorik bir özetini verebilirseniz
-  (örn. "çoğu kullanılmayan sinyal uyarısı" gibi) ekleyin, yoksa "detaylı
-  döküm asic/reports/lint/verilator_lint.log dosyasındadır" yazın].
-- **Inferred latch:** [DOLDUR: metrics.csv'deki
-  design__inferred_latch__count değerini kontrol edin; 0 ise
-  "tasarımda inferred latch bulunmamaktadır" yazın]
+- **Lint waiver/yapılandırma dosyaları:**
+  `asic/reports/lint/waivers/_waivers_output.vlt` mevcuttur, ancak
+  içerdiği tüm satırlar Verilator tarafından önerilen (`--waiver-output`
+  ile üretilen) waiver adaylarıdır ve tamamı yorum satırı (`//`) olarak
+  bırakılmıştır - hiçbir waiver fiilen etkinleştirilmemiş veya
+  akışa uygulanmamıştır. Tüm 909 uyarı, waiver kullanılmaksızın
+  raporlanmıştır.
+- **Kapatılan/kabul edilen lint uyarıları:** Kapatılmış/kabul edilmiş
+  uyarı yoktur (yukarıya bakınız). 909 uyarının önerilen waiver
+  dosyasından çıkarılan kural bazlı dağılımı ağırlıklı olarak şu
+  kategorilerdedir: `PINCONNECTEMPTY` (isimle bağlanan boş referanslı
+  pinler, çoğunlukla CV32E40P çekirdeğinin kullanılmayan debug/OBI
+  çıkışlarında), `UNUSEDPARAM` (kullanılmayan parametreler, ağırlıklı
+  olarak `cv32e40p_pkg.sv` içerisindeki debug/FPU ile ilgili
+  parametreler), `TIMESCALEMOD` (blackbox modüllerde eksik timescale
+  bildirimi), `CASEINCOMPLETE` (eksiksiz kapsanmayan case ifadeleri,
+  QSPI/I2C/Accelerator modüllerinde), `VARHIDDEN` (üst kapsamdaki
+  bildirimi gizleyen sinyal tanımları, `im2col_feeder.sv`),
+  `SYNCASYNCNET` ve `UNOPTFLAT` (CV32E40P çekirdeğinin id_stage/core
+  modüllerinde birer örnek). Ayrıntılı döküm
+  `asic/reports/lint/verilator_lint.log` dosyasındadır.
+- **Inferred latch:** Tasarımda inferred latch bulunmamaktadır
+  (`design__inferred_latch__count: 0`).
 
 ## 9.9. Bilinen Sorunlar ve Kabul Edilmiş İstisnalar
 
-### Hold İhlalleri (qspi_io_* portları)
+### JTAG Arayüzü (Opsiyonel)
+
+Şartnamede opsiyonel olarak tanımlanan JTAG debug arayüzü, bu ASIC
+teslimine dahil edilmemiştir. Projede ana çekirdek (CV32E40P) ile
+JTAG entegrasyonu için gereken debug modülü, `pulp_platform
+common_cells` kütüphanesinin birbiriyle uyumsuz iki farklı sürümünü
+gerektirmektedir: ASIC akışında kullanılan sürüm (commit
+`6aeee85d0a34fedc06c14f04fd6363c9f7b4eeea`, bkz. Bölüm 9.13) ile
+JTAG entegrasyonunun tamamlandığı sürüm birbirinden farklıdır. JTAG
+entegrasyonu son aşamada tamamlanmış olup bu bağımlılık çakışmasının
+zaman kısıtları nedeniyle güvenli şekilde çözülmesi mümkün
+olmamıştır. JTAG'in opsiyonel bir arayüz olması ve temel tasarımın
+algoritması, işlevi ve zorunlu arayüzlerinin her iki platformda
+(FPGA/ASIC) da aynı kalması nedeniyle bu farklılığın kabul edilebilir
+olduğu değerlendirilmektedir.
+
+### Hold İhlalleri (Giriş Portu → İlk Kademe Register Yolları)
 
 En iyi elde edilen sonuçta 43 hold ihlali kalmaktadır (TNS: -14.19ns,
 en kötü slack: -1.56ns @ max_ss_100C_1v60); reg-to-reg (register-to-
-register) yollarda sıfır ihlal bulunmaktadır, tüm kalan ihlaller
-doğrudan giriş portlarından ilk kademe register'lara giden yollarda
-(`qspi_io_0..3`, ağırlıklı olarak; ayrıca birkaç `uart_rx_i`/
-`gpio_i[6]` köşe durumu) yoğunlaşmaktadır.
+register) yollarda ihlal bulunmamaktadır, kalan ihlaller doğrudan
+giriş portlarından ilk kademe register'lara giden yollarda
+(`qspi_io_0..3`, `gpio_i[*]`, `fetch_enable`, `uart_rx_i`)
+yoğunlaşmaktadır.
 
 **Kök neden analizi (ODB sorgulaması ile doğrulanmıştır):**
 `qspi_io_1` portunun fiziksel konumu (die kenarı, Y≈0) ile bu porta
@@ -265,15 +350,13 @@ olmamasına yol açmaktadır.
    etki göstererek yavaş (ss) köşelerde iyileşme sağlarken hızlı (ff)
    köşelerde yeni ihlaller yaratmıştır (net TNS kötüleşmiştir);
    bu nedenle kaldırılmıştır.
-2. Hedefe yönelik `set_min_delay` kısıtları (yalnızca ihlal eden
-   portlara, kademeli değerlerle) uygulanmış ve genel sonucu belirgin
-   şekilde iyileştirmiştir (154 → 43 ihlal).
-3. `qspi_io_*` için 1.6ns değeri üç ayrı denemeyle (1.6/1.7/1.8ns)
-   doğrulanmış bir tavan olarak belirlenmiştir: 1.6ns'in üzerine
-   çıkıldığında ihlal şiddeti orantısız şekilde kötüleşmektedir (1.7ns:
-   en kötü slack -1.56ns → -2.75ns, TNS -14.19ns → -38.55ns), bu da bu
-   net için fiziksel bir tampon yerleştirme/gecikme sınırına
-   ulaşıldığını göstermektedir.
+2. İhlal eden portlara özgü, portlar arasında farklılaştırılmış
+   (kademeli) `set_min_delay` değerleri (`qspi_io_*` için daha yüksek,
+   diğerleri için daha düşük) denenmiştir; ancak bu yaklaşım, tüm
+   portlara uygulanan sabit 0.5ns değerine kıyasla genel sonucu
+   iyileştirmemiştir.
+3. Bu nedenle nihai yapılandırmada, ilgili tüm portlara sabit 0.5ns
+   `set_min_delay` uygulanması tercih edilmiştir (bkz. Bölüm 9.6).
 4. Makro halo değeri (40µm → 20µm) test edilmiş, ancak hem hold hem
    slew/kapasitans metriklerini kötüleştirdiği için geri alınmıştır -
    bu, sorunun makro yakınlığı/tıkanıklığından değil, saf fiziksel
@@ -359,7 +442,7 @@ log çıktısı) altında mevcuttur.
 - **Kullanılan besleme gerilimi:** 1.8V (tt), 1.6V (ss), 1.95V (ff) -
   bkz. Tablo 4
 - **Switching activity girdisi:** Açık bir switching activity girdisi
-  kullanılmamıştır, güç sonuçları tahminîdir.
+  kullanılmamıştır.
 - **Özel gerilim kaynağı konum dosyası:** Kullanılmamıştır.
 - **Güç sonuçlarının tahminî olup olmadığı:** Güç sonuçları tahminîdir.
 
@@ -367,20 +450,24 @@ log çıktısı) altında mevcuttur.
 
 - **Kullanılan signoff PVT köşeleri:** tt_025C_1v80, ss_100C_1v60,
   ff_n40C_1v95 (min/nom/max ölçeklemeleriyle birlikte dokuz köşe)
-- **Setup ve hold WNS/TNS sonuçları:** Setup WNS: +2.15ns (en kötü
+- **Setup ve hold WNS/TNS sonuçları:** Setup WNS: +2.27ns (en kötü
   köşe: max_ss_100C_1v60), Setup TNS: 0 (ihlal yok). Hold WNS:
-  -1.56ns, Hold TNS: -14.19ns (bkz. Bölüm 9.9 - kök neden analizi)
+  -1.56ns, Hold TNS: -14.19ns, 43 ihlal (bkz. Bölüm 9.9 - kök neden
+  analizi)
 - **Magic ve KLayout DRC sonuçları:** Temiz (DRC ihlali yok)
 - **Netgen LVS sonucu:** Temiz (LVS eşleşmesi başarılı)
 - **Anten, XOR, PDN ve bağlantısız pin sonuçları:** Anten kontrolü
   temiz; XOR farkları için bkz. Bölüm 9.9; PDN grid-error raporları
-  `asic/reports/pdn/` altında mevcuttur.
+  (`asic/reports/pdn/vccd1-grid-errors.rpt`,
+  `asic/reports/pdn/vssd1-grid-errors.rpt`) incelenmiş, ihlal
+  bulunmamaktadır.
 
 ## 9.12. Rapor ve Çıktı Konumları
 
 - **Teslim edilen çıktıların üretildiği LibreLane çalışma etiketi:**
-  [DOLDUR: run/final klasörünüzün üretildiği tarih/run tag varsa
-  belirtin]
+  Ayrı bir çalışma etiketi/tag sistemi kullanılmamıştır; teslim edilen
+  çıktılar `asic/run/final/` altında LibreLane tarafından üretilen en
+  güncel (tek) çalışmadan alınmıştır.
 - **Esas alınan nihai GDSII dosyası:** `asic/results/gds/top.gds`
   (KLayout streamout, `PRIMARY_GDSII_STREAMOUT_TOOL: klayout`
   yapılandırmasına göre)
@@ -405,18 +492,24 @@ log çıktısı) altında mevcuttur.
 
 ## 9.13. Üçüncü Taraf Bileşenler ve Lisanslar
 
-Ayrıntılı liste için bkz. `asic/THIRD_PARTY.md` [DOLDUR: bu dosyayı
-oluşturduysanız buraya referans verin; oluşturmadıysanız üçüncü taraf
-bileşenleri (CV32E40P çekirdeği, pulp_platform common_cells, kullanılan
-SRAM makrosu, vb.) burada özetleyin - kaynak, sürüm/commit, lisans
-bilgisi ile]
+Ayrıntılı liste `asic/THIRD_PARTY.md` dosyasında sunulmaktadır.
+
+Kısa özet:
+- **CV32E40P işlemci çekirdeği** - OpenHW Group, commit `6033d2b`,
+  Solderpad Hardware License v2.1 (SPDX: `Apache-2.0 WITH SHL-2.1`).
+- **pulp_platform common_cells** - PULP Platform, commit
+  `6aeee85d0a34fedc06c14f04fd6363c9f7b4eeea`, Solderpad Hardware
+  License v2.1. Bu, ana çekirdek ile birlikte ASIC akışında
+  kullanılan sürümdür; JTAG entegrasyonu farklı (uyumsuz) bir
+  common_cells sürümü gerektirmektedir - bkz. Bölüm 9.9 JTAG notu.
+- **SRAM makrosu** - Referans SKY130 PDK kurulumu (bkz. Bölüm 9.5).
+- **Tüm çevre birimleri (Timer, UART, I2C Master, QSPI Master, GPIO,
+  UART_Stream, VGA) ve yapay zeka hızlandırıcı** - tamamı takım
+  tarafından özgün olarak geliştirilmiştir; üçüncü taraf lisansına
+  tabi değildir.
 
 ---
 
 ## Ek: Bilinen Diğer Notlar
 
-[DOLDUR: AI hızlandırıcı bellek mimarisi hakkında not eklemek
-isterseniz buraya ekleyin - örn. "AI hızlandırıcı, 30KB veri belleğini
-SRAM makroları ile, ağırlık depolama (16KB) ve tampon belleklerini ise
-standart hücre tabanlı register yapılarıyla gerçekleştirmektedir; bu
-mimari tercih zaman kısıtları nedeniyle bu aşamada değiştirilmemiştir."]
+Bu bölümde belirtilecek ek bir not bulunmamaktadır.
