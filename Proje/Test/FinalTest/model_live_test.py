@@ -153,6 +153,8 @@ def run_live_inference():
                 stream_serial.write(chunk)
                 stream_serial.flush()
 
+
+
             # --- START FPGA TIMER ---
             # Start counting exactly when data finishes sending
             start_fpga = time.perf_counter()
@@ -162,10 +164,22 @@ def run_live_inference():
                 result_line = main_serial.readline().decode('utf-8', errors='ignore').strip()
                 log_uart(result_line)
 
-                # Make the search tolerant of spaces
-                if "Sonuc:" in result_line and "0x" in result_line:
+                # Parse the final string result mapped from the C code and convert to expected Hex
+                if "Result is: SILENCE" in result_line:
                     end_fpga = time.perf_counter()
-                    fpga_hex = "0x" + result_line.split("0x")[1].upper()
+                    fpga_hex = "0x0000000E"
+                    break
+                elif "UNKNOWN" in result_line:
+                    end_fpga = time.perf_counter()
+                    fpga_hex = "0x0000000D"
+                    break
+                elif "Result is: YES" in result_line:
+                    end_fpga = time.perf_counter()
+                    fpga_hex = "0x0000000B"
+                    break
+                elif "Result is: NO" in result_line:
+                    end_fpga = time.perf_counter()
+                    fpga_hex = "0x00000007"
                     break
 
             # Calculate FPGA time in milliseconds

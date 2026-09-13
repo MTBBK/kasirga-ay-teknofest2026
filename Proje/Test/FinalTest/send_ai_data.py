@@ -4,7 +4,7 @@ import sys
 import os
 import subprocess
 
-MAIN_UART_PORT = '/dev/ttyUSB2'
+MAIN_UART_PORT = '/dev/ttyUSB3'
 STREAM_UART_PORT = '/dev/ttyUSB0'
 BAUD_RATE = 921600
 

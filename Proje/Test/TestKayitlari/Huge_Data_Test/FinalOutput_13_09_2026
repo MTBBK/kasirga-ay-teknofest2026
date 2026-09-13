@@ -1,0 +1,65 @@
+============================================================
+            FPGA AI ACCELERATOR EVALUATION REPORT
+============================================================
+
+0. TEST ENVIRONMENT SPECIFICATIONS
+------------------------------------------------------------
+[Software Node - Work PC]
+  -> CPU : 13th Gen Intel(R) Core(TM) i7-13650HX (20 Logical Cores)
+  -> RAM : 31.1 GB System Memory
+[Hardware Node - FPGA]
+  -> FPGA: Digilent Basys 3 (Xilinx Artix-7 XC7A35T)
+  -> BRAM: 225 KB Maximum (1,800 Kbits)
+  -> DSP : 90 Slices Maximum
+  -> Freq: 50 MHz (via Clocking Wizard, System 100 MHz)
+
+1. DATASET & CATEGORY BREAKDOWN
+------------------------------------------------------------
+Total Audio Files Processed: 14006
+  -> Yes     :  4044 files | FPGA Acc: 81.63% | SW Acc: 81.16%
+  -> No      :  3941 files | FPGA Acc: 73.36% | SW Acc: 72.49%
+  -> Unknown :  6021 files | FPGA Acc: 94.44% | SW Acc: 94.57%
+
+2. EXECUTION PERFORMANCE & ARCHITECTURAL EFFICIENCY
+------------------------------------------------------------
+Software Baseline (PC)     : 0.1607 ms per inference
+  -> PC Cycle Cost         : ~441,273 CPU cycles
+FPGA Pure Compute Latency  : 0.0960 ms per inference
+  -> FPGA Cycle Breakdown  :
+       - Uart Stream       : 1,841,869 cycles
+       - Loader            : 955 cycles
+       - Inference         : 4,800 cycles
+       - Write-Back        : 18 cycles
+       - Total Accelerator : 1,847,692 cycles
+UART I/O Transfer Time     : 31.2638 ms
+I/O Bottleneck Percentage  : 99.7% of total End-to-End time
+FPGA End-to-End Latency    : 31.3598 ms (31.9 IPS includes UART)
+Raw Time Acceleration      : 1.6741x Faster than PC
+Architectural Efficiency   : PC requires 91.93x as many clock cycles as FPGA Inference
+
+3. ACCURACY & HARDWARE-SOFTWARE EQUIVALENCE
+------------------------------------------------------------
+Absolute FPGA Accuracy     : 84.81%
+  -> Correct: 11878 | False: 2128
+Absolute PC SW Accuracy    : 84.49%
+  -> Correct: 11833 | False: 2173
+
+Bit-Accurate Equivalence   : 99.47% (74 Total Mismatches)
+Mismatch Breakdown:
+  -> FPGA Correct, SW Wrong     : 57
+  -> FPGA Wrong, SW Correct     : 12
+  -> Both Wrong (Diff Answers)  : 5
+
+FPGA Confusion Matrix (Expected vs Predicted):
+               yes       no  unknown  silence  INVALID |   TOTAL
+---------+----------------------------------------------+--------
+     yes |     3301      100      642        1        0 |    4044
+      no |       77     2891      970        3        0 |    3941
+ unknown |      153      181     5686        1        0 |    6021
+---------+----------------------------------------------+--------
+ PREDICT |     3531     3172     7298        5        0 |   14006
+
+============================================================
+
+13/09/2026
+

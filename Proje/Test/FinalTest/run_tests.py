@@ -16,7 +16,7 @@ import librosa
 from tflite_micro.python.tflite_micro.runtime import Interpreter as PreprocessorInterpreter
 from ai_edge_litert.interpreter import Interpreter as EdgeInterpreter
 
-MAIN_UART_PORT = '/dev/ttyUSB2'
+MAIN_UART_PORT = '/dev/ttyUSB3'
 STREAM_UART_PORT = '/dev/ttyUSB0'
 BAUD_RATE = 921600
 
@@ -238,25 +238,42 @@ def test_fpga_and_software():
             hw_loader_cycles = 0
             hw_wb_cycles = 0
 
+
             while True:
                 result_line = main_serial.readline().decode('utf-8', errors='ignore').strip()
 
-                # Parse all hardware cycles directly from your C code output
-                if "Hizlandirici cevrim sayisi:" in result_line:
-                    hw_accel_cycles = int(result_line.split(":")[1].strip())
-                elif "Uart_stream cevrim sayisi:" in result_line:
-                    hw_stream_cycles = int(result_line.split(":")[1].strip())
-                elif "Loader cevrim sayisi:" in result_line:
-                    hw_loader_cycles = int(result_line.split(":")[1].strip())
-                elif "Inference cevrim sayisi:" in result_line:
-                    hw_inference_cycles = int(result_line.split(":")[1].strip())
-                elif "write_back cevrim sayisi:" in result_line:
-                    hw_wb_cycles = int(result_line.split(":")[1].strip())
+                # Safely parse hardware cycles to prevent crashes from UART corruption
+                try:
+                    if "Hizlandirici cevrim sayisi:" in result_line:
+                        hw_accel_cycles = int(result_line.split(":")[1].strip())
+                    elif "Uart_stream cevrim sayisi:" in result_line:
+                        hw_stream_cycles = int(result_line.split(":")[1].strip())
+                    elif "Loader cevrim sayisi:" in result_line:
+                        hw_loader_cycles = int(result_line.split(":")[1].strip())
+                    elif "Inference cevrim sayisi:" in result_line:
+                        hw_inference_cycles = int(result_line.split(":")[1].strip())
+                    elif "write_back cevrim sayisi:" in result_line:
+                        hw_wb_cycles = int(result_line.split(":")[1].strip())
+                except (IndexError, ValueError):
+                    # If UART drops the ':' or the number is corrupted, ignore it
+                    pass
 
-                # Parse the final hex result
-                elif "Sonuc:" in result_line and "0x" in result_line:
+                # Parse the final string result mapped from the C code and convert to expected Hex
+                if "Result is: SILENCE" in result_line:
                     end_fpga = time.perf_counter()
-                    fpga_hex = "0x" + result_line.split("0x")[1].upper()
+                    fpga_hex = "0x0000000E"
+                    break
+                elif "UNKNOWN" in result_line:
+                    end_fpga = time.perf_counter()
+                    fpga_hex = "0x0000000D"
+                    break
+                elif "Result is: YES" in result_line:
+                    end_fpga = time.perf_counter()
+                    fpga_hex = "0x0000000B"
+                    break
+                elif "Result is: NO" in result_line:
+                    end_fpga = time.perf_counter()
+                    fpga_hex = "0x00000007"
                     break
 
 			# Calculate and accumulate both times
