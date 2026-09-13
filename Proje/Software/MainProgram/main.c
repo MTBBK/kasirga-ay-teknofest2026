@@ -124,7 +124,6 @@ int main(void) {
         uint32_t time=read_timer();
         uart_send_string("Ready->Sonuc (mikro saniye):");
         uart_send_dec32(time);
-        uart_send_string("\n");
         uint32_t result1 = cycle_l1 - cycle_f1;
         uint32_t result2 = cycle_l2 - cycle_f2;
         uint32_t result3 = cycle_l3 - cycle_f3;

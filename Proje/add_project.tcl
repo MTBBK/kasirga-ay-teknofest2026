@@ -77,6 +77,7 @@ set my_files [list \
     "${PROJE_DIR}/Test/top_module_test/sfdp.mem" \
     "${PROJE_DIR}/PeripheralModules/UART_Stream/rtl/uart_stream_to_axi.sv" \
     "${PROJE_DIR}/PeripheralModules/UART_Stream/rtl/uart_stream_top.sv" \
+    "${PROJE_DIR}/SRAM_Macros/sky130_sram_2kbyte_1rw1r_32x512_8.v" \
 
 ]
 set VENDOR         "${PROJE_DIR}/PeripheralModules/JTAG/vendor"
